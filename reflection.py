@@ -8,6 +8,7 @@ dt = 0.01
 Nx = 2
 Nu = 2
 Na = np.random.randint(2, 100)
+Na = 4
 q = 2*A*np.random.rand( 2,1 ) - A
 
 print( 'number of anchors: ', Na )
@@ -15,7 +16,11 @@ print( 'desired position: ', q.T )
 
 
 # Anchor and reflection sets.
-aList = 2*A*np.random.rand( 2,Na ) - A
+aList = np.random.rand( 2,Na )
+# aList = np.array( [
+#     [1, 1, -1, -1],
+#     [1, -1, -1, 1]
+# ] )
 rxList = np.vstack( (-aList[0], aList[1]) )
 ryList = np.vstack( (aList[0], -aList[1]) )
 
