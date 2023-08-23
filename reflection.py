@@ -35,7 +35,7 @@ ryList = np.vstack( (aList[0], -aList[1]) )
 
 # Control matrices.
 D = 1/4*np.diag( [ 1/np.sum( aList[0] ), 1/np.sum( aList[1] ) ] )
-Q = D@np.sum( 4*q*aList, axis=1 )[:,None]
+Q = np.sum( 4*q*aList, axis=1 )[:,None]
 
 
 # Anchor measurement functions.
@@ -71,7 +71,7 @@ def anchorControl(x):
     ] )
 
     # Return control.
-    return C@D@d + C@Q
+    return C@D@(d + Q)
 
 
 # Main execution block.
