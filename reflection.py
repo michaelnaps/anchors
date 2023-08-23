@@ -7,8 +7,11 @@ A = 2
 dt = 0.01
 Nx = 2
 Nu = 2
-Na = 4
+Na = np.random.randint(2, 100)
 q = 2*A*np.random.rand( 2,1 ) - A
+
+print( 'Number of anchors: ', Na )
+print( 'Desired position: ', q.T )
 
 
 # Anchor and reflection sets.
