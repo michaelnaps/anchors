@@ -1,6 +1,7 @@
 
 from anchors import *
 
+
 # Hyper parameter(s)
 A = 2
 dt = 0.01
@@ -14,6 +15,7 @@ q = 2*A*np.random.rand( 2,1 ) - A
 aList = 2*A*np.random.rand( 2,Na ) - A
 rxList = np.vstack( (np.zeros( (1,Na) ), aList[1]) )
 ryList = np.vstack( (aList[0], np.zeros( (1,Na) )) )
+
 
 # Control matrices.
 D = 1/2*np.diag( [ 1/np.sum( aList[0] ), 1/np.sum( aList[1] ) ] )
