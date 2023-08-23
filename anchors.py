@@ -8,7 +8,3 @@ from GEOM.Vehicle2D import *
 # Model function.
 def model(x, u):
     return x + dt*u
-
-# Control methods.
-def control(x, q=[[0],[0]]):
-    return q - x

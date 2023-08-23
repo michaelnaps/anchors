@@ -2,13 +2,21 @@
 from anchors import *
 
 
-# Hyper parameter(s)
+# True system values.
 A = 2
 dt = 0.01
 Nx = 2
 Nu = 2
+# C = np.eye( Nx )
+C = np.array( [
+    [2, 0],
+    [0, 1]
+] )
+
+
+# Anchor values.
 Na = np.random.randint(2, 100)
-Na = 4
+# Na = 4
 q = 2*A*np.random.rand( 2,1 ) - A
 
 print( 'number of anchors: ', Na )
@@ -47,7 +55,10 @@ def reflectionMeasure(x):
     return np.sqrt( dr )
 
 
-# Anchor-based control policy.
+# Control methods of interest.
+def control(x, q=[[0],[0]]):
+    return C@(q - x)
+
 def anchorControl(x):
     # Combine anchor sets.
     dList = anchorMeasure( x )
@@ -60,7 +71,7 @@ def anchorControl(x):
     ] )
 
     # Return control.
-    return D@d + Q
+    return C@D@d + C@Q
 
 
 # Main execution block.
