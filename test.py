@@ -7,23 +7,21 @@ dt = 0.01
 Nx = 2
 Nu = 2
 Na = 4
-# q = np.array( [ [10], [-2.5] ] )
-q = np.random.rand( 2,1 )
+q = np.array( [[0],[0]] )
+# q = np.random.rand( Nx,1 )
 
 
 # Anchor set.
 A = 2
 aList = 2*A*np.random.rand( 2,Na ) - A
-# aList = np.array( [
-#     [1, 1, -1, -1],
-#     [1, -1, 1, -1]
-# ] )
 
 # Anchor control constants.
-D = 1/2*np.diag( np.sum( aList, axis=1 ) )
+D = 1/2*np.diag( [
+    1/np.sum( aList[0] ), 1/np.sum( aList[1] )
+] )
+
 Q = D@np.sum( 2*q*aList + aList**2, axis=1 )[:,None]
 
-print( 'D', D )
 
 # Reflection set.
 def getReflectionSet( axis=0 ):
@@ -52,6 +50,9 @@ def anchorControl(x):
     rxList = getReflectionSet( 0 )
     ryList = getReflectionSet( 1 )
 
+    print( x )
+    print( reflectionMeasure( x, rxList )**2 )
+
     # Calculate squared terms.
     d2 = anchorMeasure( x )**2
     d = np.vstack( (
@@ -59,17 +60,14 @@ def anchorControl(x):
         np.sum( d2 + reflectionMeasure( x, ryList )**2 )
     ) )
 
-    print( 'd', d )
-    print( 'Dd', D@d )
-    print( 'Q', Q )
-
     # Return control.
     return D@d + Q
 
 
 # Main execution block.
 if __name__ == '__main__':
-    x0 = np.random.rand( 2,1 )
+    x0 = np.array( [[1],[1]] )
+    # x0 = np.random.rand( 2,1 )
 
     print( 'ideal control: ', control( x0 ).T )
     print( 'anchor control:', anchorControl( x0 ).T )
