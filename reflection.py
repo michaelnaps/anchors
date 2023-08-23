@@ -13,13 +13,13 @@ q = 2*A*np.random.rand( 2,1 ) - A
 
 # Anchor and reflection sets.
 aList = 2*A*np.random.rand( 2,Na ) - A
-rxList = np.vstack( (np.zeros( (1,Na) ), aList[1]) )
-ryList = np.vstack( (aList[0], np.zeros( (1,Na) )) )
+rxList = np.vstack( (-aList[0], aList[1]) )
+ryList = np.vstack( (aList[0], -aList[1]) )
 
 
 # Control matrices.
-D = 1/2*np.diag( [ 1/np.sum( aList[0] ), 1/np.sum( aList[1] ) ] )
-Q = D@np.sum( 2*q*aList - aList**2, axis=1 )[:,None]
+D = 1/4*np.diag( [ 1/np.sum( aList[0] ), 1/np.sum( aList[1] ) ] )
+Q = D@np.sum( 4*q*aList, axis=1 )[:,None]
 
 
 # Anchor measurement functions.
@@ -41,7 +41,6 @@ def reflectionMeasure(x):
 
 # Anchor-based control policy.
 def anchorControl(x):
-
     # Combine anchor sets.
     dList = anchorMeasure( x )
     drList = reflectionMeasure( x )
