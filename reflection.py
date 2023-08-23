@@ -2,15 +2,10 @@
 from anchors import *
 
 
-# True system values.
-A = 2
-dt = 0.01
-Nx = 2
-Nu = 2
-# C = np.eye( Nx )
+# Controller gains of interest.
 C = np.array( [
-    [2, 0],
-    [0, 1]
+    [2.3, 0],
+    [0, 1.5]
 ] )
 
 
@@ -25,17 +20,12 @@ print( 'desired position: ', q.T )
 
 # Anchor and reflection sets.
 aList = np.random.rand( 2,Na )
-# aList = np.array( [
-#     [1, 1, -1, -1],
-#     [1, -1, -1, 1]
-# ] )
 rxList = np.vstack( (-aList[0], aList[1]) )
 ryList = np.vstack( (aList[0], -aList[1]) )
 
 
 # Control matrices.
 D = 1/4*np.diag( [ 1/np.sum( aList[0] ), 1/np.sum( aList[1] ) ] )
-Q = np.sum( 4*q*aList, axis=1 )[:,None]
 
 
 # Anchor measurement functions.
@@ -55,10 +45,7 @@ def reflectionMeasure(x):
     return np.sqrt( dr )
 
 
-# Control methods of interest.
-def control(x, q=[[0],[0]]):
-    return C@(q - x)
-
+# Anchor-based control policy.
 def anchorControl(x):
     # Combine anchor sets.
     dList = anchorMeasure( x )
@@ -71,12 +58,12 @@ def anchorControl(x):
     ] )
 
     # Return control.
-    return C@D@(d + Q)
+    return C@D@d + C@q
 
 
 # Main execution block.
 if __name__ == '__main__':
     x0 = np.random.rand( 2,1 )
 
-    print( 'ideal control: ', control( x0, q=q ).T )
+    print( 'ideal control: ', control( x0, C=C, q=q ).T )
     print( 'anchor control:', anchorControl( x0 ).T )
