@@ -8,7 +8,7 @@ C = 10*np.diag( np.random.rand( Nx, ) )
 
 # Anchor values.
 Na = np.random.randint(2, 100)
-Na = 3
+# Na = 3
 q = 2*A*np.random.rand( 2,1 ) - A
 
 print( 'number of anchors: ', Na )
