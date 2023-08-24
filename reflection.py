@@ -60,19 +60,19 @@ def anchorControl(x):
 
 # Main execution block.
 if __name__ == '__main__':
-    x0 = 2*10*np.random.rand( Nx,1 ) - 10
-
-    print( 'ideal control: ', control( x0, C=C, q=q ).T )
-    print( 'anchor control:', anchorControl( x0 ).T )
+    # Initial state terms.
+    N0 = 10;  B = 10
+    X0 = 2*B*np.random.rand( Nx,N0 ) - B
 
     # Example simulation.
     fig, axs = plt.subplots()
     axs.plot( q[0], q[1], color='g', marker='x' )
     R = 0.50
-    tvhc = Vehicle2D( x0, fig=fig, axs=axs, radius=R, color='k', tail_length=100 )
-    avhc = Vehicle2D( x0, fig=fig, axs=axs, radius=0.75*R, color='indianred', tail_length=100 )
-    tvhc.draw()
-    avhc.draw()
+    tswrm = Swarm2D( X0, fig=fig, axs=axs, radius=R, color='k', tail_length=100 )
+    aswrm = Swarm2D( X0, fig=fig, axs=axs, radius=0.75*R, color='indianred', tail_length=100 )
+    aswrm.setLineStyle( '--' )
+    tswrm.draw()
+    aswrm.draw()
 
     # Axis setup.
     plt.axis( [-10, 10, -10, 10] )
@@ -84,19 +84,21 @@ if __name__ == '__main__':
     tList = np.array( [ [i*dt for i in range( Nt )] ] )
 
     # Simulation loop.
-    xtrue = x0
-    xanch = x0
+    xtrue = X0
+    xanch = X0
+    uanch = np.empty( (Nu,N0) )
     for t in tList.T:
         utrue = control( xtrue, C=C, q=q )
-        uanch = anchorControl( xanch )
-
-        # print( '---' )
-        # print( utrue.T )
-        # print( uanch.T )
+        for i, x in enumerate( xanch.T ):
+            uanch[:,i] = anchorControl( x[:,None] )[:,0]
 
         xtrue = model( xtrue, utrue )
         xanch = model( xanch, uanch )
 
-        tvhc.update( xtrue )
-        avhc.update( xanch )
+        tswrm.update( xtrue )
+        aswrm.update( xanch )
         plt.pause( 1e-3 )
+
+        if np.linalg.norm( utrue + uanch ) < 1e-6:
+            print( 'No motion, ending simulation early.' )
+            break
