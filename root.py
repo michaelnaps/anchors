@@ -6,6 +6,13 @@ import numpy as np
 from GEOM.Vehicle2D import *
 
 
+# Pause time argument.
+if len( sys.argv ) > 1:
+    sim_pause = float( sys.argv[1] )
+else:
+    sim_pause = 1e-3
+
+
 # True system values.
 A = 10
 dt = 0.01

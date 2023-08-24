@@ -1,4 +1,5 @@
 
+import sys
 from root import *
 
 
@@ -68,8 +69,8 @@ if __name__ == '__main__':
     fig, axs = plt.subplots()
     axs.plot( q[0], q[1], color='g', marker='x' )
     R = 0.50
-    tswrm = Swarm2D( X0, fig=fig, axs=axs, radius=R, color='k', tail_length=100 ).draw()
-    aswrm = Swarm2D( X0, fig=fig, axs=axs, radius=0.75*R, color='indianred', tail_length=100 )
+    tswrm = Swarm2D( X0, fig=fig, axs=axs, radius=R, color='grey', tail_length=100 ).draw()
+    aswrm = Swarm2D( X0, fig=fig, axs=axs, radius=R/2, color='indianred', tail_length=100 )
     aswrm.setLineStyle( '--' ).draw()
 
     # Anchor plotting.
@@ -100,10 +101,10 @@ if __name__ == '__main__':
 
         tswrm.update( xtrue )
         aswrm.update( xanch )
-        plt.pause( 1e-3 )
+        plt.pause( sim_pause )
 
         if np.linalg.norm( utrue + uanch ) < 0.1:
             print( 'No motion, ending simulation early.' )
             break
 
-    input( 'Press ENTER to exit program.' )
+    input( 'Press ENTER to exit program. ' )
