@@ -3,15 +3,12 @@ from anchors import *
 
 
 # Controller gains of interest.
-C = np.array( [
-    [2.3, 0],
-    [0, 1.5]
-] )
+C = 10*np.diag( np.random.rand( Nx, ) )
 
 
 # Anchor values.
 Na = np.random.randint(2, 100)
-# Na = 4
+Na = 3
 q = 2*A*np.random.rand( 2,1 ) - A
 
 print( 'number of anchors: ', Na )
@@ -63,7 +60,43 @@ def anchorControl(x):
 
 # Main execution block.
 if __name__ == '__main__':
-    x0 = np.random.rand( 2,1 )
+    x0 = 2*10*np.random.rand( Nx,1 ) - 10
 
     print( 'ideal control: ', control( x0, C=C, q=q ).T )
     print( 'anchor control:', anchorControl( x0 ).T )
+
+    # Example simulation.
+    fig, axs = plt.subplots()
+    axs.plot( q[0], q[1], color='g', marker='x' )
+    R = 0.50
+    tvhc = Vehicle2D( x0, fig=fig, axs=axs, radius=R, color='k', tail_length=100 )
+    avhc = Vehicle2D( x0, fig=fig, axs=axs, radius=0.75*R, color='indianred', tail_length=100 )
+    tvhc.draw()
+    avhc.draw()
+
+    # Axis setup.
+    plt.axis( [-10, 10, -10, 10] )
+    plt.gca().set_aspect( 'equal', adjustable='box' )
+    plt.show( block=0 )
+
+    # Simulation parameters.
+    T = 10;  Nt = round( T/dt ) + 1
+    tList = np.array( [ [i*dt for i in range( Nt )] ] )
+
+    # Simulation loop.
+    xtrue = x0
+    xanch = x0
+    for t in tList.T:
+        utrue = control( xtrue, C=C, q=q )
+        uanch = anchorControl( xanch )
+
+        # print( '---' )
+        # print( utrue.T )
+        # print( uanch.T )
+
+        xtrue = model( xtrue, utrue )
+        xanch = model( xanch, uanch )
+
+        tvhc.update( xtrue )
+        avhc.update( xanch )
+        plt.pause( 1e-3 )
