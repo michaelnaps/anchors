@@ -7,8 +7,8 @@ C = 10*np.diag( np.random.rand( Nx, ) )
 
 
 # Anchor values.
-Na = np.random.randint(2, 100)
-# Na = 3
+Na = 1
+# Na = np.random.randint(1, 15)
 q = 2*A*np.random.rand( 2,1 ) - A
 
 print( 'number of anchors: ', Na )
@@ -16,7 +16,7 @@ print( 'desired position: ', q.T )
 
 
 # Anchor and reflection sets.
-aList = np.random.rand( 2,Na )
+aList = 2*A*np.random.rand( 2,Na ) - A
 rxList = np.vstack( (-aList[0], aList[1]) )
 ryList = np.vstack( (aList[0], -aList[1]) )
 
@@ -68,11 +68,14 @@ if __name__ == '__main__':
     fig, axs = plt.subplots()
     axs.plot( q[0], q[1], color='g', marker='x' )
     R = 0.50
-    tswrm = Swarm2D( X0, fig=fig, axs=axs, radius=R, color='k', tail_length=100 )
+    tswrm = Swarm2D( X0, fig=fig, axs=axs, radius=R, color='k', tail_length=100 ).draw()
     aswrm = Swarm2D( X0, fig=fig, axs=axs, radius=0.75*R, color='indianred', tail_length=100 )
-    aswrm.setLineStyle( '--' )
-    tswrm.draw()
-    aswrm.draw()
+    aswrm.setLineStyle( '--' ).draw()
+
+    # Anchor plotting.
+    anchors = Swarm2D( aList, fig=fig, axs=axs, radius=0.25, color='indianred', draw_tail=0 ).draw()
+    xreflect = Swarm2D( rxList, fig=fig, axs=axs, radius=0.25, color='cornflowerblue', draw_tail=0 ).draw()
+    yreflect = Swarm2D( ryList, fig=fig, axs=axs, radius=0.25, color='yellowgreen', draw_tail=0 ).draw()
 
     # Axis setup.
     plt.axis( [-10, 10, -10, 10] )
@@ -99,6 +102,8 @@ if __name__ == '__main__':
         aswrm.update( xanch )
         plt.pause( 1e-3 )
 
-        if np.linalg.norm( utrue + uanch ) < 1e-6:
+        if np.linalg.norm( utrue + uanch ) < 0.1:
             print( 'No motion, ending simulation early.' )
             break
+
+    input( 'Press ENTER to exit program.' )

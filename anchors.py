@@ -7,7 +7,7 @@ from GEOM.Vehicle2D import *
 
 
 # True system values.
-A = 2
+A = 10
 dt = 0.01
 Nx = 2
 Nu = 2
