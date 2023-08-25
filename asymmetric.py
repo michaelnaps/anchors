@@ -7,7 +7,7 @@ C = 10*np.diag( np.random.rand( Nx, ) )
 
 
 # Anchor values.
-Na = 1
+Na = 3
 # Na = np.random.randint(1, 15)
 q = 2*A*np.random.rand( 2,1 ) - A
 
@@ -55,7 +55,7 @@ def anchorControl(x):
     ] )
 
     # Return control.
-    return C@D@d + C@q
+    return C@(D@d + q)
 
 
 # Main execution block.
@@ -68,14 +68,14 @@ if __name__ == '__main__':
     fig, axs = plt.subplots()
     axs.plot( q[0], q[1], color='g', marker='x' )
     R = 0.50
-    tswrm = Swarm2D( X0, fig=fig, axs=axs, radius=R, color='grey', tail_length=100 ).draw()
+    tswrm = Swarm2D( X0, fig=fig, axs=axs, radius=R, color='yellowgreen', tail_length=100 ).draw()
     aswrm = Swarm2D( X0, fig=fig, axs=axs, radius=R/2, color='indianred', tail_length=100 )
     aswrm.setLineStyle( '--' ).draw()
 
     # Anchor plotting.
-    anchors = Swarm2D( aList, fig=fig, axs=axs, radius=0.25, color='indianred', draw_tail=0 ).draw()
-    xreflect = Swarm2D( rxList, fig=fig, axs=axs, radius=0.25, color='cornflowerblue', draw_tail=0 ).draw()
-    yreflect = Swarm2D( ryList, fig=fig, axs=axs, radius=0.25, color='yellowgreen', draw_tail=0 ).draw()
+    anchors = Swarm2D( aList, fig=fig, axs=axs, radius=0.25, color='yellowgreen', draw_tail=0 ).draw()
+    xreflect = Swarm2D( rxList, fig=fig, axs=axs, radius=0.25, color='orange', draw_tail=0 ).draw()
+    yreflect = Swarm2D( ryList, fig=fig, axs=axs, radius=0.25, color='indianred', draw_tail=0 ).draw()
 
     # Axis setup.
     plt.axis( [-10, 10, -10, 10] )
