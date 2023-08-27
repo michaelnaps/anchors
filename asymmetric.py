@@ -72,16 +72,16 @@ if __name__ == '__main__':
     tswrm = Swarm2D( X0, fig=fig, axs=axs, zorder=100,
         radius=R, color='yellowgreen', tail_length=100 ).draw()
     aswrm = Swarm2D( X0, fig=fig, axs=axs, zorder=10,
-        radius=R/2, color='indianred', tail_length=100 )
+        radius=R/2, color='orange', tail_length=100 )
     aswrm.setLineStyle( '--' ).draw()
 
     # Anchor plotting.
     anchors = Swarm2D( aList, fig=fig, axs=axs,
-        radius=0.25, color='yellowgreen', draw_tail=0 ).draw()
+        radius=0.25, color='indianred', draw_tail=0 ).draw()
     xreflect = Swarm2D( rxList, fig=fig, axs=axs,
-        radius=0.25, color='grey', draw_tail=0 ).draw()
+        radius=0.25, color='cornflowerblue', draw_tail=0 ).draw()
     yreflect = Swarm2D( ryList, fig=fig, axs=axs,
-        radius=0.25, color='grey', draw_tail=0 ).draw()
+        radius=0.25, color='mediumpurple', draw_tail=0 ).draw()
 
     # Axis setup.
     plt.axis( [-10, 10, -10, 10] )

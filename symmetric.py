@@ -11,8 +11,8 @@ Rx = np.array( [ [-1, 0], [0, 1] ] )
 Ry = np.array( [ [1, 0], [0, -1] ] )
 
 # Anchor values.
-Na = 1
-# Na = np.random.randint( 1,15 )
+# Na = 1
+Na = np.random.randint( 1,15 )
 
 # Desired position term.
 q = 7.5*np.ones( (Nx,1) )
@@ -71,28 +71,28 @@ if __name__ == '__main__':
 
     # Initial position.
     xtrue = X0
-    xanch = X0 + noise( eps=1, shape=(Nx,N0) )
+    xanch = X0 + noise( eps=0.0, shape=(Nx,N0) )
 
     # Example simulation.
     fig, axs = plt.subplots()
     axs.plot( q[0], q[1], color='g', marker='x' )
     R = 0.50
-    tswrm = Swarm2D( xtrue, fig=fig, axs=axs, zorder=25,
+    tswrm = Swarm2D( X0, fig=fig, axs=axs, zorder=100,
         radius=R, color='yellowgreen', tail_length=100 ).draw()
-    aswrm = Swarm2D( xanch, fig=fig, axs=axs, zorder=1,
-        radius=R/2, color='indianred', tail_length=100 )
+    aswrm = Swarm2D( X0, fig=fig, axs=axs, zorder=10,
+        radius=R/2, color='orange', tail_length=100 )
     aswrm.setLineStyle( '--' ).draw()
 
     # Anchor plotting.
     anchors = Swarm2D( aList, fig=fig, axs=axs,
-        radius=0.25, color='yellowgreen', draw_tail=0 ).draw()
+        radius=0.25, color='indianred', draw_tail=0 ).draw()
     xreflect = Swarm2D( rxList, fig=fig, axs=axs,
-        radius=0.25, color='grey', draw_tail=0 ).draw()
+        radius=0.25, color='cornflowerblue', draw_tail=0 ).draw()
     yreflect = Swarm2D( ryList, fig=fig, axs=axs,
-        radius=0.25, color='grey', draw_tail=0 ).draw()
+        radius=0.25, color='mediumpurple', draw_tail=0 ).draw()
 
     # Axis setup.
-    plt.axis( 12*np.array( [-1, 1, -1, 1] ) )
+    plt.axis( 10*np.array( [-1, 1, -1, 1] ) )
     plt.gca().set_aspect( 'equal', adjustable='box' )
     plt.show( block=0 )
 
