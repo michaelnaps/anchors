@@ -3,26 +3,27 @@ from root import *
 
 
 # Controller gains of interest.
-C = 10*np.diag( np.random.rand( Nx, ) )
-
+C = np.eye( Nx )
+# C = 10*np.diag( np.random.rand( Nx, ) )
 
 # Anchor values.
-Na = 3
+Na = 25
 # Na = np.random.randint(1, 15)
-q = 2*A*np.random.rand( 2,1 ) - A
 
+# Desired position term.
+q = 7.5*np.ones( (Nx,1) )
+# q = 2*A*np.random.rand( 2,1 ) - A
 print( 'number of anchors: ', Na )
 print( 'desired position: ', q.T )
-
 
 # Anchor and reflection sets.
 aList = 2*A*np.random.rand( 2,Na ) - A
 rxList = np.vstack( (-aList[0], aList[1]) )
 ryList = np.vstack( (aList[0], -aList[1]) )
 
-
 # Control matrices.
 D = 1/4*np.diag( [ 1/np.sum( aList[0] ), 1/np.sum( aList[1] ) ] )
+print( 'Anchor coefficient matrix:\n', C@D )
 
 
 # Anchor measurement functions.
@@ -43,9 +44,9 @@ def reflectionMeasure(x):
 
 
 # Anchor-based control policy.
-def anchorControl(x):
+def anchorControl(x, eps=0):
     # Combine anchor sets.
-    dList = anchorMeasure( x )
+    dList = anchorMeasure( x + eps )
     drList = reflectionMeasure( x )
 
     # Calculate measurement state.
@@ -68,14 +69,19 @@ if __name__ == '__main__':
     fig, axs = plt.subplots()
     axs.plot( q[0], q[1], color='g', marker='x' )
     R = 0.50
-    tswrm = Swarm2D( X0, fig=fig, axs=axs, radius=R, color='yellowgreen', tail_length=100 ).draw()
-    aswrm = Swarm2D( X0, fig=fig, axs=axs, radius=R/2, color='indianred', tail_length=100 )
+    tswrm = Swarm2D( X0, fig=fig, axs=axs, zorder=100,
+        radius=R, color='yellowgreen', tail_length=100 ).draw()
+    aswrm = Swarm2D( X0, fig=fig, axs=axs, zorder=10,
+        radius=R/2, color='indianred', tail_length=100 )
     aswrm.setLineStyle( '--' ).draw()
 
     # Anchor plotting.
-    anchors = Swarm2D( aList, fig=fig, axs=axs, radius=0.25, color='yellowgreen', draw_tail=0 ).draw()
-    xreflect = Swarm2D( rxList, fig=fig, axs=axs, radius=0.25, color='orange', draw_tail=0 ).draw()
-    yreflect = Swarm2D( ryList, fig=fig, axs=axs, radius=0.25, color='indianred', draw_tail=0 ).draw()
+    anchors = Swarm2D( aList, fig=fig, axs=axs,
+        radius=0.25, color='yellowgreen', draw_tail=0 ).draw()
+    xreflect = Swarm2D( rxList, fig=fig, axs=axs,
+        radius=0.25, color='grey', draw_tail=0 ).draw()
+    yreflect = Swarm2D( ryList, fig=fig, axs=axs,
+        radius=0.25, color='grey', draw_tail=0 ).draw()
 
     # Axis setup.
     plt.axis( [-10, 10, -10, 10] )
@@ -88,21 +94,22 @@ if __name__ == '__main__':
 
     # Simulation loop.
     xtrue = X0
-    xanch = X0
+    xanch = X0 + noise( eps=1, shape=(Nx,1) )
     uanch = np.empty( (Nu,N0) )
     for t in tList.T:
-        utrue = control( xtrue, C=C, q=q )
+        # Calculate control for each vehicle.
         for i, x in enumerate( xanch.T ):
-            uanch[:,i] = anchorControl( x[:,None] )[:,0]
+            eps = noise( eps=1e-1, shape=(Nx,1) )
+            uanch[:,i] = anchorControl( x[:,None], eps=eps )[:,0]
 
-        xtrue = model( xtrue, utrue )
+        xtrue = model( xtrue, uanch )
         xanch = model( xanch, uanch )
 
         tswrm.update( xtrue )
         aswrm.update( xanch )
         plt.pause( sim_pause )
 
-        if np.linalg.norm( utrue + uanch ) < 0.1:
+        if np.linalg.norm( uanch ) < 0.1:
             print( 'No motion, ending simulation early.' )
             break
 

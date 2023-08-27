@@ -15,9 +15,9 @@ else:
 
 # True system values.
 A = 10
-dt = 0.01
 Nx = 2
 Nu = 2
+dt = 0.01
 
 
 # Model function.
@@ -27,3 +27,7 @@ def model(x, u):
 # Control function.
 def control(x, C=np.eye( Nx ), q=np.zeros( (Nx,1) )):
     return C@(q - x)
+
+# Shaped noise function/
+def noise(eps=1e-3, shape=(2,1)):
+    return 2*eps*np.random.rand( shape[0], shape[1] ) - eps
