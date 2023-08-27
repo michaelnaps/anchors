@@ -46,7 +46,7 @@ def reflectionMeasure(x):
 # Anchor-based control policy.
 def anchorControl(x, eps=0):
     # Combine anchor sets.
-    dList = anchorMeasure( x + eps )
+    dList = anchorMeasure( x ) + noise( eps=eps, shape=(1,Na) )
     drList = reflectionMeasure( x )
 
     # Calculate measurement state.
@@ -98,9 +98,8 @@ if __name__ == '__main__':
     uanch = np.empty( (Nu,N0) )
     for t in tList.T:
         # Calculate control for each vehicle.
-        for i, x in enumerate( xanch.T ):
-            eps = noise( eps=1e-1, shape=(Nx,1) )
-            uanch[:,i] = anchorControl( x[:,None], eps=eps )[:,0]
+        for i, x in enumerate( xtrue.T ):
+            uanch[:,i] = anchorControl( x[:,None], eps=2.5 )[:,0]
 
         xtrue = model( xtrue, uanch )
         xanch = model( xanch, uanch )
