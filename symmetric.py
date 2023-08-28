@@ -77,10 +77,10 @@ if __name__ == '__main__':
     fig, axs = plt.subplots()
     axs.plot( q[0], q[1], color='g', marker='x' )
     R = 0.50
-    tswrm = Swarm2D( X0, fig=fig, axs=axs, zorder=100,
+    tswrm = Swarm2D( xtrue, fig=fig, axs=axs, zorder=25,
         radius=R, color='yellowgreen', tail_length=100 ).draw()
-    aswrm = Swarm2D( X0, fig=fig, axs=axs, zorder=10,
-        radius=R/2, color='orange', tail_length=100 )
+    aswrm = Swarm2D( xanch, fig=fig, axs=axs, zorder=50,
+        radius=R/2, color='grey', tail_length=100 )
     aswrm.setLineStyle( '--' ).draw()
 
     # Anchor plotting.
@@ -94,6 +94,8 @@ if __name__ == '__main__':
     # Axis setup.
     plt.axis( 10*np.array( [-1, 1, -1, 1] ) )
     plt.gca().set_aspect( 'equal', adjustable='box' )
+    plt.xticks( [-i for i in range( -A,A+1 )] )
+    plt.yticks( [-i for i in range( -A,A+1 )] )
     plt.show( block=0 )
 
     # Simulation parameters.
@@ -105,7 +107,7 @@ if __name__ == '__main__':
     for t in tList.T:
         # Calculate control for each vehicle.
         for i, x in enumerate( xtrue.T ):
-            uanch[:,i] = anchorControl( x[:,None], eps=2.5 )[:,0]
+            uanch[:,i] = anchorControl( x[:,None], eps=1.0 )[:,0]
 
         xtrue = model( xtrue, uanch )
         xanch = model( xanch, uanch )
