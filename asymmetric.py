@@ -7,8 +7,8 @@ C = np.eye( Nx )
 # C = 10*np.diag( np.random.rand( Nx, ) )
 
 # Anchor values.
-Na = 25
-# Na = np.random.randint(1, 15)
+# Na = 25
+Na = np.random.randint(1, 15)
 
 # Desired position term.
 q = 7.5*np.ones( (Nx,1) )
@@ -44,10 +44,10 @@ def reflectionMeasure(x):
 
 
 # Anchor-based control policy.
-def anchorControl(x, eps=0):
+def anchorControl(x, xfake, eps=0):
     # Combine anchor sets.
     dList = anchorMeasure( x ) + noise( eps=eps, shape=(1,Na) )
-    drList = reflectionMeasure( x )
+    drList = reflectionMeasure( xfake )
 
     # Calculate measurement state.
     d = np.array( [
@@ -62,17 +62,21 @@ def anchorControl(x, eps=0):
 # Main execution block.
 if __name__ == '__main__':
     # Initial state terms.
-    N0 = 10;  B = 10
+    N0 = 10;  B = A
     X0 = 2*B*np.random.rand( Nx,N0 ) - B
+
+    # Initial simulation positions.
+    xtrue = X0
+    xanch = X0 + noise( eps=1, shape=(Nx,1) )
 
     # Example simulation.
     fig, axs = plt.subplots()
     axs.plot( q[0], q[1], color='g', marker='x' )
     R = 0.50
-    tswrm = Swarm2D( X0, fig=fig, axs=axs, zorder=100,
+    tswrm = Swarm2D( xtrue, fig=fig, axs=axs, zorder=25,
         radius=R, color='yellowgreen', tail_length=100 ).draw()
-    aswrm = Swarm2D( X0, fig=fig, axs=axs, zorder=10,
-        radius=R/2, color='orange', tail_length=100 )
+    aswrm = Swarm2D( xanch, fig=fig, axs=axs, zorder=50,
+        radius=R/2, color='grey', tail_length=100 )
     aswrm.setLineStyle( '--' ).draw()
 
     # Anchor plotting.
@@ -93,13 +97,11 @@ if __name__ == '__main__':
     tList = np.array( [ [i*dt for i in range( Nt )] ] )
 
     # Simulation loop.
-    xtrue = X0
-    xanch = X0 + noise( eps=1, shape=(Nx,1) )
     uanch = np.empty( (Nu,N0) )
     for t in tList.T:
         # Calculate control for each vehicle.
-        for i, x in enumerate( xtrue.T ):
-            uanch[:,i] = anchorControl( x[:,None], eps=2.5 )[:,0]
+        for i, (x, xf) in enumerate( zip( xtrue.T, xanch.T ) ):
+            uanch[:,i] = anchorControl( x[:,None], xf[:,None], eps=2.5 )[:,0]
 
         xtrue = model( xtrue, uanch )
         xanch = model( xanch, uanch )

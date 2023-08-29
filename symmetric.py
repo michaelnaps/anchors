@@ -66,12 +66,12 @@ def anchorControl(x, eps=0):
 # Main execution block.
 if __name__ == '__main__':
     # Initial state terms.
-    N0 = 10;  B = 10
+    N0 = 10;  B = A
     X0 = 2*B*np.random.rand( Nx,N0 ) - B
 
     # Initial position.
     xtrue = X0
-    xanch = X0 + noise( eps=0.0, shape=(Nx,N0) )
+    xanch = X0 + noise( eps=1.0, shape=(Nx,N0) )
 
     # Example simulation.
     fig, axs = plt.subplots()
