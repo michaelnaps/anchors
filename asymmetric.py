@@ -22,7 +22,7 @@ rxList = np.vstack( (-aList[0], aList[1]) )
 ryList = np.vstack( (aList[0], -aList[1]) )
 
 # Control matrices.
-D = 1/4*np.diag( [ 1/np.sum( aList[0] ), 1/np.sum( aList[1] ) ] )
+D = -1/4*np.diag( [ 1/np.sum( aList[0] ), 1/np.sum( aList[1] ) ] )
 print( 'Anchor coefficient matrix:\n', C@D )
 
 
@@ -50,13 +50,13 @@ def anchorControl(x, xfake, eps=0):
     drList = reflectionMeasure( xfake )
 
     # Calculate measurement state.
-    d = np.array( [
+    z = np.array( [
         np.sum( dList**2 - drList[0]**2, axis=1 ),
         np.sum( dList**2 - drList[1]**2, axis=1 )
     ] )
 
     # Return control.
-    return C@(D@d + q)
+    return C@(q - D@z)
 
 
 # Main execution block.
