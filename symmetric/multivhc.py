@@ -32,3 +32,8 @@ ryList = Ry@aList
 # Control matrices.
 D = -1/4*np.diag( [ 1/np.sum( aList[0] ), 1/np.sum( aList[1] ) ] )
 print( 'Anchor coefficient matrix:\n', D )
+
+
+# Main execution block.
+if __name__ == '__main__':
+    pass
