@@ -9,25 +9,36 @@ from root import *
 N = 2    # Number of anchors.
 M = 3*N  # Number of vehicles.
 
-# Desired position set.
-Q = np.array(
-    [
-        [-1, 1, 1],
-        [1, 1, -1]
-    ],
-    [
-        [-2, 2, 2],
-        [2, 2, -2]
-    ] )
+# Desired position set (in A).
+Q = np.array( [
+    [ [1], [1] ],
+    [ [2], [2] ] ] )
 
-# Anchor and reflection sets.
-aList = noise( eps=A, shape=(2,Na) )
-axList = Rx@aList
-ayList = Ry@aList
+# Anchor and corresponding reflection sets.
+A = [ q + noise( eps=1e-1, shape=(2,1) ) for q in Q[::-1] ]
+Ax = [ Rx@a for a in A ]
+Ay = [ Ry@a for a in A ]
 
-# Control matrices.
-D = -1/4*np.diag( [ 1/np.sum( aList[0] ), 1/np.sum( aList[1] ) ] )
-print( 'Anchor coefficient matrix:\n', D )
+# Anchor-distance control matrices.
+D = np.array( [ -1/4*np.diag( [ 1/np.sum( a[0] ), 1/np.sum( a[1] ) ] ) for a in A ] )
+print( 'Anchor coefficient matrices:\n', D )
+
+
+# Anchor measurement functions.
+def anchorMeasure(x):
+    d = np.empty( (1,Na) )
+    for i, a in enumerate( A.T ):
+        d[:,i] = (x - a[:,None]).T@(x - a[:,None])
+    return np.sqrt( d )
+
+def reflectionMeasure(x):
+    dr = np.empty( (2,Na) )
+    for i, (ax, ay) in enumerate( zip( Ax.T, Ay.T ) ):
+        dr[:,i] = np.array( [
+            (x - ax[:,None]).T@(x - ax[:,None]),
+            (x - ay[:,None]).T@(x - ay[:,None]),
+        ] )[:,0,0]
+    return np.sqrt( dr )
 
 
 # Main execution block.
