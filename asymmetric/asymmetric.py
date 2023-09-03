@@ -1,10 +1,9 @@
+import sys
+from os.path import expanduser
+sys.path.insert(0, expanduser('~')+'/prog/anchors')
 
 from root import *
 
-
-# Controller gains of interest.
-C = np.eye( Nx )
-# C = 10*np.diag( np.random.rand( Nx, ) )
 
 # Anchor values.
 # Na = 25
@@ -18,8 +17,8 @@ print( 'desired position: ', q.T )
 
 # Anchor and reflection sets.
 aList = 2*A*np.random.rand( 2,Na ) - A
-rxList = np.vstack( (-aList[0], aList[1]) )
-ryList = np.vstack( (aList[0], -aList[1]) )
+rxList = Rx@aList
+ryList = Ry@aList
 
 # Control matrices.
 D = -1/4*np.diag( [ 1/np.sum( aList[0] ), 1/np.sum( aList[1] ) ] )
@@ -51,8 +50,8 @@ def anchorControl(x, xfake, eps=0):
 
     # Calculate measurement state.
     z = np.array( [
-        np.sum( dList**2 - drList[0]**2, axis=1 ),
-        np.sum( dList**2 - drList[1]**2, axis=1 )
+        np.sum( dList**2 - drList[1]**2, axis=1 ),
+        np.sum( dList**2 - drList[0]**2, axis=1 )
     ] )
 
     # Return control.

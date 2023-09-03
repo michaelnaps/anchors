@@ -20,6 +20,14 @@ Nu = 2
 dt = 0.01
 
 
+# Controller gains.
+C = np.eye( Nx )
+
+# Symmetric tranformations.
+Rx = np.array( [ [1, 0], [0, -1] ] )
+Ry = np.array( [ [-1, 0], [0, 1] ] )
+
+
 # Model function.
 def model(x, u):
     return x + dt*u
@@ -29,5 +37,7 @@ def control(x, C=np.eye( Nx ), q=np.zeros( (Nx,1) )):
     return C@(q - x)
 
 # Shaped noise function/
-def noise(eps=1e-3, shape=(2,1)):
+def noise(eps=1e-3, shape=(2,1), shape3=None):
+    if shape3 is not None:
+        return 2*eps*np.random.rand( shape[0], shape[1], shape[2] ) - eps
     return 2*eps*np.random.rand( shape[0], shape[1] ) - eps
