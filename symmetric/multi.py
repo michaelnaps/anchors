@@ -9,15 +9,14 @@ from root import *
 N = 2    # Number of anchors.
 M = 3*N  # Number of vehicles.
 
-# Desired position set (in A).
-Q = np.array( [
-    [ [1], [1] ],
-    [ [2], [2] ] ] )
-
 # Anchor and corresponding reflection sets.
-A = [ q + noise( eps=1e-1, shape=(2,1) ) for q in Q[::-1] ]
-Ax = [ Rx@a for a in A ]
-Ay = [ Ry@a for a in A ]
+A = Abound*np.random.rand( 2,N )
+Ax = Rx@A
+Ay = Ry@A
+
+print( 'A:\n', A )
+print( 'Ax:\n', Ax )
+print( 'Ay:\n', Ay )
 
 # Anchor-distance control matrices.
 D = np.array( [ -1/4*np.diag( [ 1/np.sum( a[0] ), 1/np.sum( a[1] ) ] ) for a in A ] )
@@ -43,4 +42,9 @@ def reflectionMeasure(x):
 
 # Main execution block.
 if __name__ == '__main__':
-    pass
+    # Initialize vehicle positions.
+    X = np.hstack( (
+        A + noise( eps=0.1, shape=(2,N) ),
+        Ax + noise( eps=0.1, shape=(2,N) ),
+        Ay + noise( eps=0.1, shape=(2,N) ),
+    ) )
