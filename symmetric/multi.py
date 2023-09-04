@@ -13,6 +13,7 @@ M = 3*N  # Number of vehicles.
 A = Abound*np.random.rand( 2,N )
 Ax = Rx@A
 Ay = Ry@A
+Amega = np.hstack( (A, Ax, Ay) )
 print( 'A:\n', A )
 print( 'Ax:\n', Ax )
 print( 'Ay:\n', Ay )
@@ -36,22 +37,25 @@ def anchorMeasure(x, aList=None):
 # Main execution block.
 if __name__ == '__main__':
     # Initialize vehicle positions.
+    offset = 1e-1
     X = np.hstack( (
-        A + noise( eps=1e-3, shape=(2,N) ),
-        Ax + noise( eps=0.1, shape=(2,N) ),
-        Ay + noise( eps=0.1, shape=(2,N) ),
+        A + noise( eps=offset, shape=(2,N) ),
+        Ax + noise( eps=offset, shape=(2,N) ),
+        Ay + noise( eps=offset, shape=(2,N) ),
     ) )
     print( 'X:\n', X.T )
 
     # Initialize control sets.
     k = 0
-    Z = np.empty( (M,2,2) )
+    zSet = np.empty( (M,2,2) )
+    qSet = np.empty( (M,2,1) )
     for i, x in enumerate( X.T ):
         if k == N:  k = 0
         Atemp = np.array( [A[:,j] for j in range( N ) if k != j] ).T
-        Z[i] = -1/4*np.diag( [ 1/np.sum( Atemp[0] ), 1/np.sum( Atemp[1] ) ] )
+        zSet[i] = -1/4*np.diag( [ 1/np.sum( Atemp[0] ), 1/np.sum( Atemp[1] ) ] )
+        qSet[i] = Amega[:,i,None]
         k += 1
-    print( 'Z:\n', Z )
+    print( 'Z:\n', zSet )
 
     # Swarm variables.
     R = 0.25
@@ -68,10 +72,18 @@ if __name__ == '__main__':
 
     # Simulation block.
     T = 10;  Nt = round( T/dt ) + 1
-    for i in range( Nt ):
-        for x in X.T:
+    for t in range( Nt ):
+        for i, (x, q, Z) in enumerate( zip( X.T, qSet, zSet ) ):
             D = anchorMeasure( x[:,None], aList=A )
             Dx = anchorMeasure( x[:,None], aList=Ax )
             Dy = anchorMeasure( x[:,None], aList=Ay )
+            z = np.vstack( (
+                np.sum( D**2 - Dx**2, axis=1 ),
+                np.sum( D**2 - Dy**2, axis=1 )
+            ) )
+            X[:,i] = model( x[:,None], C@(q - Z@z) )[:,0]
+        swrm.update( X )
+        plt.pause( 1e-3 )
+
 
     input( "Press ENTER to exit program... " )
