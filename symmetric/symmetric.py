@@ -4,6 +4,7 @@ sys.path.insert(0, expanduser('~')+'/prog/anchors')
 
 from root import *
 
+A = Abound
 
 # Anchor values.
 # Na = 1

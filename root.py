@@ -14,7 +14,7 @@ else:
 
 
 # True system values.
-A = 10
+Abound = 10
 Nx = 2
 Nu = 2
 dt = 0.01
