@@ -10,7 +10,8 @@ N = 2    # Number of anchors.
 M = 3*N  # Number of vehicles.
 
 # Anchor and corresponding reflection sets.
-A = Abound*np.random.rand( 2,N )
+# A = Abound*np.random.rand( 2,N )
+A = np.array( [[3, 5],[3, 5]] )
 Ax = Rx@A
 Ay = Ry@A
 Amega = np.hstack( (A, Ax, Ay) )
@@ -38,7 +39,7 @@ def anchorMeasure(x, aList=None, exclude=[-1]):
 # Main execution block.
 if __name__ == '__main__':
     # Initialize vehicle positions.
-    offset = 0
+    offset = 10
     X = np.hstack( (
         A + noise( eps=offset, shape=(2,N) ),
         Ax + noise( eps=offset, shape=(2,N) ),
@@ -57,6 +58,7 @@ if __name__ == '__main__':
         qSet[i] = Amega[:,i,None]
         k += 1
     print( 'Z:\n', zSet )
+    print( 'Q:\n', qSet )
 
     # Swarm variables.
     R = 0.25
@@ -74,16 +76,18 @@ if __name__ == '__main__':
     # Simulation block.
     T = 10;  Nt = round( T/dt ) + 1
     for t in range( Nt ):
+        j = 0
         for i, (x, q, Z) in enumerate( zip( X.T, qSet, zSet ) ):
-            D = anchorMeasure( x[:,None], aList=A, exclude=[i] )
-            Dx = anchorMeasure( x[:,None], aList=Ax, exclude=[i] )
-            Dy = anchorMeasure( x[:,None], aList=Ay, exclude=[i] )
+            if j == N:  j = 0
+            D = anchorMeasure( x[:,None], aList=A, exclude=[j] )
+            Dx = anchorMeasure( x[:,None], aList=Ax, exclude=[j] )
+            Dy = anchorMeasure( x[:,None], aList=Ay, exclude=[j] )
             z = np.vstack( (
-                np.sum( D**2 - Dx**2, axis=1 ),
-                np.sum( D**2 - Dy**2, axis=1 )
+                np.sum( D**2 - Dy**2, axis=1 ),
+                np.sum( D**2 - Dx**2, axis=1 )
             ) )
-            print( C@(q - Z@z) )
             X[:,i] = model( x[:,None], C@(q - Z@z) )[:,0]
+            j += 1
         swrm.update( X )
         plt.pause( 1e-3 )
 
