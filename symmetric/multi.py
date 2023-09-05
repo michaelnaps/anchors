@@ -39,13 +39,18 @@ def anchorMeasure(x, aList=None, exclude=[-1]):
 # Main execution block.
 if __name__ == '__main__':
     # Initialize vehicle positions.
-    offset = 10
+    offset = 15
+    # X = np.hstack( (
+    #     A + noise( eps=offset, shape=(2,N) ),
+    #     Ax + noise( eps=offset, shape=(2,N) ),
+    #     Ay + noise( eps=offset, shape=(2,N) ),
+    # ) )
     X = np.hstack( (
-        A + noise( eps=offset, shape=(2,N) ),
-        Ax + noise( eps=offset, shape=(2,N) ),
-        Ay + noise( eps=offset, shape=(2,N) ),
+        A + offset*np.ones( (2,1) ),
+        Ax + Rx@(offset*np.ones( (2,1) )),
+        Ay + Ry@(offset*np.ones( (2,1) ))
     ) )
-    print( 'X:\n', X.T )
+    print( 'Xi:\n', X.T )
 
     # Initialize control sets.
     k = 0
@@ -57,8 +62,8 @@ if __name__ == '__main__':
         zSet[i] = -1/4*np.diag( [ 1/np.sum( Atemp[0] ), 1/np.sum( Atemp[1] ) ] )
         qSet[i] = Amega[:,i,None]
         k += 1
-    print( 'Z:\n', zSet )
-    print( 'Q:\n', qSet )
+    # print( 'Z:\n', zSet )
+    # print( 'Q:\n', qSet )
 
     # Swarm variables.
     R = 0.25
@@ -67,10 +72,10 @@ if __name__ == '__main__':
         radius=R, color='cornflowerblue' ).draw()
 
     # Axis setup.
-    plt.axis( Abound*np.array( [-1, 1, -1, 1] ) )
+    plt.axis( (offset+1)*np.array( [-1, 1, -1, 1] ) )
     plt.gca().set_aspect( 'equal', adjustable='box' )
-    plt.xticks( [-i for i in range( -Abound,Abound+1 )] )
-    plt.yticks( [-i for i in range( -Abound,Abound+1 )] )
+    plt.xticks( [-i for i in range( -offset,offset+1 )] )
+    plt.yticks( [-i for i in range( -offset,offset+1 )] )
     plt.show( block=0 )
 
     # Simulation block.
@@ -79,9 +84,9 @@ if __name__ == '__main__':
         j = 0
         for i, (x, q, Z) in enumerate( zip( X.T, qSet, zSet ) ):
             if j == N:  j = 0
-            D = anchorMeasure( x[:,None], aList=A, exclude=[j] )
-            Dx = anchorMeasure( x[:,None], aList=Ax, exclude=[j] )
-            Dy = anchorMeasure( x[:,None], aList=Ay, exclude=[j] )
+            D = anchorMeasure( x[:,None], aList=X[:,:N], exclude=[j] )
+            Dx = anchorMeasure( x[:,None], aList=X[:,N:2*N], exclude=[j] )
+            Dy = anchorMeasure( x[:,None], aList=X[:,2*N:3*N], exclude=[j] )
             z = np.vstack( (
                 np.sum( D**2 - Dy**2, axis=1 ),
                 np.sum( D**2 - Dx**2, axis=1 )
@@ -91,5 +96,5 @@ if __name__ == '__main__':
         swrm.update( X )
         plt.pause( 1e-3 )
 
-
+    print( 'Xf:\n', X.T )
     input( "Press ENTER to exit program... " )
