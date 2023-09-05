@@ -21,7 +21,7 @@ dt = 0.01
 
 
 # Controller gains.
-C = np.eye( Nx )
+C = 10*np.eye( Nx )
 
 # Symmetric tranformations.
 Rx = np.array( [ [1, 0], [0, -1] ] )
