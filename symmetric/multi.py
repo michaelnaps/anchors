@@ -77,7 +77,7 @@ if __name__ == '__main__':
         radius=R, color='cornflowerblue' ).draw()
 
     # Draw anchors for reference.
-    plt.scatter( Amega[0], Amega[1], marker='x' )
+    plt.scatter( Amega[0], Amega[1], color='k', marker='x' )
     anchors = Swarm2D( Amega, fig=fig, axs=axs,
         radius=4*R, draw_tail=False, color='none' )
     anchors.setLineStyle( ':', body=True )
@@ -86,8 +86,8 @@ if __name__ == '__main__':
     # Axis setup.
     plt.axis( (offset+1)*np.array( [-1, 1, -1, 1] ) )
     plt.gca().set_aspect( 'equal', adjustable='box' )
-    plt.xticks( [-i for i in range( -offset,offset+1 )] )
-    plt.yticks( [-i for i in range( -offset,offset+1 )] )
+    plt.xticks( [-i for i in range( -offset,offset+1 ) if i%2 != 0] )
+    plt.yticks( [-i for i in range( -offset,offset+1 ) if i%2 != 0] )
     plt.show( block=0 )
 
     # Simulation block.
