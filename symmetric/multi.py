@@ -24,20 +24,21 @@ print( 'Ay:\n', Ay )
 
 
 # Anchor measurement functions.
-def anchorMeasure(x, aList=None):
+def anchorMeasure(x, aList=None, exclude=[-1]):
     if aList is None:
         aList = A
     Na = aList.shape[1]
-    d = np.empty( (1,Na) )
+    d = np.zeros( (1,Na) )
     for i, a in enumerate( aList.T ):
-        d[:,i] = (x - a[:,None]).T@(x - a[:,None])
+        if i not in exclude:
+            d[:,i] = (x - a[:,None]).T@(x - a[:,None])
     return np.sqrt( d )
 
 
 # Main execution block.
 if __name__ == '__main__':
     # Initialize vehicle positions.
-    offset = 1e-1
+    offset = 0
     X = np.hstack( (
         A + noise( eps=offset, shape=(2,N) ),
         Ax + noise( eps=offset, shape=(2,N) ),
@@ -74,13 +75,14 @@ if __name__ == '__main__':
     T = 10;  Nt = round( T/dt ) + 1
     for t in range( Nt ):
         for i, (x, q, Z) in enumerate( zip( X.T, qSet, zSet ) ):
-            D = anchorMeasure( x[:,None], aList=A )
-            Dx = anchorMeasure( x[:,None], aList=Ax )
-            Dy = anchorMeasure( x[:,None], aList=Ay )
+            D = anchorMeasure( x[:,None], aList=A, exclude=[i] )
+            Dx = anchorMeasure( x[:,None], aList=Ax, exclude=[i] )
+            Dy = anchorMeasure( x[:,None], aList=Ay, exclude=[i] )
             z = np.vstack( (
                 np.sum( D**2 - Dx**2, axis=1 ),
                 np.sum( D**2 - Dy**2, axis=1 )
             ) )
+            print( C@(q - Z@z) )
             X[:,i] = model( x[:,None], C@(q - Z@z) )[:,0]
         swrm.update( X )
         plt.pause( 1e-3 )
