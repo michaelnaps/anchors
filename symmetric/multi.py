@@ -10,10 +10,11 @@ N = int( Abound/2 )    # Number of anchors.
 M = 3*N                # Number of vehicles.
 
 # Anchor and corresponding reflection sets.
-# A = Abound*np.random.rand( 2,N )
-A = np.array( [
-    [i for i in range( int( Abound ) ) if i%2 != 0],
-    [i for i in range( int( Abound ) ) if i%2 != 0]] )
+A = Abound*np.random.rand( 2,N )
+# A = np.array( [
+#     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
+#     [i for i in range( int( Abound + 1 ) ) if i%2 != 0]] )
+# A = noise( eps=Abound, shape=(2,N) )
 Ax = Rx@A
 Ay = Ry@A
 Amega = np.hstack( (A, Ax, Ay) )
@@ -27,7 +28,7 @@ print( 'Ay:\n', Ay )
 
 
 # Anchor measurement functions.
-def anchorMeasure(x, aList=None, eps=-1, exclude=[-1]):
+def anchorMeasure(x, aList=None, eps=None, exclude=[-1]):
     if aList is None:
         aList = A
     Na = aList.shape[1]
@@ -35,7 +36,7 @@ def anchorMeasure(x, aList=None, eps=-1, exclude=[-1]):
     for i, a in enumerate( aList.T ):
         if i not in exclude:
             d[:,i] = (x - a[:,None]).T@(x - a[:,None])
-    if eps != -1:
+    if eps is not None:
         d = d + noise( eps=eps, shape=(1,Na) )
     return np.sqrt( np.abs( d ) )
 
@@ -43,18 +44,18 @@ def anchorMeasure(x, aList=None, eps=-1, exclude=[-1]):
 # Main execution block.
 if __name__ == '__main__':
     # Initialize vehicle positions.
-    eps = -1
-    offset = 15
-    # X = np.hstack( (
-    #     A + noise( eps=offset, shape=(2,N) ),
-    #     Ax + noise( eps=offset, shape=(2,N) ),
-    #     Ay + noise( eps=offset, shape=(2,N) ),
-    # ) )
+    eps = None
+    offset = 1.0
     X = np.hstack( (
-        A + offset*np.ones( (2,1) ),
-        Ax + Rx@(offset*np.ones( (2,1) )),
-        Ay + Ry@(offset*np.ones( (2,1) )),
+        A + noise( eps=offset, shape=(2,N) ),
+        Ax + noise( eps=offset, shape=(2,N) ),
+        Ay + noise( eps=offset, shape=(2,N) ),
     ) )
+    # X = np.hstack( (
+    #     A + offset*np.ones( (2,1) ),
+    #     Ax + Rx@(offset*np.ones( (2,1) )),
+    #     Ay + Ry@(offset*np.ones( (2,1) )),
+    # ) )
     print( 'Xi:\n', X.T )
 
     # Initialize control sets.
@@ -71,23 +72,22 @@ if __name__ == '__main__':
     # print( 'Q:\n', qSet )
 
     # Swarm variables.
-    R = 0.25
+    R = 0.35
     fig, axs = plt.subplots()
     swrm = Swarm2D( X, fig=fig, axs=axs,
         radius=R, color='cornflowerblue' ).draw()
 
     # Draw anchors for reference.
-    plt.scatter( Amega[0], Amega[1], color='k', marker='x' )
+    axs.plot( Amega[0], Amega[1], color='k', linestyle='none', marker='x' )
     anchors = Swarm2D( Amega, fig=fig, axs=axs,
-        radius=4*R, draw_tail=False, color='none' )
-    anchors.setLineStyle( ':', body=True )
-    anchors.setLineWidth( 1.0 ).draw()
+        radius=4*R, draw_tail=False, color='none'
+    ).setLineStyle( ':', body=True ).setLineWidth( 1.0, body=True ).draw()
 
     # Axis setup.
-    plt.axis( (offset+1)*np.array( [-1, 1, -1, 1] ) )
-    plt.gca().set_aspect( 'equal', adjustable='box' )
-    plt.xticks( [-i for i in range( -offset,offset+1 ) if i%2 != 0] )
-    plt.yticks( [-i for i in range( -offset,offset+1 ) if i%2 != 0] )
+    axs.axis( (offset+1)*np.array( [-1, 1, -1, 1] ) )
+    # axs[0].set_xticks( [-i for i in range( -offset,offset+1 ) if (i % 2) != 0] )
+    # axs[0].set_yticks( [-i for i in range( -offset,offset+1 ) if (i % 2) != 0] )
+    axs.axis( 'equal' )
     plt.show( block=0 )
 
     # Simulation block.
@@ -106,7 +106,7 @@ if __name__ == '__main__':
             X[:,i] = model( x[:,None], C@(q - Z@z) )[:,0]
             j += 1
         swrm.update( X )
-        plt.pause( 1e-3 )
+        plt.pause( 1e-6 )
 
     print( 'Xf:\n', X.T )
     input( "Press ENTER to exit program... " )
