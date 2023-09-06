@@ -20,39 +20,21 @@ A = Abound*np.random.rand( 2,N )
 # A = noise( eps=Abound, shape=(2,N) )
 Ax = Rx@A
 Ay = Ry@A
-Amega = np.hstack( (A, Ax, Ay) )
+ANCHORS = np.hstack( (A, Ax, Ay) )
 print( 'A:\n', A )
 print( 'Ax:\n', Ax )
 print( 'Ay:\n', Ay )
-
-# # Anchor-distance control matrices.
-# D = -1/4*np.diag( [ 1/np.sum( A[0] ), 1/np.sum( A[1] ) ] )
-# print( 'Anchor coefficient matrices:\n', D )
-
-
-# Anchor measurement functions.
-def anchorMeasure(x, aList=None, eps=None, exclude=[-1]):
-    if aList is None:
-        aList = A
-    Na = aList.shape[1]
-    d = np.zeros( (1,Na) )
-    for i, a in enumerate( aList.T ):
-        if i not in exclude:
-            d[:,i] = (x - a[:,None]).T@(x - a[:,None])
-    if eps is not None:
-        d = d + noise( eps=eps, shape=(1,Na) )
-    return np.sqrt( np.abs( d ) )
 
 
 # Main execution block.
 if __name__ == '__main__':
     # Initialize vehicle positions.
     eps = None
-    offset = 1.0
+    offset = 2.5
     X = np.hstack( (
-        A + noise( eps=offset, shape=(2,N) ),
-        Ax + noise( eps=offset, shape=(2,N) ),
-        Ay + noise( eps=offset, shape=(2,N) ),
+        A + noiseCirc( eps=offset, N=N ),
+        Ax + noiseCirc( eps=offset, N=N ),
+        Ay + noiseCirc( eps=offset, N=N ),
     ) )
     # X = np.hstack( (
     #     A + offset*np.ones( (2,1) ),
@@ -69,7 +51,7 @@ if __name__ == '__main__':
         if k == N:  k = 0
         Atemp = np.array( [A[:,j] for j in range( N ) if k != j] ).T
         zSet[i] = -1/4*np.diag( [ 1/np.sum( Atemp[0] ), 1/np.sum( Atemp[1] ) ] )
-        qSet[i] = Amega[:,i,None]
+        qSet[i] = ANCHORS[:,i,None]
         k += 1
     # print( 'Z:\n', zSet )
     # print( 'Q:\n', qSet )
@@ -81,8 +63,8 @@ if __name__ == '__main__':
         radius=R, color='cornflowerblue' ).draw()
 
     # Draw anchors for reference.
-    axs.plot( Amega[0], Amega[1], color='k', linestyle='none', marker='x' )
-    anchors = Swarm2D( Amega, fig=fig, axs=axs,
+    axs.plot( ANCHORS[0], ANCHORS[1], color='k', linestyle='none', marker='x' )
+    anchors = Swarm2D( ANCHORS, fig=fig, axs=axs,
         radius=offset, draw_tail=False, color='none'
     ).setLineStyle( ':', body=True ).setLineWidth( 1.0, body=True ).draw()
 
@@ -106,13 +88,18 @@ if __name__ == '__main__':
                 np.sum( D**2 - Dy**2, axis=1 ),
                 np.sum( D**2 - Dx**2, axis=1 )
             ) )
-            X[:,i] = model( x[:,None], C@(q - Z@z) )[:,0]
+            U = C@(q - Z@z)
+            X[:,i] = model( x[:,None], U )[:,0]
             j += 1
         swrm.update( X )
         plt.pause( 1e-6 )
 
+        # if np.linalg.norm( U ) < 1e-6:
+        #     print( 'Stopping simulation. No movement...' )
+        #     break
+
     # Calculate transformation matrix by DMD.
-    Aerr = np.vstack( (Amega, np.ones( (1,M) )) )
+    Aerr = np.vstack( (ANCHORS, np.ones( (1,M) )) )
     regr = Regressor( Aerr, X )
     T, _ = regr.dmd()
 
