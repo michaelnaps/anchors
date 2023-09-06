@@ -104,5 +104,5 @@ if __name__ == '__main__':
     T, _ = regr.dmd()
 
     # Calculate error after transformation.
-    print( 'Error: ', np.linalg.norm( X - T@Aerr ) )
+    print( '\nError: ', np.linalg.norm( X - T@Aerr ) )
     input( "Press ENTER to exit program... " )
