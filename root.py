@@ -21,7 +21,7 @@ dt = 0.01
 
 
 # Controller gains.
-W = 1.0
+W = 10.0
 C = W*np.eye( Nx )
 
 # Symmetric tranformations.

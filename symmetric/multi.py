@@ -1,12 +1,15 @@
 import sys
 from os.path import expanduser
+sys.path.insert(0, expanduser('~')+'/prog/kman')
 sys.path.insert(0, expanduser('~')+'/prog/anchors')
 
 from root import *
+from KMAN.Regressors import *
 
 
 # Anchor values.
-N = int( Abound/2 )    # Number of anchors.
+# N = int( Abound/2 )    # Number of anchors.
+N = 5
 M = 3*N                # Number of vehicles.
 
 # Anchor and corresponding reflection sets.
@@ -72,7 +75,7 @@ if __name__ == '__main__':
     # print( 'Q:\n', qSet )
 
     # Swarm variables.
-    R = 0.35
+    R = -0.35
     fig, axs = plt.subplots()
     swrm = Swarm2D( X, fig=fig, axs=axs,
         radius=R, color='cornflowerblue' ).draw()
@@ -80,7 +83,7 @@ if __name__ == '__main__':
     # Draw anchors for reference.
     axs.plot( Amega[0], Amega[1], color='k', linestyle='none', marker='x' )
     anchors = Swarm2D( Amega, fig=fig, axs=axs,
-        radius=4*R, draw_tail=False, color='none'
+        radius=offset, draw_tail=False, color='none'
     ).setLineStyle( ':', body=True ).setLineWidth( 1.0, body=True ).draw()
 
     # Axis setup.
@@ -108,5 +111,11 @@ if __name__ == '__main__':
         swrm.update( X )
         plt.pause( 1e-6 )
 
-    print( 'Xf:\n', X.T )
+    # Calculate transformation matrix by DMD.
+    Aerr = np.vstack( (Amega, np.ones( (1,M) )) )
+    regr = Regressor( Aerr, X )
+    T, _ = regr.dmd()
+
+    # Calculate error after transformation.
+    print( 'Error: ', np.linalg.norm( X - T@Aerr ) )
     input( "Press ENTER to exit program... " )
