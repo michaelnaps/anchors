@@ -46,7 +46,7 @@ b = -1/4*np.array( [
 ] )
 # B = np.hstack( [[[b[i,j], b[i,j], b[i,j]] for j in range( N )] for i in range( M )] )
 B = np.array( [
-    [b[0,0], b[0,0], b[0,0], b[0,1], b[0,1], b[0,1]],
+    [b[0,0], b[0,0], b[0,0], b[0,1], b[0,1], b[0,1]]
     [b[1,0], b[1,0], b[1,0], b[1,1], b[1,1], b[1,1]]
 ] )
 print( 'b:\n', b )
@@ -103,7 +103,7 @@ if __name__ == '__main__':
         U = C@(Q - B*h)
 
         print( U )
-        # exit()
+        exit()
 
         X = model( X, U )
 
