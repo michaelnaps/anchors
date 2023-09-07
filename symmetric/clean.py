@@ -112,8 +112,9 @@ if __name__ == '__main__':
         plt.pause( 1e-6 )
 
     # Calculate transformation matrix by DMD.
+    Xerr = np.vstack( (X, np.ones( (1,M) )) )  # For consistency.
     Qerr = np.vstack( (Q, np.ones( (1,M) )) )
-    regr = Regressor( Qerr, X )
+    regr = Regressor( Qerr, Xerr )
     T, _ = regr.dmd()
 
     # Calculate error after transformation.

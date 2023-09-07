@@ -105,7 +105,14 @@ if __name__ == '__main__':
             U = C@(q - Z@z)
             X[:,i] = model( x[:,None], U )[:,0]
             j += 1
+
+        if t > 250 and t < 300:
+            P = 0
+            w = 5.0
+            X[:,:P] = model( X[:,:P], w*np.ones( (Nx,P) ) )
+
         swrm.update( X )
+        axs.set_title( 't = %s' % t )
         plt.pause( 1e-6 )
 
         # if np.linalg.norm( U ) < 1e-6:
