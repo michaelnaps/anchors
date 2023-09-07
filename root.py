@@ -6,6 +6,10 @@ import numpy as np
 from GEOM.Vehicle2D import *
 
 
+# set global output setting
+np.set_printoptions(precision=3, suppress=True)
+
+
 # Pause time argument.
 if len( sys.argv ) > 1:
     sim_pause = float( sys.argv[1] )
