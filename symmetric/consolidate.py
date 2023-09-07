@@ -72,8 +72,9 @@ if __name__ == '__main__':
         radius=R, color='cornflowerblue' ).draw()
     anchors = Swarm2D( Q[:,:,0].T, fig=fig, axs=axs, zorder=10,
         radius=offset, draw_tail=False, color='none'
-    ).setLineStyle( ':', body=True ).setLineWidth( 1.0, body=True ).draw()
-    axs.plot( Q[0], Q[1], zorder=50, color='k', linestyle='none', marker='x' )
+        ).setLineStyle( ':', body=True
+        ).setLineWidth( 1.0, body=True ).draw()
+    axs.plot( Q[:,0], Q[:,1], zorder=50, color='k', linestyle='none', marker='x' )
 
     # Axis setup.
     axs.axis( (offset+1)*np.array( [-1, 1, -1, 1] ) )
