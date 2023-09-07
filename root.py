@@ -7,7 +7,7 @@ from GEOM.Vehicle2D import *
 
 
 # set global output setting
-np.set_printoptions(precision=3, suppress=True)
+np.set_printoptions(precision=3, suppress=True, linewidth=np.inf)
 
 
 # Pause time argument.
