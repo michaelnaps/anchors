@@ -48,8 +48,8 @@ def reflectionMeasure(x):
 # Anchor-based control policy.
 def anchorControl(x, eps=0):
     # Combine anchor sets.
-    dList = anchorMeasure( x ) + noise( eps=eps, shape=(1,Na) )
-    drList = reflectionMeasure( x ) + noise( eps=eps, shape=(2,Na) )
+    dList = anchorMeasure( x ) + noiseCirc( eps=eps, N=Na )
+    drList = reflectionMeasure( x ) + noiseCirc( eps=eps, N=Na )
 
     # Calculate measurement state.
     z = np.array( [
