@@ -26,6 +26,20 @@ print( 'Ax:\n', Ax )
 print( 'Ay:\n', Ay )
 
 
+# Anchor measurement functions.
+def anchorMeasure(x, aList=None, eps=None, exclude=[-1]):
+    if aList is None:
+        aList = A
+    Na = aList.shape[1]
+    d = np.zeros( (1,Na) )
+    for i, a in enumerate( aList.T ):
+        if i not in exclude:
+            d[:,i] = (x - a[:,None]).T@(x - a[:,None])
+    if eps is not None:
+        d = d + np.abs( noise( eps=eps, shape=(1,Na) ) )
+    return np.sqrt( d )
+
+
 # Main execution block.
 if __name__ == '__main__':
     # Initialize vehicle positions.
