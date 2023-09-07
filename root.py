@@ -30,8 +30,8 @@ Ry = np.array( [ [-1, 0], [0, 1] ] )
 
 
 # Model function.
-def model(x, u):
-    return x + dt*u
+def model(X, U):
+    return X + dt*U
 
 # Control function.
 def control(x, C=np.eye( Nx ), q=np.zeros( (Nx,1) )):
@@ -54,12 +54,13 @@ def noiseCirc(eps=1e-3, N=1):
     return y
 
 # Anchor measurement function.
-def anchorMeasure(x, aList, eps=None, exclude=[-1]):
-    Na = aList.shape[1]
-    d = np.zeros( (1,Na) )
-    for i, a in enumerate( aList.T ):
-        if i not in exclude:
-            d[:,i] = (x - a[:,None]).T@(x - a[:,None])
+def anchorMeasure(X, A, eps=None):
+    N = X.shape[1]
+    M = A.shape[1]
+    d = np.zeros( (N,M) )
+    for i, x in enumerate( X.T ):
+        for j, a in enumerate( A.T ):
+            d[i,j] = (x[:,None] - a[:,None]).T@(x[:,None] - a[:,None])
     if eps is not None:
-        d = np.abs( d + noise( eps=eps, shape=(1,Na) ) )
+        d = np.abs( d + noise( eps=eps, shape=(N,M) ) )
     return np.sqrt( d )
