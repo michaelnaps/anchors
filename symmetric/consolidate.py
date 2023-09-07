@@ -9,13 +9,13 @@ from KMAN.Regressors import *
 
 # Set hyper parameter(s).
 # N = int( Abound/2 )     # Number of anchors.
-N = 2
+N = 3
 M = 3*N                 # Number of vehicles.
 Nr = 3                  # Number of anchor sets + reflection sets.
 
 
 # Anchor set.
-A = np.array( [[3,5],[3,5]] )
+A = np.array( [[2,4,6],[3,5,7]] )
 # A = Abound*np.random.rand( 2,N )
 # A = np.array( [
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
@@ -33,17 +33,22 @@ print( 'Ay:\n', Ay )
 
 
 # Conversion matrix.
-Am = anchorMeasure( Q, Q )
-for i in range( N ):
-    Am[i*Nr:(i+1)*Nr,i*Nr:(i+1)*Nr] = np.zeros( (Nr,Nr) )
-B = np.diag( -1/(4*np.sum( Am, axis=1 )) )
+B = -1/4*np.array( [
+    [ 1/np.sum( [A[0,j] for j in range( N ) if i != j] ) for i in range( N ) ],
+    [ 1/np.sum( [A[1,j] for j in range( N ) if i != j] ) for i in range( N ) ]
+] )
+print( 'B:\n', B )
+
 Z = np.array( [
-    np.hstack( ([1 for i in range( N )], [0 for i in range( N )], [-1 for i in range( N )]) ),
-    np.hstack( ([1 for i in range( N )], [-1 for i in range( N )], [0 for i in range( N )]) )
+    [1, 0, -1],
+    [1, -1, 0]
+    # np.hstack( ([1 for i in range( N )], [0 for i in range( N )], [-1 for i in range( N )]) ),
+    # np.hstack( ([1 for i in range( N )], [-1 for i in range( N )], [0 for i in range( N )]) )
 ] )
 
-print( 'B:\n', B )
+# print( 'B:\n', B )
 print( 'Z:\n', Z )
+print( 'ZxB:\n', np.kron( Z,B ) )
 
 
 # Main execution block.
@@ -89,8 +94,8 @@ if __name__ == '__main__':
             h[(i-1)*Nr:i*Nr,(i-1)*Nr:i*Nr] = np.zeros( (Nr,Nr) )
 
         # Apply dynamics.
-        print( B@h )
-        U = C@(Q - Z@B@h)
+        B@h
+        U = C@(Q - Z@h)
         X = model( X, U )
 
         # Update simulation.
