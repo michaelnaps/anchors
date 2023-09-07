@@ -8,15 +8,14 @@ from KMAN.Regressors import *
 
 
 # Set hyper parameter(s).
-# N = int( Abound/2 )     # Number of anchors.
-N = 3
+N = int( Abound/2 )     # Number of anchors.
 M = 3*N                 # Number of vehicles.
 Nr = 3                  # Number of anchor sets + reflection sets.
 
 
 # Anchor set.
-A = np.array( [[2,4,6],[3,5,7]] )
-# A = Abound*np.random.rand( 2,N )
+# A = np.array( [[2,4,6],[3,5,7]] )
+A = Abound*np.random.rand( 2,N )
 # A = np.array( [
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0]] )
@@ -27,28 +26,26 @@ print( 'A:\n', A )
 # Reflection sets.
 Ax = Rx@A
 Ay = Ry@A
-Q = np.hstack( (A, Ax, Ay) )
+Q = np.hstack( (A, Ax, Ay) ).T.reshape( M,2,1 )
 print( 'Ax:\n', Ax )
 print( 'Ay:\n', Ay )
+print( 'Q:\n', Q[:,:,0].T )
 
 
 # Conversion matrix.
-B = -1/4*np.array( [
+b = -1/4*np.array( [
     [ 1/np.sum( [A[0,j] for j in range( N ) if i != j] ) for i in range( N ) ],
     [ 1/np.sum( [A[1,j] for j in range( N ) if i != j] ) for i in range( N ) ]
 ] )
+B = np.hstack( (b, b, b) )
 print( 'B:\n', B )
 
-Z = np.array( [
-    [1, 0, -1],
-    [1, -1, 0]
-    # np.hstack( ([1 for i in range( N )], [0 for i in range( N )], [-1 for i in range( N )]) ),
-    # np.hstack( ([1 for i in range( N )], [-1 for i in range( N )], [0 for i in range( N )]) )
+z = np.array( [
+    np.hstack( ([1 for i in range( N )], [0 for i in range( N )], [-1 for i in range( N )]) ),
+    np.hstack( ([1 for i in range( N )], [-1 for i in range( N )], [0 for i in range( N )]) )
 ] )
-
-# print( 'B:\n', B )
+Z = np.array( [z*b[:,None] for b in B.T] )
 print( 'Z:\n', Z )
-print( 'ZxB:\n', np.kron( Z,B ) )
 
 
 # Main execution block.
@@ -73,10 +70,11 @@ if __name__ == '__main__':
     fig, axs = plt.subplots()
     swrm = Swarm2D( X, fig=fig, axs=axs, zorder=100,
         radius=R, color='cornflowerblue' ).draw()
-    anchors = Swarm2D( Q, fig=fig, axs=axs, zorder=10,
+    anchors = Swarm2D( Q[:,:,0].T, fig=fig, axs=axs, zorder=10,
         radius=offset, draw_tail=False, color='none'
-    ).setLineStyle( ':', body=True ).setLineWidth( 1.0, body=True ).draw()
-    axs.plot( Q[0], Q[1], zorder=50, color='k', linestyle='none', marker='x' )
+        ).setLineStyle( ':', body=True
+        ).setLineWidth( 1.0, body=True ).draw()
+    axs.plot( Q[:,0], Q[:,1], zorder=50, color='k', linestyle='none', marker='x' )
 
     # Axis setup.
     axs.axis( (offset+1)*np.array( [-1, 1, -1, 1] ) )
@@ -89,14 +87,14 @@ if __name__ == '__main__':
     T = 10;  Nt = round( T/dt ) + 1
     for t in range( Nt ):
         # Take measurements.
-        h = anchorMeasure( X, X, eps=eps )
+        h = anchorMeasure( X, X, eps=eps )**2
         for i in range( 1,N+1 ):
             h[(i-1)*Nr:i*Nr,(i-1)*Nr:i*Nr] = np.zeros( (Nr,Nr) )
+        H = h.T.reshape( M,M,1 )
 
         # Apply dynamics.
-        B@h
-        U = C@(Q - Z@h)
-        X = model( X, U )
+        U = (Q - Z@H)[:,:,0].T
+        X = model( X, C@U )
 
         # Update simulation.
         swrm.update( X )

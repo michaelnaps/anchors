@@ -58,10 +58,10 @@ def noiseCirc(eps=1e-3, N=1):
     return y
 
 # Anchor measurement function.
-def anchorMeasure(X, A, eps=None):
+def anchorMeasure(X, A, eps=None, exclude=lambda i,j: True):
     N = X.shape[1]
     M = A.shape[1]
-    d = np.zeros( (N,M) )
+    d = np.empty( (N,M) )
     for i, x in enumerate( X.T ):
         for j, a in enumerate( A.T ):
             d[i,j] = (x[:,None] - a[:,None]).T@(x[:,None] - a[:,None])
