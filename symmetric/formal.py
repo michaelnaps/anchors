@@ -59,7 +59,7 @@ if __name__ == '__main__':
     T = 10;  Nt = round( T/dt ) + 1
 
     # Initialize vehicle positions.
-    delta = 4.0
+    delta = 1.0
     eps = 0.0
     X = np.hstack( (
         A + noiseCirc( eps=delta, N=N ),
@@ -68,15 +68,17 @@ if __name__ == '__main__':
     print( 'Xi:\n', X )
 
     # Swarm variables.
-    R = -0.40
+    R = 0.40
     fig, axs = plt.subplots()
     swrm = Swarm2D( X, fig=fig, axs=axs, zorder=100,
-        radius=R, color='cornflowerblue', draw_tail=sim ).draw()
-    anchors = Swarm2D( Q, fig=fig, axs=axs, zorder=10,
+        radius=-R, color='cornflowerblue', draw_tail=sim ).draw()
+    anchors = Swarm2D( Q, fig=fig, axs=axs, zorder=50,
+        radius=R, draw_tail=False, color='indianred' ).draw()
+    error = Swarm2D( Q, fig=fig, axs=axs, zorder=10,
         radius=delta, draw_tail=False, color='none'
         ).setLineStyle( ':', body=True
         ).setLineWidth( 1.0, body=True ).draw()
-    axs.plot( Q[0], Q[1], zorder=50, color='k', linestyle='none', marker='x' )
+    axs.plot( Q[0], Q[1], zorder=50, color='indianred', linestyle='none', marker='x' )
 
     # Axis setup.
     axs.axis( 'equal' )
@@ -96,8 +98,8 @@ if __name__ == '__main__':
 
         # Impulse control.
         if t > 250 and t < 500:
-            W = 0
-            P = 2
+            W = 2.5
+            P = 1
             X[:,:P] = model( X[:,:P].reshape(Nx,P), W*np.ones( (Nx,P) ) )
 
         # Update simulation.
@@ -121,6 +123,7 @@ if __name__ == '__main__':
     yaxis = T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
     axs.plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
     axs.plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
+    plt.pause( sim_pause )
 
     # Calculate error after transformation.
     print( '\nError: ', np.linalg.norm( X - T@Qerr ) )
