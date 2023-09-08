@@ -8,10 +8,10 @@ from KMAN.Regressors import *
 
 
 # Set hyper parameter(s).
-N = int( Abound/2 )     # Number of anchors.
+Nr = 3                      # Number of anchor sets + reflection sets.
+N = np.random.randint(1,8)  # Number of anchors.
 # N = 3
-Nr = 3                  # Number of anchor sets + reflection sets.
-M = Nr*N                 # Number of vehicles.
+M = Nr*N                    # Number of vehicles.
 
 
 # Exclusion elements in measurement function.
@@ -38,7 +38,7 @@ print( 'Ay:\n', Ay )
 print( 'Q:\n', Q )
 
 
-# Conversion matrix.
+# Conversion matrices.
 Z = np.array( [
     np.hstack( ([1 for i in range( N )], [0 for i in range( N )], [-1 for i in range( N )]) ),
     np.hstack( ([1 for i in range( N )], [-1 for i in range( N )], [0 for i in range( N )]) ) ] )
@@ -55,45 +55,52 @@ print( 'B:\n', B )
 # Main execution block.
 if __name__ == '__main__':
     # Initialize vehicle positions.
-    eps = 10.0
-    offset = 2.5
+    delta = 4.0
+    eps = 0.0
     X = np.hstack( (
-        A + noiseCirc( eps=offset, N=N ),
-        Ax + noiseCirc( eps=offset, N=N ),
-        Ay + noiseCirc( eps=offset, N=N ) ) )
+        A + noiseCirc( eps=delta, N=N ),
+        Ax + noiseCirc( eps=delta, N=N ),
+        Ay + noiseCirc( eps=delta, N=N ) ) )
     print( 'Xi:\n', X )
 
     # Swarm variables.
-    R = -0.35
+    R = -0.40
     fig, axs = plt.subplots()
     swrm = Swarm2D( X, fig=fig, axs=axs, zorder=100,
         radius=R, color='cornflowerblue' ).draw()
     anchors = Swarm2D( Q, fig=fig, axs=axs, zorder=10,
-        radius=offset, draw_tail=False, color='none'
+        radius=delta, draw_tail=False, color='none'
         ).setLineStyle( ':', body=True
         ).setLineWidth( 1.0, body=True ).draw()
     axs.plot( Q[0], Q[1], zorder=50, color='k', linestyle='none', marker='x' )
 
     # Axis setup.
-    axs.axis( (offset+1)*np.array( [-1, 1, -1, 1] ) )
+    axs.axis( 'equal' )
+    axs.axis( 2*Abound*np.array( [-1, 1, -1, 1] ) )
     # axs[0].set_xticks( [-i for i in range( -offset,offset+1 ) if (i % 2) != 0] )
     # axs[0].set_yticks( [-i for i in range( -offset,offset+1 ) if (i % 2) != 0] )
-    axs.axis( 'equal' )
     plt.show( block=0 )
 
     # Environment block.
     T = 10;  Nt = round( T/dt ) + 1
     for t in range( Nt ):
         # Take measurements.
-        H = anchorMeasure( X, X, eps=0, exclude=exclude )**2
+        H = anchorMeasure( X, X, eps=eps, exclude=exclude )**2
         h = Z@H
 
         # Apply dynamics.
         U = C@(Q - B*h)
         X = model( X, U )
 
+        # Impulse control.
+        if t > 250 and t < 500:
+            W = 0
+            P = 2
+            X[:,:P] = model( X[:,:P].reshape(Nx,P), W*np.ones( (Nx,P) ) )
+
         # Update simulation.
         swrm.update( X )
+        axs.set_title( 'time: %s' % t )
         plt.pause( 1e-6 )
 
     # Calculate transformation matrix by DMD.
@@ -105,4 +112,4 @@ if __name__ == '__main__':
 
     # Calculate error after transformation.
     print( '\nError: ', np.linalg.norm( Xerr - T@Qerr ) )
-    input( "Press ENTER to exit program... " )
+    input( "Press ENTER to exit program..." )
