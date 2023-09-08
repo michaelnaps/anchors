@@ -8,10 +8,15 @@ from KMAN.Regressors import *
 
 
 # Set hyper parameter(s).
-# N = int( Abound/2 )     # Number of anchors.
-N = 2
+N = int( Abound/2 )     # Number of anchors.
+# N = 3
 Nr = 3                  # Number of anchor sets + reflection sets.
 M = Nr*N                 # Number of vehicles.
+
+
+# Exclusion elements in measurement function.
+def exclude(i, j):
+    return (j - i) % N == 0
 
 
 # Anchor set.
@@ -36,38 +41,26 @@ print( 'Q:\n', Q )
 # Conversion matrix.
 Z = np.array( [
     np.hstack( ([1 for i in range( N )], [0 for i in range( N )], [-1 for i in range( N )]) ),
-    np.hstack( ([1 for i in range( N )], [-1 for i in range( N )], [0 for i in range( N )]) )
-] )
+    np.hstack( ([1 for i in range( N )], [-1 for i in range( N )], [0 for i in range( N )]) ) ] )
 print( 'Z:\n', Z )
 
 b = -1/4*np.array( [
     [ 1/np.sum( [A[0,j] for j in range( N ) if i != j] ) for i in range( N ) ],
-    [ 1/np.sum( [A[1,j] for j in range( N ) if i != j] ) for i in range( N ) ]
-] )
-# B = np.hstack( [[[b[i,j], b[i,j], b[i,j]] for j in range( N )] for i in range( M )] )
-B = np.array( [
-    [b[0,0], b[0,0], b[0,0], b[0,1], b[0,1], b[0,1]]
-    [b[1,0], b[1,0], b[1,0], b[1,1], b[1,1], b[1,1]]
-] )
+    [ 1/np.sum( [A[1,j] for j in range( N ) if i != j] ) for i in range( N ) ] ] )
 print( 'b:\n', b )
+B = np.hstack( (b, b, b) )
 print( 'B:\n', B )
 
 
 # Main execution block.
 if __name__ == '__main__':
     # Initialize vehicle positions.
-    eps = None
-    offset = 0.0
+    eps = 10.0
+    offset = 2.5
     X = np.hstack( (
         A + noiseCirc( eps=offset, N=N ),
         Ax + noiseCirc( eps=offset, N=N ),
-        Ay + noiseCirc( eps=offset, N=N ),
-    ) )
-    # X = np.hstack( (
-    #     A + offset*np.ones( (2,1) ),
-    #     Ax + Rx@(offset*np.ones( (2,1) )),
-    #     Ay + Ry@(offset*np.ones( (2,1) )),
-    # ) )
+        Ay + noiseCirc( eps=offset, N=N ) ) )
     print( 'Xi:\n', X )
 
     # Swarm variables.
@@ -92,19 +85,11 @@ if __name__ == '__main__':
     T = 10;  Nt = round( T/dt ) + 1
     for t in range( Nt ):
         # Take measurements.
-        H = anchorMeasure( X, X, eps=0. )**2
-        for i in range( 1,N+1 ):
-            H[(i-1)*Nr:i*Nr,(i-1)*Nr:i*Nr] = np.zeros( (Nr,Nr) )
+        H = anchorMeasure( X, X, eps=0, exclude=exclude )**2
         h = Z@H
-
-        print( h )
 
         # Apply dynamics.
         U = C@(Q - B*h)
-
-        print( U )
-        exit()
-
         X = model( X, U )
 
         # Update simulation.
@@ -116,7 +101,8 @@ if __name__ == '__main__':
     Qerr = np.vstack( (Q, np.ones( (1,M) )) )
     regr = Regressor( Qerr, Xerr )
     T, _ = regr.dmd()
+    print( 'T:\n', T )
 
     # Calculate error after transformation.
-    print( '\nError: ', np.linalg.norm( X - T@Qerr ) )
+    print( '\nError: ', np.linalg.norm( Xerr - T@Qerr ) )
     input( "Press ENTER to exit program... " )

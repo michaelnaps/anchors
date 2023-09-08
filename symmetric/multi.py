@@ -9,11 +9,15 @@ from KMAN.Regressors import *
 
 # Anchor values.
 # N = int( Abound/2 )    # Number of anchors.
-N = 5
+N = 3
 M = 3*N                # Number of vehicles.
 
 # Anchor and corresponding reflection sets.
-A = Abound*np.random.rand( 2,N )
+# A = Abound*np.random.rand( 2,N )
+A = np.array( [
+    [2, 4, 6],
+    [3, 5, 7]
+] )
 # A = np.array( [
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0]] )
@@ -24,6 +28,7 @@ ANCHORS = np.hstack( (A, Ax, Ay) )
 print( 'A:\n', A )
 print( 'Ax:\n', Ax )
 print( 'Ay:\n', Ay )
+print( 'Q:', ANCHORS )
 
 
 # Anchor measurement functions.
@@ -44,7 +49,7 @@ def anchorMeasure(x, aList=None, eps=None, exclude=[-1]):
 if __name__ == '__main__':
     # Initialize vehicle positions.
     eps = None
-    offset = 2.5
+    offset = 0.0
     X = np.hstack( (
         A + noiseCirc( eps=offset, N=N ),
         Ax + noiseCirc( eps=offset, N=N ),
@@ -55,7 +60,7 @@ if __name__ == '__main__':
     #     Ax + Rx@(offset*np.ones( (2,1) )),
     #     Ay + Ry@(offset*np.ones( (2,1) )),
     # ) )
-    print( 'Xi:\n', X.T )
+    print( 'Xi:\n', X )
 
     # Initialize control sets.
     k = 0
@@ -69,6 +74,9 @@ if __name__ == '__main__':
         k += 1
     # print( 'Z:\n', zSet )
     # print( 'Q:\n', qSet )
+
+    print( 'zSet:\n', zSet[:,:,0].T )
+    print( np.vstack( (zSet[:,:,0].T[0], zSet[:,:,1].T[1]) ) )
 
     # Swarm variables.
     R = -0.35
@@ -88,6 +96,36 @@ if __name__ == '__main__':
     # axs[0].set_yticks( [-i for i in range( -offset,offset+1 ) if (i % 2) != 0] )
     axs.axis( 'equal' )
     plt.show( block=0 )
+
+    TEMPMAT = np.empty( (M,M) )
+    TEMPLIST = np.empty( (2,M) )
+
+    print( '---' )
+    j = 0
+    U = np.empty( (Nu,M) )
+    for i, (x, q, Z) in enumerate( zip( X.T, qSet, zSet ) ):
+        if j == N:  j = 0
+        D = anchorMeasure( x[:,None], aList=X[:,:N], eps=eps, exclude=[j] )
+        Dx = anchorMeasure( x[:,None], aList=X[:,N:2*N], eps=eps, exclude=[j] )
+        Dy = anchorMeasure( x[:,None], aList=X[:,2*N:3*N], eps=eps, exclude=[j] )
+        z = np.vstack( (
+            np.sum( D**2 - Dy**2, axis=1 ),
+            np.sum( D**2 - Dx**2, axis=1 )
+        ) )
+
+        TEMPMAT[:,i] = np.vstack( (D.T, Dx.T, Dy.T) )[:,0]
+        TEMPLIST[:,i] = z[:,0]
+
+        U[:,i] = (C@(q - Z@z))[:,0]
+        X[:,i] = model( x[:,None], U[:,i,None] )[:,0]
+        j += 1
+
+    print( 'H:\n', TEMPMAT**2 )
+    print( 'h:\n', TEMPLIST )
+    print( U )
+    print( X )
+
+    exit()
 
     # Simulation block.
     T = 10;  Nt = round( T/dt ) + 1
