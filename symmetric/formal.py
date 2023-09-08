@@ -73,7 +73,8 @@ if __name__ == '__main__':
     swrm = Swarm2D( X, fig=fig, axs=axs, zorder=100,
         radius=-R, color='cornflowerblue', draw_tail=sim ).draw()
     anchors = Swarm2D( Q, fig=fig, axs=axs, zorder=50,
-        radius=R, draw_tail=False, color='indianred' ).draw()
+        radius=R, draw_tail=False, color='indianred'
+        ).setLineStyle( None, body=True ).draw()
     error = Swarm2D( Q, fig=fig, axs=axs, zorder=10,
         radius=delta, draw_tail=False, color='none'
         ).setLineStyle( ':', body=True
@@ -92,15 +93,15 @@ if __name__ == '__main__':
         # Take measurements.
         H = anchorMeasure( X, X, eps=eps, exclude=exclude )**2
 
-        # Apply dynamics.
+        # Calculate control and add disturbance.
         U = C@(Q - B*(Z@H))
-        X = model( X, U )
-
-        # Impulse control.
         if t > 250 and t < 500:
             W = 2.5
             P = 1
-            X[:,:P] = model( X[:,:P].reshape(Nx,P), W*np.ones( (Nx,P) ) )
+            U[:,:P] = U[:,:P] + W*np.ones( (Nx,P) )
+
+        # Apply dynamics.
+        X = model( X, U )
 
         # Update simulation.
         if sim:

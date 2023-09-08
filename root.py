@@ -14,7 +14,7 @@ np.set_printoptions(precision=3, suppress=True, linewidth=np.inf)
 if len( sys.argv ) > 1:
     sim = sys.argv[1] == '1'
 else:
-    sim = 1
+    sim = False
 
 if len( sys.argv ) > 2:
     sim_pause = float( sys.argv[2] )
