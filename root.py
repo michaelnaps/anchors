@@ -12,7 +12,12 @@ np.set_printoptions(precision=3, suppress=True, linewidth=np.inf)
 
 # Pause time argument.
 if len( sys.argv ) > 1:
-    sim_pause = float( sys.argv[1] )
+    sim = sys.argv[1] == '1'
+else:
+    sim = 1
+
+if len( sys.argv ) > 2:
+    sim_pause = float( sys.argv[2] )
 else:
     sim_pause = 1e-3
 
