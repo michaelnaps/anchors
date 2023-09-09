@@ -7,8 +7,8 @@ from root import *
 
 # Set hyper parameter(s).
 Nr = 3                      # Number of anchor sets + reflection sets.
-# N = 1                     # Number of anchors.
-N = np.random.randint(1,10)
+N = 3                       # Number of anchors.
+# N = np.random.randint(1,10)
 M = Nr*N                    # Number of vehicles.
 
 
@@ -18,8 +18,8 @@ def exclude(i, j):
 
 
 # Anchor set.
-# A = np.array( [[2,5,8],[3,6,9]] )
-A = Abound*np.random.rand( 2,N )
+A = np.array( [[2,5,8],[3,6,9]] )
+# A = Abound*np.random.rand( 2,N )
 # A = np.array( [
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0]] )
@@ -40,10 +40,10 @@ Qerr = np.vstack( (Q, np.ones( (1,M) )) )
 
 
 # Signed coefficient matrix.
-B = np.array( [
+S = np.array( [
     np.hstack( ([1 for i in range( N )], [0 for i in range( N )], [-1 for i in range( N )]) ),
     np.hstack( ([1 for i in range( N )], [-1 for i in range( N )], [0 for i in range( N )]) ) ] )
-print( 'B:\n', B )
+print( 'S:\n', S )
 
 
 # Anchor-position coefficients.
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     tList = np.array( [ [i*dt for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
-    delta = 10.0
+    delta = 2.50
     eps = 0.0
     X = np.hstack( (
         A + noiseCirc( eps=delta, N=N ),
@@ -73,7 +73,11 @@ if __name__ == '__main__':
     # Initial error calculation.
     regr = Regressor( Qerr, X )
     T, _ = regr.dmd();  e0 = np.vstack( (0, regr.err) )
+
+    # Used for plotting without sim.
+    xList = np.empty( (M,Nt,Nx) )
     eList = np.empty( (2,Nt) )
+    xList[:,0,:] = X.T
     eList[:,0] = e0[:,0]
 
     # Swarm variables.
@@ -91,6 +95,8 @@ if __name__ == '__main__':
         ).setLineStyle( ':', body=True
         ).setLineWidth( 1.0, body=True ).draw()
     axs[0].plot( Q[0], Q[1], zorder=50, color='indianred',
+        linestyle='none', marker='x' )
+    axs[0].plot( X[0], X[1], zorder=50, color='cornflowerblue',
         linestyle='none', marker='x' )
 
     # For plotting error.
@@ -116,7 +122,7 @@ if __name__ == '__main__':
         H = anchorMeasure( X, X, eps=eps, exclude=exclude )**2
 
         # Calculate control and add disturbance.
-        U = C@(Q - Z*(B@H))
+        U = C@(Q - Z*(S@H))
         if i > 200 and i < 300:
             W = 10.0
             P = 0
@@ -128,7 +134,10 @@ if __name__ == '__main__':
         # Calculate tranformation error.
         regr = Regressor( Qerr, X )
         T, _ = regr.dmd()
+
+        # Save values.
         eList[:,i] = np.array( [dt*i, regr.err] )
+        xList[:,i,:] = X.T
 
         # Update simulation.
         if sim and i % n == 0:
@@ -147,6 +156,8 @@ if __name__ == '__main__':
     # Plot transformed grid for reference.
     if not sim:
         swrm.update( X )
+        for vhc in xList:
+            axs[0].plot( vhc.T[0], vhc.T[1], color='cornflowerblue' )
         axs[1].plot( eList[0], eList[1], color='cornflowerblue' )
     anchors.update( T@Qerr )
     xaxis = T@np.array( [[-Abound, Abound],[0, 0],[1, 1]] )
@@ -157,13 +168,4 @@ if __name__ == '__main__':
 
     # Calculate error after transformation.
     print( '\nError: ', np.linalg.norm( X - T@Qerr ) )
-    # ans = input( "Press ENTER to see error plot..." )
-    # if ans == 'n':
-    #     exit()
-
-    # # Plot error vs. iterations.
-    # figErr, axsErr = plt.subplots()
-    # axsErr.plot( tList[0], eList[0] )
-    # plt.show( block=0 )
-
     input( "Press ENTER to exit program..." )
