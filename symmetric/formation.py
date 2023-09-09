@@ -116,8 +116,8 @@ if __name__ == '__main__':
         X = model( X, U )
 
         # Calculate tranformation error.
-        regr = Regressor( X, Qerr )
-        regr.dmd()
+        regr = Regressor( Qerr, X )
+        T, _ = regr.dmd()
 
         # Update simulation.
         if sim and round( t/dt ) % n == 0:
