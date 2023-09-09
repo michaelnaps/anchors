@@ -1,9 +1,11 @@
 import sys
 from os.path import expanduser
 sys.path.insert(0, expanduser('~')+'/prog/geom')
+sys.path.insert(0, expanduser('~')+'/prog/kman')
 
 import numpy as np
 from GEOM.Vehicle2D import *
+from KMAN.Regressors import *
 
 
 # set global output setting
@@ -17,9 +19,14 @@ else:
     sim = False
 
 if len( sys.argv ) > 2:
-    sim_pause = float( sys.argv[2] )
+    dtsim = float( sys.argv[2] )
 else:
-    sim_pause = 1e-3
+    dtsim = 0.1
+
+if len( sys.argv ) > 3:
+    sim_pause = float( sys.argv[3] )
+else:
+    sim_pause = 1e-12
 
 
 # True system values.
@@ -28,6 +35,11 @@ Nx = 2
 Nu = 2
 dt = 0.01
 
+# Calculate simulation step frequency.
+if dt < dtsim:
+    n = round( dtsim/dt )
+else:
+    n = 1
 
 # Controller gains.
 W = 10.0
