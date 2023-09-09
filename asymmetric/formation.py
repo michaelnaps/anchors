@@ -7,30 +7,27 @@ from root import *
 
 # Set hyper parameter(s).
 Nr = 3                      # Number of anchor sets + reflection sets.
-N = 3                       # Number of anchors.
-# N = np.random.randint(1,10)
-M = Nr*N                    # Number of vehicles.
+N = 1                       # Number of anchors.
+M = 10                      # Number of vehicles.
 
 
 # Exclusion elements in measurement function.
 def exclude(i, j):
-    return False # (j - i) % N == 0
+    sym = N*Nr - 1
+    return i > sym
 
 
 # Anchor set.
-A = np.array( [[2,5,8],[3,6,9]] )
-# A = Abound*np.random.rand( 2,N )
-# A = np.array( [
-#     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
-#     [i for i in range( int( Abound + 1 ) ) if i%2 != 0]] )
-# A = noise( eps=Abound, shape=(2,N) )
+A = np.array( [[3],[4]] )
 print( 'A:\n', A )
 
+# Asymmetric vehicle set.
+B = noise( eps=Abound, shape=(Nx,M-N*Nr) )
 
 # Reflection sets.
 Ax = Rx@A
 Ay = Ry@A
-Q = np.hstack( (A, Ax, Ay) )
+Q = np.hstack( (A, Ax, Ay, B) )
 print( 'Ax:\n', Ax )
 print( 'Ay:\n', Ay )
 print( 'Q:\n', Q )
@@ -119,7 +116,7 @@ if __name__ == '__main__':
         H = anchorMeasure( X, X, eps=eps, exclude=exclude )**2
 
         # Calculate control and add disturbance.
-        U = C@(Q - (Z*S)@H)
+        U = C@(Q - (Z*S)@H[:N*Nr])
         if i > 200 and i < 300:
             W = 10.0
             P = 0
