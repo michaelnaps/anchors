@@ -7,19 +7,19 @@ from root import *
 
 # Set hyper parameter(s).
 Nr = 3                      # Number of anchor sets + reflection sets.
-# N = np.random.randint(1,8)  # Number of anchors.
-N = 3
+# N = 1                     # Number of anchors.
+N = np.random.randint(1,10)
 M = Nr*N                    # Number of vehicles.
 
 
 # Exclusion elements in measurement function.
 def exclude(i, j):
-    return False#(j - i) % N == 0
+    return False # (j - i) % N == 0
 
 
 # Anchor set.
-A = np.array( [[2,5,8],[3,6,9]] )
-# A = Abound*np.random.rand( 2,N )
+# A = np.array( [[2,5,8],[3,6,9]] )
+A = Abound*np.random.rand( 2,N )
 # A = np.array( [
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0]] )
@@ -49,7 +49,7 @@ print( 'B:\n', B )
 # Anchor-position coefficients.
 z = -1/4*np.hstack( [
     [ 1/np.sum( np.hstack( [A[:,j,None]
-        for j in range( N ) if True] ), axis=1 )
+        for j in range( N ) if not exclude(i,j)] ), axis=1 )
             for i in range( N ) ] ] ).T
 print( 'z:\n', z )
 Z = np.hstack( (z, z, z) )
