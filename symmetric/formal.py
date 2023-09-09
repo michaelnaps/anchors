@@ -39,18 +39,19 @@ print( 'Q:\n', Q )
 
 
 # Signed coefficient matrix.
-Z = np.array( [
+B = np.array( [
     np.hstack( ([1 for i in range( N )], [0 for i in range( N )], [-1 for i in range( N )]) ),
     np.hstack( ([1 for i in range( N )], [-1 for i in range( N )], [0 for i in range( N )]) ) ] )
-print( 'Z:\n', Z )
+print( 'B:\n', B )
 
 # Anchor-position coefficients.
-b = -1/4*np.array( [
-    [ 1/np.sum( [A[0,j] for j in range( N ) if i != j] ) for i in range( N ) ],
-    [ 1/np.sum( [A[1,j] for j in range( N ) if i != j] ) for i in range( N ) ] ] )
-print( 'b:\n', b )
-B = np.hstack( (b, b, b) )
-print( 'B:\n', B )
+z = -1/4*np.hstack( [
+    [ 1/np.sum( np.hstack( [A[:,j,None]
+        for j in range( N ) if i != j] ), axis=1 )
+            for i in range( N ) ] ] ).T
+print( 'z:\n', z )
+Z = np.hstack( (z, z, z) )
+print( 'Z:\n', Z )
 
 
 # Main execution block.
@@ -59,7 +60,7 @@ if __name__ == '__main__':
     T = 10;  Nt = round( T/dt ) + 1
 
     # Initialize vehicle positions.
-    delta = 1.0
+    delta = 5.0
     eps = 0.0
     X = np.hstack( (
         A + noiseCirc( eps=delta, N=N ),
@@ -89,12 +90,13 @@ if __name__ == '__main__':
     plt.show( block=0 )
 
     # Environment block.
+    input( "Press ENTER to begin simulation..." )
     for t in range( Nt ):
         # Take measurements.
         H = anchorMeasure( X, X, eps=eps, exclude=exclude )**2
 
         # Calculate control and add disturbance.
-        U = C@(Q - B*(Z@H))
+        U = C@(Q - Z*(B@H))
         if t > 250 and t < 500:
             W = 2.5
             P = 1
