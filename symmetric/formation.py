@@ -8,17 +8,17 @@ from root import *
 # Set hyper parameter(s).
 Nr = 3                      # Number of anchor sets + reflection sets.
 # N = np.random.randint(1,8)  # Number of anchors.
-N = 4
+N = 3
 M = Nr*N                    # Number of vehicles.
 
 
 # Exclusion elements in measurement function.
 def exclude(i, j):
-    return (j - i) % N == 0
+    return False#(j - i) % N == 0
 
 
 # Anchor set.
-A = np.array( [[0,2,5,8],[0,3,6,9]] )
+A = np.array( [[2,5,8],[3,6,9]] )
 # A = Abound*np.random.rand( 2,N )
 # A = np.array( [
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
@@ -49,7 +49,7 @@ print( 'B:\n', B )
 # Anchor-position coefficients.
 z = -1/4*np.hstack( [
     [ 1/np.sum( np.hstack( [A[:,j,None]
-        for j in range( N ) if i != j] ), axis=1 )
+        for j in range( N ) if True] ), axis=1 )
             for i in range( N ) ] ] ).T
 print( 'z:\n', z )
 Z = np.hstack( (z, z, z) )
@@ -59,17 +59,22 @@ print( 'Z:\n', Z )
 # Main execution block.
 if __name__ == '__main__':
     # Simulation time.
-    T = 10;  Nt = round( T/dt ) + 1
+    T = 5;  Nt = round( T/dt ) + 1
     tList = np.array( [ [i*dt for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
-    delta = 5.0
+    delta = 10.0
     eps = 0.0
     X = np.hstack( (
         A + noiseCirc( eps=delta, N=N ),
         Ax + noiseCirc( eps=delta, N=N ),
         Ay + noiseCirc( eps=delta, N=N ) ) )
-    print( 'Xi:\n', X )
+
+    # Initial error calculation.
+    regr = Regressor( Qerr, X )
+    T, _ = regr.dmd();  e0 = np.vstack( (0, regr.err) )
+    eList = np.empty( (2,Nt) )
+    eList[:,0] = e0[:,0]
 
     # Swarm variables.
     Np = 2
@@ -89,28 +94,33 @@ if __name__ == '__main__':
         linestyle='none', marker='x' )
 
     # For plotting error.
-    error = Vehicle2D( np.array( [[0],[0]] ), fig=fig, axs=axs[1],
-        radius=0.01, color='cornflowerblue', tail_length=Nt ).draw()
+    error = Vehicle2D( e0, fig=fig, axs=axs[1],
+        radius=0.0, color='cornflowerblue', tail_length=Nt ).draw()
+    axs[1].plot( [0, dt*Nt], [0, 0], color='indianred', linestyle='--' )
 
     # Axis setup.
-    for a in axs:
-        a.axis( 'equal' )
-        a.axis( 1.5*Abound*np.array( [-1, 1, -1, 1] ) )
+    bounds = np.vstack( [
+        1.5*Abound*np.array( [-1, 1, -1, 1] ),
+        np.hstack( [e0[0], dt*Nt, -0.5, e0[1]] ) ] )
+    for a, bnd in zip( axs, bounds ):
+        a.axis( bnd )
         a.grid( 1 )
+    axs[0].axis( 'equal' )
     plt.show( block=0 )
 
     # Environment block.
+    print( 'Xi: %0.3f\n' % regr.err, X )
     input( "Press ENTER to begin simulation..." )
-    for t in tList[0]:
+    for i in range( Nt ):
         # Take measurements.
         H = anchorMeasure( X, X, eps=eps, exclude=exclude )**2
 
         # Calculate control and add disturbance.
         U = C@(Q - Z*(B@H))
-        if t > 250 and t < 500:
-            W = 2.5
-            P = 1
-            U[:,:P] = U[:,:P] + W*np.ones( (Nx,P) )
+        if i > 200 and i < 300:
+            W = 10.0
+            P = 0
+            U[:,:P] = U[:,:P] - W*np.ones( (Nx,P) )
 
         # Apply dynamics.
         X = model( X, U )
@@ -118,12 +128,13 @@ if __name__ == '__main__':
         # Calculate tranformation error.
         regr = Regressor( Qerr, X )
         T, _ = regr.dmd()
+        eList[:,i] = np.array( [dt*i, regr.err] )
 
         # Update simulation.
-        if sim and round( t/dt ) % n == 0:
+        if sim and i % n == 0:
             swrm.update( X )
-            error.update( np.vstack( (t, regr.err) ) )
-            # axs[1].set_title( 'time: %s' % t )
+            error.update( eList[:,i,None] )
+            # axs[1].set_title( 'time: %s' % i )
             plt.pause( sim_pause )
     print( 'Xf:\n', X )
 
@@ -136,6 +147,7 @@ if __name__ == '__main__':
     # Plot transformed grid for reference.
     if not sim:
         swrm.update( X )
+        axs[1].plot( eList[0], eList[1], color='cornflowerblue' )
     anchors.update( T@Qerr )
     xaxis = T@np.array( [[-Abound, Abound],[0, 0],[1, 1]] )
     yaxis = T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )

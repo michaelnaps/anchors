@@ -21,7 +21,7 @@ else:
 if len( sys.argv ) > 2:
     dtsim = float( sys.argv[2] )
 else:
-    dtsim = 0.1
+    dtsim = 1e-6
 
 if len( sys.argv ) > 3:
     sim_pause = float( sys.argv[3] )
@@ -42,7 +42,7 @@ else:
     n = 1
 
 # Controller gains.
-W = 10.0
+W = 5.0
 C = W*np.eye( Nx )
 
 # Symmetric tranformations.
