@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     # Initialize vehicle positions.
     delta = 2.50
-    eps = 0.0
+    eps = 5.00
     X = Q + noiseCirc( eps=delta, N=M )
 
     # Initial error calculation.

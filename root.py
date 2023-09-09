@@ -84,5 +84,5 @@ def anchorMeasure(X, A, eps=None, exclude=lambda i,j: False):
             if not exclude(i,j):
                 d[i,j] = (x[:,None] - a[:,None]).T@(x[:,None] - a[:,None])
     if eps is not None:
-        d = d + np.abs( noise( eps=eps, shape=(N,M) ) )
+        d = d + eps*np.random.rand( N,M )
     return np.sqrt( d )
