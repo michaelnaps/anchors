@@ -38,21 +38,10 @@ print( 'Q:\n', Q )
 # For error calculation.
 Qerr = np.vstack( (Q, np.ones( (1,M) )) )
 
-
-# Signed coefficient matrix.
-S = np.array( [
-    np.hstack( ([1 for i in range( N )], [0 for i in range( N )], [-1 for i in range( N )]) ),
-    np.hstack( ([1 for i in range( N )], [-1 for i in range( N )], [0 for i in range( N )]) ) ] )
+# Calculate anchor coefficient matrices.
+S = signedCoefficientMatrix( N )
+Z = anchorCoefficientMatrix( A, N, exclude=exclude )
 print( 'S:\n', S )
-
-
-# Anchor-position coefficients.
-z = -1/4*np.hstack( [
-    [ 1/np.sum( np.hstack( [A[:,j,None]
-        for j in range( N ) if not exclude(i,j)] ), axis=1 )
-            for i in range( N ) ] ] ).T
-print( 'z:\n', z )
-Z = np.hstack( (z, z, z) )
 print( 'Z:\n', Z )
 
 
@@ -63,13 +52,14 @@ if __name__ == '__main__':
     tList = np.array( [ [i*dt for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
-    delta = 2.50
-    eps = 0.0
+    delta = 5.0
+    eps = 5.0
     X = Q + noiseCirc( eps=delta, N=M )
 
     # Initial error calculation.
     regr = Regressor( Qerr, X )
-    T, _ = regr.dmd();  e0 = np.vstack( (0, regr.err) )
+    T, _ = regr.dmd();
+    e0 = np.vstack( (0, regr.err) )
 
     # Used for plotting without sim.
     xList = np.empty( (M,Nt,Nx) )
@@ -77,39 +67,9 @@ if __name__ == '__main__':
     xList[:,0,:] = X.T
     eList[:,0] = e0[:,0]
 
-    # Swarm variables.
-    Np = 2
-    R = 0.40
-    fig, axs = plt.subplots(1,Np)
-    swrm = Swarm2D( X, fig=fig, axs=axs[0], zorder=100,
-        radius=-R, color='cornflowerblue', draw_tail=sim
-        ).draw()
-    anchors = Swarm2D( Q, fig=fig, axs=axs[0], zorder=50,
-        radius=R, draw_tail=False, color='indianred'
-        ).setLineStyle( None, body=True ).draw()
-    disturb = Swarm2D( Q, fig=fig, axs=axs[0], zorder=10,
-        radius=delta, draw_tail=False, color='none'
-        ).setLineStyle( ':', body=True
-        ).setLineWidth( 1.0, body=True ).draw()
-    axs[0].plot( Q[0], Q[1], zorder=50, color='indianred',
-        linestyle='none', marker='x' )
-    axs[0].plot( X[0], X[1], zorder=50, color='cornflowerblue',
-        linestyle='none', marker='x' )
-
-    # For plotting error.
-    error = Vehicle2D( e0, fig=fig, axs=axs[1],
-        radius=0.0, color='cornflowerblue', tail_length=Nt ).draw()
-    axs[1].plot( [0, dt*Nt], [0, 0], color='indianred', linestyle='--' )
-
-    # Axis setup.
-    bounds = np.vstack( [
-        1.5*Abound*np.array( [-1, 1, -1, 1] ),
-        np.hstack( [e0[0], dt*Nt, -0.5, e0[1]] ) ] )
-    for a, bnd in zip( axs, bounds ):
-        a.axis( bnd )
-        a.grid( 1 )
-    axs[0].axis( 'equal' )
-    plt.show( block=0 )
+    # Initialize plot with vehicles, anchors and markers.
+    fig, axs, swrm, anchors, error = initAnchorEnvironment(
+        X, Q, A, e0, Nt=Nt, Np=2, R1=0.40, R2=delta)
 
     # Environment block.
     print( 'Xi: %0.3f\n' % regr.err, X )
