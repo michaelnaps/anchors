@@ -49,13 +49,12 @@ if __name__ == '__main__':
     tList = np.array( [ [i for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
-    delta = 1.0
-    X0 = Q + noiseCirc( eps=delta, N=M )
-    Ne = 9
-    epsList = [0] + [2**i for i in range( Ne-1 )]
+    X0 = Q
+    epsList = (0, 1, 5, 25, 50, 100)
     print( 'eps:\n', epsList )
 
     # For error trend plotting.
+    Ne = len( epsList )
     eTrend = np.empty( (Ne,Nt) )
 
     # Simulation block.
@@ -63,10 +62,25 @@ if __name__ == '__main__':
         # Reset initial conditions.
         X = X0
 
+        # Swarm variable.
+        if sim:
+            R1 = 0.40
+            figSim, axsSim = plt.subplots()
+            swrm = Swarm2D( X, fig=figSim, axs=axsSim, zorder=100,
+                radius=-R1, color='cornflowerblue', draw_tail=False
+                ).draw()
+            anchors = Swarm2D( Q, fig=figSim, axs=axsSim, zorder=50,
+                radius=R1, draw_tail=False, color='indianred'
+                ).setLineStyle( None, body=True ).draw()
+            axsSim.axis( 1.5*Abound*np.array( [-1, 1, -1, 1] ) )
+            axsSim.axis( 'equal' )
+            axsSim.set_title( '$\\varepsilon = %0.1f$' % eps )
+            plt.show( block=0 )
+            input( "Press ENTER to start sim for eps = %.1f..." % eps )
+
         # Initial error calculation.
         eTrend[i,0] = formationError( X, Q )[1]
-        print( 'Error:', eps )
-        print( 'Initial: %.3f' % eTrend[i,0] )
+
         for j in range( 1,Nt ):
             # Calculate control.
             U = symmetricControl( X, Q, C, Z, S, eps=eps, exclude=exclude )
@@ -74,27 +88,39 @@ if __name__ == '__main__':
             # Apply dynamics.
             X = model( X, U )
 
+            if sim:
+                swrm.update( X )
+                plt.pause( sim_pause )
+
             # Calculate tranformation error.
             eTrend[i,j] = formationError( X, Q )[1]
-        print( 'Final Error: %.3e' % eTrend[i,-1] )
-        print( '---' )
+
+        # Close simulation plot.
+        if sim:
+            plt.close( 'all' )
 
     # Plot error results.
     fig, axs = plt.subplots( 1,2 )
-    fig.suptitle( 'Formation Error' )
     ymax = np.max( eTrend[-1,:] )
-    print( ymax )
     titles = ('Trend', 'Mean')
+    fig.suptitle( 'Formation Error' )
     for a, title in zip( axs, titles ):
         a.grid( 1 )
         a.set_ylim( [0, ymax+0.01] )
         a.set_title( title )
+
     s = round( 1.5/dt )  # Settling time used in mean.
     for eps, error in zip( epsList, eTrend ):
         label = '$\\varepsilon = %0.1f$' % eps
-        eAvrg = np.mean( error )
+        eAvrg = error[s:].mean()
         axs[0].plot( tList[0], error )
-        axs[1].plot( [0, 1], [eAvrg, eAvrg], label=label )
+        axs[1].plot( [0, epsList[-1]], [eAvrg, eAvrg], label=label )
+
+    axs[1].plot( epsList, eTrend[:,s:].mean( axis=1 ), color='grey', marker='.' )
     axs[1].legend()
-    # fig.tight_layout()
-    plt.show()
+    plt.show( block=0 )
+
+    # Exit program.
+    ans = input( "Press ENTER to exit program..." )
+    if ans == 'save':
+        pass
