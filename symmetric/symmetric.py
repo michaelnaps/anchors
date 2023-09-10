@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
         tswrm.update( xtrue )
         # aswrm.update( xanch )
-        plt.pause( sim_pause )
+        plt.pause( pausesim )
 
         if np.linalg.norm( uanch ) < 0.1:
             print( 'No motion, ending simulation early.' )

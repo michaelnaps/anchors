@@ -97,7 +97,7 @@ if __name__ == '__main__':
             swrm.update( X )
             error.update( eList[:,i,None] )
             # axs[1].set_title( 'time: %s' % i )
-            plt.pause( sim_pause )
+            plt.pause( pausesim )
     print( 'Xf:\n', X )
 
     # Calculate transformation matrix by DMD.
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     yaxis = T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
     axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
     axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
-    plt.pause( sim_pause )
+    plt.pause( pausesim )
 
     # Calculate error after transformation.
     print( '\nError: ', np.linalg.norm( X - T@Qerr ) )

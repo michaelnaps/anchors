@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
             if sim:
                 swrm.update( X )
-                plt.pause( sim_pause )
+                plt.pause( pausesim )
 
             # Calculate tranformation error.
             eTrend[i,j] = formationError( X, Q )[1]

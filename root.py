@@ -1,8 +1,4 @@
-import sys
-from os.path import expanduser
-sys.path.insert(0, expanduser('~')+'/prog/geom')
-sys.path.insert(0, expanduser('~')+'/prog/kman')
-
+from args import *
 import numpy as np
 from GEOM.Vehicle2D import *
 from KMAN.Regressors import *
@@ -10,23 +6,6 @@ from KMAN.Regressors import *
 
 # set global output setting
 np.set_printoptions(precision=3, suppress=True, linewidth=np.inf)
-
-
-# Pause time argument.
-if len( sys.argv ) > 1:
-    sim = sys.argv[1] == '1'
-else:
-    sim = False
-
-if len( sys.argv ) > 2:
-    dtsim = float( sys.argv[2] )
-else:
-    dtsim = 1e-6
-
-if len( sys.argv ) > 3:
-    sim_pause = float( sys.argv[3] )
-else:
-    sim_pause = 1e-12
 
 
 # True system values.
