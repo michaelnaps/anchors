@@ -99,17 +99,23 @@ def symmetricControl(X, Q, C, Z, S, K=None, eps=0, exclude=lambda i,j: False):
 
 
 # Plotting-related members.
-def initAnchorEnvironment(X, Q, A, e0, Nt=1000, Np=2, R1=0.40, R2=1.00):
+def initAnchorEnvironment(X, Q, A, e0, Nt=1000, R1=0.40, R2=1.00, anchs=True):
     # Plot initialization.
+    Np = 2
     fig, axs = plt.subplots(1,Np)
+
+    # Optionally plot anchors.
+    if anchs:
+        anchors = Swarm2D( Q, fig=fig, axs=axs[0], zorder=50,
+            radius=R1, draw_tail=False, color='indianred'
+            ).setLineStyle( None, body=True ).draw()
+    else:
+        anchors = None
 
     # Swarm variables.
     swrm = Swarm2D( X, fig=fig, axs=axs[0], zorder=100,
         radius=-R1, color='cornflowerblue', draw_tail=sim
         ).draw()
-    anchors = Swarm2D( Q, fig=fig, axs=axs[0], zorder=50,
-        radius=R1, draw_tail=False, color='indianred'
-        ).setLineStyle( None, body=True ).draw()
     disturb = Swarm2D( Q, fig=fig, axs=axs[0], zorder=10,
         radius=R2, draw_tail=False, color='none'
         ).setLineStyle( ':', body=True
@@ -128,12 +134,14 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, Np=2, R1=0.40, R2=1.00):
     titles = ('Environment', 'Error')
     bounds = np.vstack( [
         1.5*Abound*np.array( [-1, 1, -1, 1] ),
-        np.hstack( [e0[0], dt*Nt, -0.5, e0[1]] ) ] )
+        np.hstack( [e0[0], dt*Nt, -0.01, e0[1]] ) ] )
     for i in range( 2 ):
         axs[i].axis( bounds[i] )
         axs[i].grid( 1 )
         axs[i].set_title( titles[i] )
     axs[0].axis( 'equal' )
+
+    # Show plot.
     plt.show( block=0 )
 
     # Return figure.

@@ -8,7 +8,7 @@ from root import *
 # Set hyper parameter(s).
 Nr = 3                      # Number of anchor sets + reflection sets.
 N = 1                       # Number of anchors.
-M = 10                      # Number of vehicles.
+M = N*Nr + 2                # Number of vehicles.
 
 
 # Exclusion elements in measurement function.
@@ -18,11 +18,11 @@ def exclude(i, j):
 
 
 # Anchor set.
-A = np.array( [[3],[4]] )
+A = np.array( [[2],[3]] )
 print( 'A:\n', A )
 
 # Asymmetric vehicle set.
-B = noise( eps=Abound, shape=(Nx,M-N*Nr) )
+B = np.array( [[-4,-3],[-1,-7]] )
 
 # Reflection sets.
 Ax = Rx@A
@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     # Initialize vehicle positions.
     delta = 2.50
-    eps = 5.00
+    eps = 0.0
     X = Q + noiseCirc( eps=delta, N=M )
 
     # Initial error calculation.
@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
     # Initialize plot with vehicles, anchors and markers.
     fig, axs, swrm, anchors, error = initAnchorEnvironment(
-        X, Q, A, e0, Nt=Nt, Np=2, R1=0.40, R2=delta)
+        X, Q, A, e0, Nt=Nt, R1=0.40, R2=delta, anchs=False)
 
     # Environment block.
     print( 'Xi: %0.3f\n' % regr.err, X )
@@ -96,7 +96,6 @@ if __name__ == '__main__':
         if sim and i % n == 0:
             swrm.update( X )
             error.update( eList[:,i,None] )
-            # axs[1].set_title( 'time: %s' % i )
             plt.pause( pausesim )
     print( 'Xf:\n', X )
 
@@ -112,9 +111,9 @@ if __name__ == '__main__':
         for vhc in xList:
             axs[0].plot( vhc.T[0], vhc.T[1], color='cornflowerblue' )
         axs[1].plot( eList[0], eList[1], color='cornflowerblue' )
-    anchors.update( T@Qerr )
-    xaxis = T@np.array( [[-Abound, Abound],[0, 0],[1, 1]] )
-    yaxis = T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
+    shrink = 1/3
+    xaxis = shrink*T@np.array( [[-Abound, Abound],[0, 0],[1, 1]] )
+    yaxis = shrink*T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
     axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
     axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
     plt.pause( pausesim )
@@ -122,3 +121,10 @@ if __name__ == '__main__':
     # Calculate error after transformation.
     print( '\nError: ', np.linalg.norm( X - T@Qerr ) )
     input( "Press ENTER to exit program..." )
+
+    if save:
+        fig.savefig( figurepath
+            + 'asymmetric_formation_d%.1f' % delta
+            + '_e%.1f.png' % eps,
+            dpi=1000 )
+        print( 'Figure saved.' )

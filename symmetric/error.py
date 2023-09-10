@@ -102,12 +102,16 @@ if __name__ == '__main__':
     # Plot error results.
     fig, axs = plt.subplots( 1,2 )
     ymax = np.max( eTrend[-1,:] )
+    # fig.suptitle( 'Formation Error' )
     titles = ('Trend', 'Mean')
-    fig.suptitle( 'Formation Error' )
-    for a, title in zip( axs, titles ):
+    xlabels = ('Iteration [n]', 'max$(p(\\varepsilon))$')
+    ylabels = ('$|| X - (K Q + k) ||_2$', None)
+    for a, t, x, y in zip( axs, titles, xlabels, ylabels ):
         a.grid( 1 )
         a.set_ylim( [0, ymax+0.01] )
-        a.set_title( title )
+        a.set_title( t )
+        a.set_xlabel( x )
+        a.set_ylabel( y )
 
     s = round( 1.5/dt )  # Settling time used in mean.
     for eps, error in zip( epsList, eTrend ):
@@ -120,7 +124,12 @@ if __name__ == '__main__':
     axs[1].legend()
     plt.show( block=0 )
 
+    input( 'Press ENTER to exit the program...' )
+
     # Exit program.
-    ans = input( "Press ENTER to exit program..." )
-    if ans == 'save':
-        pass
+    if save:
+        fig.savefig( figurepath
+            + 'formation_error'
+            + '_e%.1f.png' % eps,
+            dpi=1000 )
+        print( 'Figure saved.' )
