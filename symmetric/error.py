@@ -11,11 +11,9 @@ N = 3                       # Number of anchors.
 # N = np.random.randint(1,10)
 M = Nr*N                    # Number of vehicles.
 
-
 # Exclusion elements in measurement function.
 def exclude(i, j):
     return False # (j - i) % N == 0
-
 
 # Anchor set.
 A = np.array( [[2,5,8],[3,6,9]] )
@@ -25,7 +23,6 @@ A = np.array( [[2,5,8],[3,6,9]] )
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0]] )
 # A = noise( eps=Abound, shape=(2,N) )
 print( 'A:\n', A )
-
 
 # Reflection sets.
 Ax = Rx@A
@@ -49,74 +46,55 @@ print( 'Z:\n', Z )
 if __name__ == '__main__':
     # Simulation time.
     T = 5;  Nt = round( T/dt ) + 1
-    tList = np.array( [ [i*dt for i in range( Nt )] ] )
+    tList = np.array( [ [i for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
-    delta = 10.0
-    Ne = 4;
-    X = Q + noiseCirc( eps=delta, N=M )
-    epsList = [int( (i > 0)*2**(i-1) ) for i in range( Ne )]
+    delta = 1.0
+    X0 = Q + noiseCirc( eps=delta, N=M )
+    Ne = 9
+    epsList = [0] + [2**i for i in range( Ne-1 )]
+    print( 'eps:\n', epsList )
 
-    # Initial error calculation.
-    regr = Regressor( Qerr, X )
-    T, _ = regr.dmd();
-    e0 = np.vstack( (0, regr.err) )
+    # For error trend plotting.
+    eTrend = np.empty( (Ne,Nt) )
 
-    # Used for plotting without sim.
-    eTrend = np.empty( (Ne,2,Nt) )
+    # Simulation block.
+    for i, eps in enumerate( epsList ):
+        # Reset initial conditions.
+        X = X0
 
-    # Environment block.
-    print( 'Xi: %0.3f\n' % regr.err, X )
-    input( "Press ENTER to begin simulation..." )
-    for i in range( Nt ):
-        # Take measurements.
-        H = anchorMeasure( X, X, eps=eps, exclude=exclude )**2
+        # Initial error calculation.
+        eTrend[i,0] = formationError( X, Q )[1]
+        print( 'Error:', eps )
+        print( 'Initial: %.3f' % eTrend[i,0] )
+        for j in range( 1,Nt ):
+            # Calculate control.
+            U = symmetricControl( X, Q, C, Z, S, eps=eps, exclude=exclude )
 
-        # Calculate control and add disturbance.
-        U = C@(Q - (Z*S)@H)
-        if i > 200 and i < 300:
-            W = 10.0
-            P = 0
-            U[:,:P] = U[:,:P] - W*np.ones( (Nx,P) )
+            # Apply dynamics.
+            X = model( X, U )
 
-        # Apply dynamics.
-        X = model( X, U )
+            # Calculate tranformation error.
+            eTrend[i,j] = formationError( X, Q )[1]
+        print( 'Final Error: %.3e' % eTrend[i,-1] )
+        print( '---' )
 
-        # Calculate tranformation error.
-        regr = Regressor( Qerr, X )
-        T, _ = regr.dmd()
-
-        # Save values.
-        eList[:,i] = np.array( [dt*i, regr.err] )
-        xList[:,i,:] = X.T
-
-        # Update simulation.
-        if sim and i % n == 0:
-            swrm.update( X )
-            error.update( eList[:,i,None] )
-            # axs[1].set_title( 'time: %s' % i )
-            plt.pause( sim_pause )
-    print( 'Xf:\n', X )
-
-    # Calculate transformation matrix by DMD.
-    Qerr = np.vstack( (Q, np.ones( (1,M) )) )
-    regr = Regressor( Qerr, X )
-    T, _ = regr.dmd()
-    print( 'T:\n', T )
-
-    # Plot transformed grid for reference.
-    if not sim:
-        swrm.update( X )
-        for vhc in xList:
-            axs[0].plot( vhc.T[0], vhc.T[1], color='cornflowerblue' )
-        axs[1].plot( eList[0], eList[1], color='cornflowerblue' )
-    anchors.update( T@Qerr )
-    xaxis = T@np.array( [[-Abound, Abound],[0, 0],[1, 1]] )
-    yaxis = T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
-    axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
-    axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
-    plt.pause( sim_pause )
-
-    # Calculate error after transformation.
-    print( '\nError: ', np.linalg.norm( X - T@Qerr ) )
-    input( "Press ENTER to exit program..." )
+    # Plot error results.
+    fig, axs = plt.subplots( 1,2 )
+    fig.suptitle( 'Formation Error' )
+    ymax = np.max( eTrend[-1,:] )
+    print( ymax )
+    titles = ('Trend', 'Mean')
+    for a, title in zip( axs, titles ):
+        a.grid( 1 )
+        a.set_ylim( [0, ymax+0.01] )
+        a.set_title( title )
+    s = round( 1.5/dt )  # Settling time used in mean.
+    for eps, error in zip( epsList, eTrend ):
+        label = '$\\varepsilon = %0.1f$' % eps
+        eAvrg = np.mean( error )
+        axs[0].plot( tList[0], error )
+        axs[1].plot( [0, 1], [eAvrg, eAvrg], label=label )
+    axs[1].legend()
+    # fig.tight_layout()
+    plt.show()

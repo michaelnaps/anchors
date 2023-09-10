@@ -58,6 +58,7 @@ def model(X, U):
 def control(x, C=np.eye( Nx ), q=np.zeros( (Nx,1) )):
     return C@(q - x)
 
+
 # Shaped noise functions.
 # Boxed noise.
 def noise(eps=1e-3, shape=(2,1), shape3=None):
@@ -74,6 +75,7 @@ def noiseCirc(eps=1e-3, N=1):
         y[:,i] = [R*np.cos( t ), R*np.sin( t )]
     return y
 
+
 # Anchor measurement function.
 def anchorMeasure(X, A, eps=None, exclude=lambda i,j: False):
     N = X.shape[1]
@@ -89,6 +91,13 @@ def anchorMeasure(X, A, eps=None, exclude=lambda i,j: False):
 
 
 # Control-related members.
+def formationError( X, Q ):
+    Qerr = np.vstack(
+        (Q, np.ones( (1,Q.shape[1]) )) )
+    regr = Regressor( Qerr, X )
+    T, _ = regr.dmd()
+    return T, regr.err
+
 def signedCoefficientMatrix(N):
     # Signed coefficient matrix.
     S = np.array( [
@@ -106,6 +115,14 @@ def anchorCoefficientMatrix(A, N, exclude=None):
                 for i in range( N ) ] ] ).T
     Z = np.hstack( (z, z, z) )
     return Z
+
+def symmetricControl(X, Q, C, Z, S, K=None, eps=0, exclude=lambda i,j: False):
+    # Include all elements if None.
+    if K is None:
+        K = X.shape[1]
+    # Take measurements and return control.
+    H = anchorMeasure( X, X, eps=eps, exclude=exclude )**2
+    return C@(Q - (Z*S)@H[:K])
 
 
 # Plotting-related members.
