@@ -97,7 +97,7 @@ if __name__ == '__main__':
 
         # Close simulation plot.
         if sim:
-            plt.close( 'all' )
+           plt.close( 'all' )
 
     # Plot error results.
     fig, axs = plt.subplots( 1,2 )
