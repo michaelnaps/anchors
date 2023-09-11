@@ -7,6 +7,7 @@ sys.path.insert(0, expanduser('~')+'/prog/kman')
 
 # Environment imports.
 import numpy as np
+import matplotlib.pyplot as plt
 from GEOM.Vehicle2D import *
 from KMAN.Regressors import *
 
@@ -14,6 +15,12 @@ from KMAN.Regressors import *
 # Figure filepath.
 figurepath = expanduser('~') \
     + '/bu_research/symmetric_formation_control/figures/sim/'
+
+# Plot font.
+plt.rcParams.update( {
+    'text.usetex': True,
+    'font.family': 'mathptmx'
+} )
 
 # Set global number print setting.
 np.set_printoptions(precision=3, suppress=True, linewidth=np.inf)

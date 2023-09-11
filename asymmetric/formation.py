@@ -5,6 +5,11 @@ sys.path.insert(0, expanduser('~')+'/prog/anchors')
 from root import *
 
 
+# I like these points.
+# [[ 2.545  1.373 -0.815 -4.318 -2.402]
+#  [ 4.469 -3.036  2.047  1.842 -3.984]]
+
+
 # Set hyper parameter(s).
 Nr = 3                      # Number of anchor sets + reflection sets.
 N = 1                       # Number of anchors.
