@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     # Initialize vehicle positions.
     X0 = Q
-    epsList = (0, 1, 5, 25, 50, 100)
+    epsList = (0, 1, 5, 25, 50)
     print( 'eps:\n', epsList )
 
     # For error trend plotting.
@@ -117,10 +117,12 @@ if __name__ == '__main__':
     for eps, error in zip( np.flipud( epsList ), np.flipud( eTrend ) ):
         label = '$\\varepsilon = %0.1f$' % eps
         eAvrg = error[s:].mean()
-        axs[0].plot( tList[0], error )
+        axs[0].plot( tList[0], error, linestyle='None', marker='.', markersize=2 )
         axs[1].plot( [0, epsList[-1]], [eAvrg, eAvrg], label=label )
     axs[1].plot( epsList, eTrend[:,s:].mean( axis=1 ), color='grey', marker='.' )
+    axs[1].set_xticks( [10*i for i in range( Ne+1 )] )
 
+    fig.tight_layout()
     fig.set_figheight( 5 )
     handles, labels = axs[1].get_legend_handles_labels()
     axs[1].legend(handles[::-1], labels[::-1])
