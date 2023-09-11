@@ -125,7 +125,6 @@ if __name__ == '__main__':
     handles, labels = axs[1].get_legend_handles_labels()
     axs[1].legend(handles[::-1], labels[::-1])
 
-    fig.tight_layout()
     fig.set_figheight( figheight )
     plt.show( block=0 )
 
