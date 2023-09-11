@@ -24,6 +24,7 @@ parser.add_argument( '--save' )
 parser.add_argument( '--sim' )
 parser.add_argument( '--dtsim' )
 parser.add_argument( '--pausesim' )
+parser.add_argument( '--fheight' )
 
 # Program variables.
 args = parser.parse_args()
@@ -39,3 +40,8 @@ if args.pausesim is None:
     pausesim = 1e-12
 else:
     pausesim = float( args.pausesim )
+
+if args.fheight is None:
+    figheight = 5
+else:
+    figheight = float( args.fheight )

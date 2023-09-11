@@ -126,7 +126,7 @@ if __name__ == '__main__':
     axs[1].legend(handles[::-1], labels[::-1])
 
     fig.tight_layout()
-    fig.set_figheight( 5 )
+    fig.set_figheight( figheight )
     plt.show( block=0 )
 
     input( 'Press ENTER to exit the program...' )

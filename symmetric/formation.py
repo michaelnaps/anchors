@@ -121,7 +121,7 @@ if __name__ == '__main__':
     yaxis = shrink*T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
     axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
     axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
-    fig.set_figheight( 5 )
+    fig.set_figheight( figheight )
     plt.pause( pausesim )
 
     # Calculate error after transformation.
