@@ -45,7 +45,7 @@ print( 'Z:\n', Z )
 # Main execution block.
 if __name__ == '__main__':
     # Simulation time.
-    T = 5;  Nt = round( T/dt ) + 1
+    T = 10;  Nt = round( T/dt ) + 1
     tList = np.array( [ [i for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
@@ -114,22 +114,22 @@ if __name__ == '__main__':
         a.set_ylabel( y )
 
     s = round( 1.5/dt )  # Settling time used in mean.
-    for eps, error in zip( epsList, eTrend ):
+    for eps, error in zip( np.flipud( epsList ), np.flipud( eTrend ) ):
         label = '$\\varepsilon = %0.1f$' % eps
         eAvrg = error[s:].mean()
         axs[0].plot( tList[0], error )
         axs[1].plot( [0, epsList[-1]], [eAvrg, eAvrg], label=label )
-
     axs[1].plot( epsList, eTrend[:,s:].mean( axis=1 ), color='grey', marker='.' )
-    axs[1].legend()
+
+    fig.set_figheight( 5 )
+    handles, labels = axs[1].get_legend_handles_labels()
+    axs[1].legend(handles[::-1], labels[::-1])
+
     plt.show( block=0 )
 
     input( 'Press ENTER to exit the program...' )
 
     # Exit program.
     if save:
-        fig.savefig( figurepath
-            + 'formation_error'
-            + '_e%.1f.png' % eps,
-            dpi=1000 )
+        fig.savefig( figurepath + 'formation_error.png', dpi=1000 )
         print( 'Figure saved.' )

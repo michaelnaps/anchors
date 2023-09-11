@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     # Initialize vehicle positions.
     delta = 5.0
-    eps = 5.0
+    eps = 0.0
     X = Q + noiseCirc( eps=delta, N=M )
 
     # Initial error calculation.
@@ -121,6 +121,7 @@ if __name__ == '__main__':
     yaxis = shrink*T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
     axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
     axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
+    fig.set_figheight( 5 )
     plt.pause( pausesim )
 
     # Calculate error after transformation.
@@ -128,7 +129,7 @@ if __name__ == '__main__':
     input( "Press ENTER to exit program..." )
     if save:
         fig.savefig( figurepath
-            + 'symmetric_formation_d%.1f' % delta
-            + '_e%.1f.png' % eps,
+            + 'symmetric_formation_d%i' % delta
+            + '_e%i.png' % eps,
             dpi=1000 )
         print( 'Figure saved.' )

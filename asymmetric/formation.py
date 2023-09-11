@@ -49,7 +49,7 @@ if __name__ == '__main__':
     tList = np.array( [ [i*dt for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
-    delta = 2.50
+    delta = 5.0
     eps = 0.0
     X = Q + noiseCirc( eps=delta, N=M )
 
@@ -124,7 +124,7 @@ if __name__ == '__main__':
 
     if save:
         fig.savefig( figurepath
-            + 'asymmetric_formation_d%.1f' % delta
-            + '_e%.1f.png' % eps,
+            + 'asymmetric_formation_d%i' % delta
+            + '_e%i.png' % eps,
             dpi=1000 )
         print( 'Figure saved.' )

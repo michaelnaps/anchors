@@ -12,7 +12,8 @@ from KMAN.Regressors import *
 
 
 # Figure filepath.
-figurepath = expanduser('~') + '/prog/anchors/.figures/'
+figurepath = expanduser('~') \
+    + '/bu_research/symmetric_formation_control/figures/sim/'
 
 # Set global number print setting.
 np.set_printoptions(precision=3, suppress=True, linewidth=np.inf)
@@ -23,16 +24,18 @@ parser.add_argument( '--save' )
 parser.add_argument( '--sim' )
 parser.add_argument( '--dtsim' )
 parser.add_argument( '--pausesim' )
-args = parser.parse_args()
 
 # Program variables.
+args = parser.parse_args()
 save = bool( args.save )
 sim = bool( args.sim ) and not save
-dtsim = args.dtsim
-pausesim = args.pausesim
 
-if dtsim is None:
+if args.dtsim is None:
     dtsim = 1e-6
+else:
+    dtsim = float( args.dtsim )
 
-if pausesim is None:
+if args.pausesim is None:
     pausesim = 1e-12
+else:
+    pausesim = float( args.pausesim )
