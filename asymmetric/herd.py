@@ -21,18 +21,17 @@ P = M + 1                   # Number of vehicles.
 
 # Exclusion elements in measurement function.
 def exclude(i, j):
-    sym = N*Nr - 1
-    return i > sym
+    return i > M - 1
 
 
 # Anchor set.
-# A = np.array( [[2],[3]] )
-A = Abound*np.random.rand( 2,N )
+A = np.array( [[2],[3]] )
+# A = Abound*np.random.rand( 2,N )
 print( 'A:\n', A )
 
 # Asymmetric vehicle set.
-# B = np.array( [[-3],[-7]] )
-B = -Abound*np.random.rand( 2,P-M )
+B = np.array( [[-3],[-7]] )
+# B = -Abound*np.random.rand( 2,P-M )
 
 # Reflection sets.
 Ax = Rx@A
@@ -45,6 +44,10 @@ print( 'Q:\n', Q )
 # For error calculation.
 Qerr = np.vstack( (Q, np.ones( (1,P) )) )
 
+# Herd leader.
+W = 10.0
+p = 1
+
 # Calculate anchor coefficient matrices.
 S = signedCoefficientMatrix( N )
 Z = anchorCoefficientMatrix( A, N, exclude=exclude )
@@ -55,7 +58,7 @@ print( 'Z:\n', Z )
 # Main execution block.
 if __name__ == '__main__':
     # Simulation time.
-    T = 2;  Nt = round( T/dt ) + 1
+    T = 5;  Nt = round( T/dt ) + 1
     tList = np.array( [ [i*dt for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
@@ -77,7 +80,10 @@ if __name__ == '__main__':
 
     # Initialize plot with vehicles, anchors and markers.
     fig, axs, swrm, anchors, error = initAnchorEnvironment(
-        X, Q, A, e0, Nt=Nt, ge=1, R1=0.40, R2=delta, anchs=False, dist=False)
+        X[:,1:], Q[:,1:], A[:,1:], e0, Nt=Nt, ge=1, R1=0.40, R2=delta, anchs=False, dist=False)
+    leader = Vehicle2D( X[:,0,None], fig=fig, axs=axs[0],
+        radius=-0.40, tail_length=Nt, color='yellowgreen' ).draw()
+    axs[0].axis( 1.5*Abound*np.array( [-1, 2, -1, 2] ) )
 
     # Environment block.
     print( 'Xi: %0.3f\n' % regr.err, X )
@@ -88,10 +94,10 @@ if __name__ == '__main__':
 
         # Calculate control and add disturbance.
         U = C@(Q - (Z*S)@H[:N*Nr])
-        if i > 200 and i < 300:
-            W = 10.0
-            P = 0
-            U[:,:P] = U[:,:P] - W*np.ones( (Nx,P) )
+        if i > 200 and i < 225:
+            U[:,:p] = W*np.ones( (Nx,p) )
+        else:
+            U[:,:p] = np.zeros( (Nx,p) )
 
         # Apply dynamics.
         X = model( X, U )
@@ -106,7 +112,8 @@ if __name__ == '__main__':
 
         # Update simulation.
         if sim and i % n == 0:
-            swrm.update( X )
+            swrm.update( X[:,1:] )
+            leader.update( X[:,0,None] )
             error.update( eList[:,i,None] )
             plt.pause( pausesim )
     print( 'Xf:\n', X )

@@ -26,13 +26,13 @@ def exclude(i, j):
 
 
 # Anchor set.
-# A = np.array( [[2],[3]] )
-A = Abound*np.random.rand( 2,N )
+A = np.array( [[2],[3]] )
+# A = Abound*np.random.rand( 2,N )
 print( 'A:\n', A )
 
 # Asymmetric vehicle set.
-# B = np.array( [[-3],[-7]] )
-B = -Abound*np.random.rand( 2,P-M )
+B = np.array( [[-3],[-7]] )
+# B = -Abound*np.random.rand( 2,P-M )
 
 # Reflection sets.
 Ax = Rx@A
@@ -62,6 +62,9 @@ if __name__ == '__main__':
     delta = 5.0
     eps = 0.0
     X = Q + noiseCirc( eps=delta, N=P )
+    # X = np.array( [
+    #     [ 1.341,  2.358, -4.427, -3.569],
+    #     [ 6.266, -2.149,  0.479, -9.312] ] )
 
     # Initial error calculation.
     ge = 1
