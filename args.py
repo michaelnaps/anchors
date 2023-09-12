@@ -19,7 +19,8 @@ figurepath = expanduser('~') \
 # Plot font.
 plt.rcParams.update( {
     'text.usetex': True,
-    'font.family': 'mathptmx'
+    'font.family': 'mathptmx',
+    'text.latex.preamble': "\\usepackage{amsmath}"
 } )
 
 # Set global number print setting.

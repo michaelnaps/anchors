@@ -136,17 +136,35 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
 
     # Axis setup.
     titles = ('Environment', 'Error')
+    xlabels = ('$\\mathbf{x}$', 'Iteration [n]')
+    ylabels = ('$\\mathbf{y}$', '$|| X - (KQ + k) ||_2$')
     bounds = np.vstack( [
         1.5*Abound*np.array( [-1, 1, -1, 1] ),
         np.hstack( [e0[0], ge*Nt, -0.01, e0[1]] ) ] )
     for i in range( 2 ):
+        axs[i].set_title( titles[i] )
+        axs[i].set_xlabel( xlabels[i] )
+        axs[i].set_ylabel( ylabels[i] )
         axs[i].axis( bounds[i] )
         axs[i].grid( 1 )
-        axs[i].set_title( titles[i] )
     axs[0].axis( 'equal' )
 
     # Show plot.
+    fig.set_figheight( figheight )
     plt.show( block=0 )
 
     # Return figure.
     return fig, axs, swrm, anchors, error
+
+def finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1/3 ):
+    if not sim:
+        swrm.update( xList[:,-1,:].T )
+        for vhc in xList:
+            axs[0].plot( vhc.T[0], vhc.T[1], color='cornflowerblue' )
+        axs[1].plot( eList[0], eList[1], color='cornflowerblue' )
+    xaxis = shrink*T@np.array( [[-Abound, Abound],[0, 0],[1, 1]] )
+    yaxis = shrink*T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
+    axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
+    axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
+    fig.tight_layout()
+    return fig, axs

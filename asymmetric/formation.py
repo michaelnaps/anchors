@@ -115,18 +115,7 @@ if __name__ == '__main__':
     print( 'T:\n', T )
 
     # Plot transformed grid for reference.
-    if not sim:
-        swrm.update( X )
-        for vhc in xList:
-            axs[0].plot( vhc.T[0], vhc.T[1], color='cornflowerblue' )
-        axs[1].plot( eList[0], eList[1], color='cornflowerblue' )
-    shrink = 1/3
-    xaxis = shrink*T@np.array( [[-Abound, Abound],[0, 0],[1, 1]] )
-    yaxis = shrink*T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
-    axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
-    axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
-
-    fig.set_figheight( figheight )
+    finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1/3 )
     plt.pause( pausesim )
 
     # Calculate error after transformation.

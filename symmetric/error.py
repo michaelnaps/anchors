@@ -107,11 +107,11 @@ if __name__ == '__main__':
     xlabels = ('Iteration [n]', 'max$(p(\\varepsilon))$')
     ylabels = ('$|| X - (K Q + k) ||_2$', None)
     for a, t, x, y in zip( axs, titles, xlabels, ylabels ):
-        a.grid( 1 )
-        a.set_ylim( [0, ymax+0.01] )
         a.set_title( t )
         a.set_xlabel( x )
         a.set_ylabel( y )
+        a.set_ylim( [0, ymax+0.01] )
+        a.grid( 1 )
 
     s = round( 1.5/dt )  # Settling time used in mean.
     axs[1].plot( epsList, eTrend[:,s:].mean( axis=1 ), color='grey', marker='.' )
@@ -125,6 +125,7 @@ if __name__ == '__main__':
     handles, labels = axs[1].get_legend_handles_labels()
     axs[1].legend(handles[::-1], labels[::-1])
 
+    fig.tight_layout()
     fig.set_figheight( figheight )
     plt.show( block=0 )
 
