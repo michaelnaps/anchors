@@ -104,7 +104,7 @@ if __name__ == '__main__':
     ymax = np.max( eTrend[-1,:] )
     # fig.suptitle( 'Formation Error' )
     titles = ('Trend', 'Mean')
-    xlabels = ('Iteration [n]', 'max$(p(\\varepsilon))$')
+    xlabels = ('Iteration', '$\\varepsilon$')
     ylabels = ('$|| X - (K Q + k) ||_2$', None)
     for a, t, x, y in zip( axs, titles, xlabels, ylabels ):
         a.set_title( t )
