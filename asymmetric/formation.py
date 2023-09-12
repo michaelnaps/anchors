@@ -8,12 +8,14 @@ from root import *
 # I like these points.
 # [[ 2.545  1.373 -0.815 -4.318 -2.402]
 #  [ 4.469 -3.036  2.047  1.842 -3.984]]
+# [[ 2.172  0.397 -2.094 -2.668]
+#  [ 4.347  0.989  3.068 -8.288]]
 
 
 # Set hyper parameter(s).
 Nr = 3                      # Number of anchor sets + reflection sets.
 N = 1                       # Number of anchors.
-M = N*Nr + 2                # Number of vehicles.
+M = N*Nr + 1                # Number of vehicles.
 
 
 # Exclusion elements in measurement function.
@@ -27,7 +29,7 @@ A = np.array( [[2],[3]] )
 print( 'A:\n', A )
 
 # Asymmetric vehicle set.
-B = np.array( [[-4,-3],[-1,-7]] )
+B = np.array( [[-3],[-7]] )
 
 # Reflection sets.
 Ax = Rx@A
@@ -50,7 +52,7 @@ print( 'Z:\n', Z )
 # Main execution block.
 if __name__ == '__main__':
     # Simulation time.
-    T = 5;  Nt = round( T/dt ) + 1
+    T = 2;  Nt = round( T/dt ) + 1
     tList = np.array( [ [i*dt for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
@@ -59,8 +61,10 @@ if __name__ == '__main__':
     X = Q + noiseCirc( eps=delta, N=M )
 
     # Initial error calculation.
+    ge = 1
     regr = Regressor( Qerr, X )
-    T, _ = regr.dmd();  e0 = np.vstack( (0, regr.err) )
+    T, _ = regr.dmd()
+    e0 = np.vstack( (0, regr.err) )
 
     # Used for plotting without sim.
     xList = np.empty( (M,Nt,Nx) )
@@ -70,7 +74,7 @@ if __name__ == '__main__':
 
     # Initialize plot with vehicles, anchors and markers.
     fig, axs, swrm, anchors, error = initAnchorEnvironment(
-        X, Q, A, e0, Nt=Nt, R1=0.40, R2=delta, anchs=False)
+        X, Q, A, e0, Nt=Nt, ge=1, R1=0.40, R2=delta, anchs=False, dist=False)
 
     # Environment block.
     print( 'Xi: %0.3f\n' % regr.err, X )
@@ -94,7 +98,7 @@ if __name__ == '__main__':
         T, _ = regr.dmd()
 
         # Save values.
-        eList[:,i] = np.array( [dt*i, regr.err] )
+        eList[:,i] = np.array( [i, regr.err] )
         xList[:,i,:] = X.T
 
         # Update simulation.
@@ -133,5 +137,5 @@ if __name__ == '__main__':
         fig.savefig( figurepath
             + 'asymmetric_formation_d%i' % delta
             + '_e%i.png' % eps,
-            dpi=1000 )
+            dpi=600 )
         print( 'Figure saved.' )

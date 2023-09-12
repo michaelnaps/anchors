@@ -99,7 +99,7 @@ def symmetricControl(X, Q, C, Z, S, K=None, eps=0, exclude=lambda i,j: False):
 
 
 # Plotting-related members.
-def initAnchorEnvironment(X, Q, A, e0, Nt=1000, R1=0.40, R2=1.00, anchs=True):
+def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=True, dist=True):
     # Plot initialization.
     Np = 2
     fig, axs = plt.subplots(1,Np)
@@ -112,14 +112,18 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, R1=0.40, R2=1.00, anchs=True):
     else:
         anchors = None
 
+    if dist:
+        disturb = Swarm2D( Q, fig=fig, axs=axs[0], zorder=10,
+            radius=R2, draw_tail=False, color='none'
+            ).setLineStyle( ':', body=True
+            ).setLineWidth( 1.0, body=True ).draw()
+    else:
+        disturb = None
+
     # Swarm variables.
     swrm = Swarm2D( X, fig=fig, axs=axs[0], zorder=100,
         radius=-R1, color='cornflowerblue', draw_tail=sim
         ).draw()
-    disturb = Swarm2D( Q, fig=fig, axs=axs[0], zorder=10,
-        radius=R2, draw_tail=False, color='none'
-        ).setLineStyle( ':', body=True
-        ).setLineWidth( 1.0, body=True ).draw()
     axs[0].plot( Q[0], Q[1], zorder=50, color='indianred',
         linestyle='none', marker='x' )
     axs[0].plot( X[0], X[1], zorder=50, color='cornflowerblue',
@@ -128,13 +132,13 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, R1=0.40, R2=1.00, anchs=True):
     # For plotting error.
     error = Vehicle2D( e0, fig=fig, axs=axs[1],
         radius=0.0, color='cornflowerblue', tail_length=Nt ).draw()
-    axs[1].plot( [0, dt*Nt], [0, 0], color='indianred', linestyle='--' )
+    axs[1].plot( [0, ge*Nt], [0, 0], color='indianred', linestyle='--' )
 
     # Axis setup.
     titles = ('Environment', 'Error')
     bounds = np.vstack( [
         1.5*Abound*np.array( [-1, 1, -1, 1] ),
-        np.hstack( [e0[0], dt*Nt, -0.01, e0[1]] ) ] )
+        np.hstack( [e0[0], ge*Nt, -0.01, e0[1]] ) ] )
     for i in range( 2 ):
         axs[i].axis( bounds[i] )
         axs[i].grid( 1 )
