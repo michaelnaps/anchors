@@ -1,4 +1,5 @@
 from args import *
+from matplotlib.lines import Line2D
 
 
 # True system values.
@@ -148,6 +149,15 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
         axs[i].axis( bounds[i] )
         axs[i].grid( 1 )
     axs[0].axis( 'equal' )
+
+    # Legend formation.
+    legend_elements = [
+        Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='s',
+            label='$X$'),
+        Line2D([0], [0], color='indianred', linestyle='none', marker='s',
+            label='$\mathcal{A}, \mathcal{A}_\\mathbf{x}, \mathcal{A}_\\mathbf{y}$' ),
+    ]
+    axs[1].legend( handles=legend_elements )
 
     # Show plot.
     fig.tight_layout()
