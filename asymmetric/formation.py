@@ -15,7 +15,8 @@ from root import *
 # Set hyper parameter(s).
 Nr = 3                      # Number of anchor sets + reflection sets.
 N = 1                       # Number of anchors.
-M = N*Nr + 1                # Number of vehicles.
+M = N*Nr                    # Number of symmetric vehicles.
+P = M + 1                   # Number of vehicles.
 
 
 # Exclusion elements in measurement function.
@@ -25,11 +26,13 @@ def exclude(i, j):
 
 
 # Anchor set.
-A = np.array( [[2],[3]] )
+# A = np.array( [[2],[3]] )
+A = Abound*np.random.rand( 2,N )
 print( 'A:\n', A )
 
 # Asymmetric vehicle set.
-B = np.array( [[-3],[-7]] )
+# B = np.array( [[-3],[-7]] )
+B = -Abound*np.random.rand( 2,P-M )
 
 # Reflection sets.
 Ax = Rx@A
@@ -40,7 +43,7 @@ print( 'Ay:\n', Ay )
 print( 'Q:\n', Q )
 
 # For error calculation.
-Qerr = np.vstack( (Q, np.ones( (1,M) )) )
+Qerr = np.vstack( (Q, np.ones( (1,P) )) )
 
 # Calculate anchor coefficient matrices.
 S = signedCoefficientMatrix( N )
@@ -58,7 +61,7 @@ if __name__ == '__main__':
     # Initialize vehicle positions.
     delta = 5.0
     eps = 0.0
-    X = Q + noiseCirc( eps=delta, N=M )
+    X = Q + noiseCirc( eps=delta, N=P )
 
     # Initial error calculation.
     ge = 1
@@ -67,7 +70,7 @@ if __name__ == '__main__':
     e0 = np.vstack( (0, regr.err) )
 
     # Used for plotting without sim.
-    xList = np.empty( (M,Nt,Nx) )
+    xList = np.empty( (P,Nt,Nx) )
     eList = np.empty( (2,Nt) )
     xList[:,0,:] = X.T
     eList[:,0] = e0[:,0]
@@ -109,7 +112,7 @@ if __name__ == '__main__':
     print( 'Xf:\n', X )
 
     # Calculate transformation matrix by DMD.
-    Qerr = np.vstack( (Q, np.ones( (1,M) )) )
+    Qerr = np.vstack( (Q, np.ones( (1,P) )) )
     regr = Regressor( Qerr, X )
     T, _ = regr.dmd()
     print( 'T:\n', T )

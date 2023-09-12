@@ -136,7 +136,7 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
 
     # Axis setup.
     titles = ('Environment', 'Formation Error')
-    xlabels = ('$\\mathbf{x}$', 'Iteration [n]')
+    xlabels = ('$\\mathbf{x}$', 'Iteration')
     ylabels = ('$\\mathbf{y}$', '$|| X - (KQ + k) ||_2$')
     bounds = np.vstack( [
         1.5*Abound*np.array( [-1, 1, -1, 1] ),
