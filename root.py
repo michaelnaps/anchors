@@ -160,9 +160,9 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
 def finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1/3 ):
     if not sim:
         swrm.update( xList[:,-1,:].T )
-        for vhc in xList:
-            axs[0].plot( vhc.T[0], vhc.T[1], color='cornflowerblue' )
         axs[1].plot( eList[0], eList[1], color='cornflowerblue' )
+    for vhc in xList:
+        axs[0].plot( vhc.T[0], vhc.T[1], color='cornflowerblue' )
     xaxis = shrink*T@np.array( [[-Abound, Abound],[0, 0],[1, 1]] )
     yaxis = shrink*T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
     axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
