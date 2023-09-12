@@ -20,7 +20,8 @@ figurepath = expanduser('~') \
 plt.rcParams.update( {
     'text.usetex': True,
     'font.family': 'mathptmx',
-    'text.latex.preamble': "\\usepackage{amsmath}"
+    'text.latex.preamble': "\\usepackage{amsmath}",
+    'font.size': 14
 } )
 
 # Set global number print setting.

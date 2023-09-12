@@ -135,7 +135,7 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
     axs[1].plot( [0, ge*Nt], [0, 0], color='indianred', linestyle='--' )
 
     # Axis setup.
-    titles = ('Environment', 'Error')
+    titles = ('Environment', 'Formation Error')
     xlabels = ('$\\mathbf{x}$', 'Iteration [n]')
     ylabels = ('$\\mathbf{y}$', '$|| X - (KQ + k) ||_2$')
     bounds = np.vstack( [
@@ -150,6 +150,7 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
     axs[0].axis( 'equal' )
 
     # Show plot.
+    fig.tight_layout()
     fig.set_figheight( figheight )
     plt.show( block=0 )
 
@@ -166,5 +167,4 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1/3 ):
     yaxis = shrink*T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
     axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
     axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
-    fig.tight_layout()
     return fig, axs
