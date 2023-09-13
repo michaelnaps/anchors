@@ -152,12 +152,16 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
 
     # Legend formation.
     legend_elements = [
-        Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='s',
+        Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='x',
+            label='$X^{(0)}$'),
+        Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
             label='$X$'),
-        Line2D([0], [0], color='indianred', linestyle='none', marker='s',
+        Line2D([0], [0], color='indianred', linestyle='none', marker='x',
             label='$\mathcal{A}, \mathcal{A}_\\mathbf{x}, \mathcal{A}_\\mathbf{y}$' ),
+        Line2D([0], [0], color='grey', linestyle='--',
+            label='$K [\\mathbf{x}, \\mathbf{y}]^\\top + k$' ),
     ]
-    axs[1].legend( handles=legend_elements )
+    axs[1].legend( handles=legend_elements, ncol=1 )
 
     # Show plot.
     fig.tight_layout()
