@@ -50,7 +50,8 @@ if __name__ == '__main__':
 
     # Initialize vehicle positions.
     X0 = Q
-    epsList = (0, 1, 5, 25, 50)
+    eMax = 10
+    epsList = [i for i in range( 0,eMax+1,2 )]
     print( 'eps:\n', epsList )
 
     # For error trend plotting.
@@ -101,7 +102,7 @@ if __name__ == '__main__':
 
     # Plot error results.
     fig, axs = plt.subplots( 1,2 )
-    ymax = np.max( eTrend[-1,:] )
+    ymax = np.max( eTrend[-1] )
     # fig.suptitle( 'Formation Error' )
     titles = ('Trend', 'Mean')
     xlabels = ('Iteration', '$\\varepsilon$')
@@ -110,7 +111,7 @@ if __name__ == '__main__':
         a.set_title( t )
         a.set_xlabel( x )
         a.set_ylabel( y )
-        a.set_ylim( [0, ymax+0.01] )
+        a.set_ylim( [0, 1.1*ymax] )
         a.grid( 1 )
 
     s = round( 1.5/dt )  # Settling time used in mean.
@@ -121,7 +122,7 @@ if __name__ == '__main__':
         axs[0].plot( tList[0], error, linestyle='None', marker='.', markersize=2 )
         axs[1].plot( [0, epsList[-1]], [eAvrg, eAvrg], label=label )
 
-    axs[1].set_xticks( [10*i for i in range( Ne+1 )] )
+    axs[1].set_xticks( epsList )
     handles, labels = axs[1].get_legend_handles_labels()
     axs[1].legend(handles[::-1], labels[::-1])
 
@@ -135,3 +136,8 @@ if __name__ == '__main__':
     if save:
         fig.savefig( figurepath + 'formation_error.png', dpi=1000 )
         print( 'Figure saved.' )
+
+    # figBox, axsBox = plt.subplots()
+    # axsBox.boxplot( eTrend.T )
+    # axsBox.set_xticklabels( epsList )
+    # plt.show()
