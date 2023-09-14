@@ -8,6 +8,7 @@ sys.path.insert(0, expanduser('~')+'/prog/kman')
 # Environment imports.
 import numpy as np
 import matplotlib.pyplot as plt
+from cycler import cycler
 from GEOM.Vehicle2D import *
 from KMAN.Regressors import *
 
@@ -17,11 +18,21 @@ figurepath = expanduser('~') \
     + '/bu_research/symmetric_formation_control/figures/sim/'
 
 # Plot font.
+default_cycler = cycler(
+    color=[
+        'cornflowerblue',
+        'indianred',
+        'mediumpurple',
+        'sandybrown',
+        'yellowgreen',
+        'steelblue'
+    ] )
 plt.rcParams.update( {
+    'axes.prop_cycle': default_cycler,
     'text.usetex': True,
     'font.family': 'mathptmx',
+    'font.size': 14,
     'text.latex.preamble': "\\usepackage{amsmath}",
-    'font.size': 14
 } )
 
 # Set global number print setting.
