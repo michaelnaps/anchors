@@ -16,7 +16,7 @@ print( 'A:\n', A )
 # Anchor-based control coefficients.
 B = -2*np.vstack( (
     [ [ap - aq
-        for p, ap in enumerate( A.T ) if p!=q]
+        for p, ap in enumerate( A.T ) if p != q]
             for q, aq in enumerate( A.T ) ]
 ) )
 Z, _ = Regressor( B.T@B, np.eye( n,n ) ).dmd()
@@ -36,7 +36,7 @@ def anchorMeasureStack( X, A ):
                 if p != q:
                     H[pq,i] = dp**2 - dq**2 - ap@ap[:,None] + aq@aq[:,None]
                     pq += 1
-    return -1*H
+    return H
 
 # Testing.
 X = noise( eps=Abound, shape=(Nx,N) )
