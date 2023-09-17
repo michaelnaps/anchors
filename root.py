@@ -182,3 +182,22 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1/3 ):
     axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
     axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
     return fig, axs
+
+
+# Operator functions (currently not being used).
+def vec(A):
+    m, n = A.shape
+    return A.reshape( m*n,1 )
+
+def kronsum(x1, x2):
+    m1, n1 = x1.shape
+    m2, n2 = x2.shape
+    y = np.empty( (m1*m2, n1*n2) )
+    i = 0
+    for r1 in x1:
+        j = 0
+        for c1 in r1:
+            y[i:i+m2,j:j+n2] = c1 + x2
+            j += n2
+        i += m2
+    return y
