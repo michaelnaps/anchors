@@ -63,7 +63,7 @@ def anchorMeasure(X, A, eps=None, exclude=lambda i,j: False):
         d[d < 0] = 0  # Distance cannot be negative from noise.
     return np.sqrt( d )
 
-def anchorMeasureStack(x, D):
+def anchorMeasureStack(D):
     N = D.shape[1]
     h = np.empty( (N*N,1) )
     pq = 0
@@ -80,7 +80,7 @@ def vehicleMeasureStack(X, A):
     for i, x in enumerate( X.T ):
         pq = 0
         D = anchorMeasure( x[:,None], A )
-        H[:,i] = anchorMeasureStack( x, D )[:,0]
+        H[:,i] = anchorMeasureStack( D )[:,0]
     return H
 
 
