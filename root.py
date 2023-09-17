@@ -39,7 +39,7 @@ def noise(eps=1e-3, shape=(2,1), shape3=None):
         return 2*eps*np.random.rand( shape[0], shape[1], shape[2] ) - eps
     return 2*eps*np.random.rand( shape[0], shape[1] ) - eps
 
-# Concentric noise.
+# Noise in radius.
 def noiseCirc(eps=1e-3, N=1):
     y = np.empty( (2,N) )
     for i in range( N ):
@@ -62,6 +62,26 @@ def anchorMeasure(X, A, eps=None, exclude=lambda i,j: False):
         d = d + noise( eps=eps, shape=(N,M) )
         d[d < 0] = 0  # Distance cannot be negative from noise.
     return np.sqrt( d )
+
+def anchorMeasureStack(x, D):
+    N = D.shape[1]
+    h = np.empty( (N*N,1) )
+    pq = 0
+    for dp in D.T:
+        for dq in D.T:
+            h[pq] = dp**2 - dq**2
+            pq += 1
+    return h
+
+def vehicleMeasureStack(X, A):
+    N = A.shape[1]
+    M = X.shape[1];
+    H = np.zeros( (N*N,M) )
+    for i, x in enumerate( X.T ):
+        pq = 0
+        D = anchorMeasure( x[:,None], A )
+        H[:,i] = anchorMeasureStack( x, D )[:,0]
+    return H
 
 
 # Control-related members.
