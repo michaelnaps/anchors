@@ -27,8 +27,8 @@ Aerr = np.vstack( (A, np.ones( (1,M) )) )
 
 # Calculate anchor coefficient matrices.
 A, B = anchorDifferenceMatrices(A, N=M)
-print( 'S:\n', S )
-print( 'Z:\n', Z )
+print( 'A:', A )
+print( 'B:', B )
 
 
 # Main execution block.
