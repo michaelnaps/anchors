@@ -110,6 +110,21 @@ def anchorCoefficientMatrix(A, N, exclude=None):
     Z = np.hstack( (z, z, z) )
     return Z
 
+def anchorDifferenceMatrices(Aset, N=1):
+    # Non-squared coefficient matrix.
+    A = -2*np.vstack( ( [
+        [ap - aq for aq in Aset.T]
+            for ap in Aset.T ] ) )
+
+    # Squared-norm matrix.
+    b = np.vstack( [
+        [ap@ap[:,None] - aq@aq[:,None] for aq in Aset.T]
+            for ap in Aset.T ] )
+    B = np.kron( b, np.ones( (1,N) ))
+
+    # Return matrices.
+    return A, B
+
 def symmetricControl(X, Q, C, Z, S, K=None, eps=0, exclude=lambda i,j: False):
     # Include all elements if None.
     if K is None:
