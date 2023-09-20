@@ -71,10 +71,10 @@ if __name__ == '__main__':
 
         # Calculate control and add disturbance.
         U = (-C)@(K@(H - B) - Xeq)
-        if i > 200 and i < 300:
-            W = 10.0
-            P = 0
-            U[:,:P] = U[:,:P] - W*np.ones( (Nx,P) )
+        # if i > 200 and i < 300:
+        #     W = 0.0
+        #     P = 0
+        #     U[:,:P] = W*np.ones( (Nx,P) )
 
         # Apply dynamics.
         X = model( X, U )
