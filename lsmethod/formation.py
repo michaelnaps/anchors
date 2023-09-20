@@ -7,28 +7,32 @@ from root import *
 
 # Set hyper parameter(s).
 # N = np.random.randint(1,10)
-N = 2                    # Number of anchors.
+N = 3                    # Number of anchors.
 M = N                    # Number of vehicles.
 
 
 # Anchor set.
-Aset = np.array( [[2,5],[3,6]] )
+Aset = Abound/2*np.array( [[-1,1,1],[1,1,-1]] )
 # A = Abound*np.random.rand( 2,N )
 # A = np.array( [
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0]] )
 # A = noise( eps=Abound, shape=(2,N) )
-print( 'A:\n', A )
+print( 'Aset:\n', Aset )
 
 
 # For error calculation.
-Aerr = np.vstack( (A, np.ones( (1,M) )) )
+Xeq = Aset
+Aerr = np.vstack( (Aset, np.ones( (1,M) )) )
 
 
 # Calculate anchor coefficient matrices.
-A, B = anchorDifferenceMatrices(A, N=M)
+A, B = anchorDifferenceMatrices(Aset, N=M)
+Z, _ = Regressor( A.T@A, np.eye( Nx,Nx ) ).dmd()
+K = Z@A.T
 print( 'A:', A )
 print( 'B:', B )
+print( 'K:', K )
 
 
 # Main execution block.
@@ -40,11 +44,11 @@ if __name__ == '__main__':
     # Initialize vehicle positions.
     delta = 5.0
     eps = 0.0
-    X = Q + noiseCirc( eps=delta, N=M )
+    X = Aset + noiseCirc( eps=delta, N=M )
 
     # Initial error calculation.
     ge = 1
-    regr = Regressor( Qerr, X )
+    regr = Regressor( Aerr, X )
     T, _ = regr.dmd();
     e0 = np.vstack( (0, regr.err) )
 
@@ -56,17 +60,17 @@ if __name__ == '__main__':
 
     # Initialize plot with vehicles, anchors and markers.
     fig, axs, swrm, anchors, error = initAnchorEnvironment(
-        X, Q, A, e0, Nt=Nt, ge=1, R1=0.40, R2=delta, anchs=False, dist=False)
+        X, Xeq, Aset, e0, Nt=Nt, ge=1, R1=0.40, R2=delta, anchs=False, dist=False)
 
     # Environment block.
     print( 'Xi: %0.3f\n' % regr.err, X )
     input( "Press ENTER to begin simulation..." )
     for i in range( Nt ):
         # Take measurements.
-        H = anchorMeasure( X, X, eps=eps, exclude=exclude )**2
+        H = vehicleMeasureStack( X, X )
 
         # Calculate control and add disturbance.
-        U = C@(Q - (Z*S)@H)
+        U = (-C)@(K@(H - B) - Xeq)
         if i > 200 and i < 300:
             W = 10.0
             P = 0
@@ -76,7 +80,7 @@ if __name__ == '__main__':
         X = model( X, U )
 
         # Calculate tranformation error.
-        regr = Regressor( Qerr, X )
+        regr = Regressor( Aerr, X )
         T, _ = regr.dmd()
 
         # Save values.
@@ -92,8 +96,7 @@ if __name__ == '__main__':
     print( 'Xf:\n', X )
 
     # Calculate transformation matrix by DMD.
-    Qerr = np.vstack( (Q, np.ones( (1,M) )) )
-    regr = Regressor( Qerr, X )
+    regr = Regressor( Aerr, X )
     T, _ = regr.dmd()
     print( 'T:\n', T )
 
@@ -102,7 +105,7 @@ if __name__ == '__main__':
     plt.pause( pausesim )
 
     # Calculate error after transformation.
-    print( '\nError: ', np.linalg.norm( X - T@Qerr ) )
+    print( '\nError: ', np.linalg.norm( X - T@Aerr ) )
     input( "Press ENTER to exit program..." )
     if save:
         fig.savefig( figurepath

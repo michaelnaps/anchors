@@ -48,8 +48,8 @@ parser.add_argument( '--fheight' )
 
 # Program variables.
 args = parser.parse_args()
-save = bool( args.save )
-sim = bool( args.sim ) and not save
+save = args.save == '1'
+sim = args.sim == '1' and not save
 
 if args.dtsim is None:
     dtsim = 1e-6
