@@ -109,7 +109,7 @@ if __name__ == '__main__':
     input( "Press ENTER to exit program..." )
     if save:
         fig.savefig( figurepath
-            + 'symmetric_formation_d%i' % delta
+            + 'ls_formation_d%i' % delta
             + '_e%i.png' % eps,
             dpi=600 )
         print( 'Figure saved.' )
