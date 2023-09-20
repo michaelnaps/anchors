@@ -21,9 +21,9 @@ Aset = noise( eps=Abound, shape=(Nx,N) )
 print( 'Aset:\n', Aset )
 
 
-# For error calculation.
+# For consistency with notes and error calc.
 Xeq = Aset
-Aerr = np.vstack( (Aset, np.ones( (1,M) )) )
+PSI = lambda A: np.vstack( (A, np.ones( (1,A.shape[1]) )) )
 
 
 # Calculate anchor coefficient matrices.
@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     # Initial error calculation.
     ge = 1
-    regr = Regressor( Aerr, X )
+    regr = Regressor( PSI( Xeq ), X )
     T, _ = regr.dmd();
     e0 = np.vstack( (0, regr.err) )
 
@@ -80,7 +80,7 @@ if __name__ == '__main__':
         X = model( X, U )
 
         # Calculate tranformation error.
-        regr = Regressor( Aerr, X )
+        regr = Regressor( PSI( Xeq ), X )
         T, _ = regr.dmd()
 
         # Save values.
@@ -95,17 +95,12 @@ if __name__ == '__main__':
             plt.pause( pausesim )
     print( 'Xf:\n', X )
 
-    # Calculate transformation matrix by DMD.
-    regr = Regressor( Aerr, X )
-    T, _ = regr.dmd()
-    print( 'T:\n', T )
-
     # Plot transformed grid for reference.
-    finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1/3 )
+    finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1 )
     plt.pause( pausesim )
 
     # Calculate error after transformation.
-    print( '\nError: ', np.linalg.norm( X - T@Aerr ) )
+    print( '\nError: ', eList[1,-1] )
     input( "Press ENTER to exit program..." )
     if save:
         fig.savefig( figurepath

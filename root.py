@@ -173,7 +173,7 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
     # Axis setup.
     titles = ('Environment', 'Formation Error')
     xlabels = ('$\\mathbf{x}$', 'Iteration')
-    ylabels = ('$\\mathbf{y}$', '$|| X - (KQ + k) ||_2$')
+    ylabels = ('$\\mathbf{y}$', '$|| X - (\\Psi X^{(\\text{eq})} + \\psi) ||_2$')
     bounds = np.vstack( [
         1.5*Abound*np.array( [-1, 1, -1, 1] ),
         np.hstack( [e0[0], ge*Nt, -0.01, e0[1]] ) ] )
@@ -192,9 +192,9 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
         Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
             label='$X$'),
         Line2D([0], [0], color='indianred', linestyle='none', marker='x',
-            label='$\mathcal{A}, \mathcal{A}_\\mathbf{x}, \mathcal{A}_\\mathbf{y}$' ),
+            label='$\\mathcal{A}$, $X^{(\\text{eq})}$' ),
         Line2D([0], [0], color='grey', linestyle='--',
-            label='$K [\\mathbf{x}, \\mathbf{y}]^\\top + k$' ),
+            label='$\\Psi [\\mathbf{x}, \\mathbf{y}]^\\top + \\psi$' ),
     ]
     axs[1].legend( handles=legend_elements, ncol=1 )
 
@@ -216,6 +216,7 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1/3 ):
     yaxis = shrink*T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
     axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
     axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
+    axs[1].axis( np.array( [0.0, max( eList[0] ), 0.0, max( eList[1] )] ) )
     return fig, axs
 
 
