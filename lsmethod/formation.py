@@ -7,17 +7,17 @@ from root import *
 
 # Set hyper parameter(s).
 # N = np.random.randint(1,10)
-N = 3                    # Number of anchors.
+N = 8                    # Number of anchors.
 M = N                    # Number of vehicles.
 
 
 # Anchor set.
-Aset = Abound/2*np.array( [[-1,1,1],[1,1,-1]] )
-# A = Abound*np.random.rand( 2,N )
-# A = np.array( [
+# Aset = Abound/2*np.array( [[-1,1,1],[1,1,-1]] )
+Aset = noise( eps=Abound, shape=(Nx,N) )
+# Aset = np.array( [
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
 #     [i for i in range( int( Abound + 1 ) ) if i%2 != 0]] )
-# A = noise( eps=Abound, shape=(2,N) )
+# Aset = noise( eps=Abound, shape=(2,N) )
 print( 'Aset:\n', Aset )
 
 
