@@ -66,15 +66,8 @@ if __name__ == '__main__':
     print( 'Xi: %0.3f\n' % regr.err, X )
     input( "Press ENTER to begin simulation..." )
     for i in range( Nt ):
-        # Take measurements.
-        H = vehicleMeasureStack( X, X )
-
-        # Calculate control and add disturbance.
-        U = (-C)@(K@(H - B) - Xeq)
-        # if i > 200 and i < 300:
-        #     W = 0.0
-        #     P = 0
-        #     U[:,:P] = W*np.ones( (Nx,P) )
+        # Calculate control term.
+        U = asymmetricControl( X, Xeq, C, K, B )
 
         # Apply dynamics.
         X = model( X, U )

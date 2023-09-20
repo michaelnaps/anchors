@@ -73,13 +73,13 @@ def anchorMeasureStack(D):
             pq += 1
     return h
 
-def vehicleMeasureStack(X, A):
+def vehicleMeasureStack(X, A, eps=0):
     N = A.shape[1]
     M = X.shape[1];
     H = np.zeros( (N*N,M) )
     for i, x in enumerate( X.T ):
         pq = 0
-        D = anchorMeasure( x[:,None], A )
+        D = anchorMeasure( x[:,None], A, eps=eps )
         H[:,i] = anchorMeasureStack( D )[:,0]
     return H
 
@@ -132,6 +132,10 @@ def symmetricControl(X, Q, C, Z, S, K=None, eps=0, exclude=lambda i,j: False):
     # Take measurements and return control.
     H = anchorMeasure( X, X, eps=eps, exclude=exclude )**2
     return C@(Q - (Z*S)@H[:K])
+
+def asymmetricControl(X, Q, C, K, B, eps=0):
+    H = vehicleMeasureStack( X, X, eps=eps )
+    return -C@(K@(H - B) - Q)
 
 
 # Plotting-related members.
