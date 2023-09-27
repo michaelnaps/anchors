@@ -86,8 +86,8 @@ if __name__ == '__main__':
     # fig.suptitle( 'Formation Error' )
     titles = ('Trend', 'Mean')
     xlabels = ('Iteration', '$\\varepsilon$')
-    # ylabels = ('$|| X - (\\Psi X^{(\\text{eq})} + \\psi) ||_2$', None)
-    ylabels = ('$|| X - (\Psi X^{(\\text{eq})} + \psi) ||_2$', None)
+    ylabels = ('$|| X - (\\Psi X^{(\\text{eq})} + \\psi) ||_2$', None)
+    # ylabels = ('$|| U ||_2$', None)
     for a, t, x, y in zip( axs, titles, xlabels, ylabels ):
         a.set_title( t )
         a.set_xlabel( x )
