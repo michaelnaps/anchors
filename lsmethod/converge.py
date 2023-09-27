@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     # Maximum axis value.
     eTotal = eTrend.reshape(Nt*Ni*Ne)
-    ymax = np.max( eTotal[~np.isnan(eTotal)] )
+    ymax = np.max( eTotal[np.isfinite(eTotal)] )
 
     # Plot error results.
     fig, axs = plt.subplots( 1,2 )
