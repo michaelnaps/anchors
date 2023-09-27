@@ -74,15 +74,18 @@ if __name__ == '__main__':
                 # eTrend[k,j] = np.linalg.norm( U )
                 eTrend[k,j] = formationError( X, Xeq )[1]
                 if eTrend[k,j] > 10*eps:
-                    eTrend[k,j:] = eTrend[k,j]*np.ones( (Nt-j,) )
+                    eTrend[k,j:] = np.nan*np.ones( (Nt-j,) )
                     break
 
             # Update iterator.
             k += 1
 
+    # Maximum axis value.
+    eTotal = eTrend.reshape(Nt*Ni*Ne)
+    ymax = np.max( eTotal[~np.isnan(eTotal)] )
+
     # Plot error results.
     fig, axs = plt.subplots( 1,2 )
-    ymax = np.max( eTrend.reshape(Nt*Ni*Ne) )
     # fig.suptitle( 'Formation Error' )
     titles = ('Trend', 'Mean')
     xlabels = ('Iteration', '$\\varepsilon$')
