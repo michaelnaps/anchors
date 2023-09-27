@@ -38,50 +38,56 @@ if __name__ == '__main__':
     T = 1;  Nt = round( T/dt ) + 1
     tList = np.array( [ [i for i in range( Nt )] ] )
 
-    # Initialize vehicle positions.
+    # Initialize vehicle positions and error list.
     X0 = Xeq
     eMax = 25
     epsList = [i for i in range( 0,eMax+1,2 )]
     print( 'eps:\n', epsList )
 
     # For error trend plotting.
-    Ne = len( epsList )
-    eTrend = np.empty( (Ne,Nt) )
+    Ni = 10;  Ne = len( epsList )
+    eTrend = np.empty( (Ni*Ne,Nt) )
 
     # Simulation block.
+    k = 0
     for i, eps in enumerate( epsList ):
-        # Reset initial conditions.
-        X = X0 + noiseCirc( eps=eps, N=M )
+        # Number of iterations at each eps
+        for _ in range( Ni ):
+            # Reset initial conditions.
+            X = X0 + noiseCirc( eps=eps, N=M )
 
-        # Initial error calculation.
-        eTrend[i,0] = formationError( X, Xeq )[1]
+            # Initial error calculation.
+            eTrend[k,0] = formationError( X, Xeq )[1]
 
-        for j in range( 1,Nt ):
-            # Calculate control.
-            U = asymmetricControl( X, Xeq, C, K, B )
+            for j in range( 1,Nt ):
+                # Calculate control.
+                U = asymmetricControl( X, Xeq, C, K, B )
 
-            # Apply dynamics.
-            X = model( X, U )
+                # Apply dynamics.
+                X = model( X, U )
 
-            if sim:
-                swrm.update( X )
-                plt.pause( pausesim )
+                if sim:
+                    swrm.update( X )
+                    plt.pause( pausesim )
 
-            # Calculate error and break if too large.
-            eTrend[i,j] = formationError( X, Xeq )[1]
-            # eTrend[i,j] = np.linalg.norm( U )
-            if eTrend[i,j] > 10*eMax:
-                eTrend[i,j:] = eTrend[i,j]*np.ones( (Nt-j,) )
-                break
+                # Calculate error and break if too large.
+                # eTrend[k,j] = np.linalg.norm( U )
+                eTrend[k,j] = formationError( X, Xeq )[1]
+                if eTrend[k,j] > 10*eps:
+                    eTrend[k,j:] = eTrend[k,j]*np.ones( (Nt-j,) )
+                    break
+
+            # Update iterator.
+            k += 1
 
     # Plot error results.
     fig, axs = plt.subplots( 1,2 )
-    ymax = np.max( eTrend.reshape(Nt*Ne) )
+    ymax = np.max( eTrend.reshape(Nt*Ni*Ne) )
     # fig.suptitle( 'Formation Error' )
     titles = ('Trend', 'Mean')
     xlabels = ('Iteration', '$\\varepsilon$')
     # ylabels = ('$|| X - (\\Psi X^{(\\text{eq})} + \\psi) ||_2$', None)
-    ylabels = ('$|| X - (\Psi X^{\\text{eq}} + \psi) ||_2$', None)
+    ylabels = ('$|| X - (\Psi X^{(\\text{eq})} + \psi) ||_2$', None)
     for a, t, x, y in zip( axs, titles, xlabels, ylabels ):
         a.set_title( t )
         a.set_xlabel( x )
@@ -89,7 +95,7 @@ if __name__ == '__main__':
         a.set_ylim( [0, 1.1*ymax] )
         a.grid( 1 )
 
-    axs[1].plot( epsList, eTrend.mean( axis=1 ), color='grey', marker='.' )
+    # axs[1].plot( epsList, eTrend.mean( axis=1 ), color='grey', marker='.' )
     for eps, error in zip( np.flipud( epsList ), np.flipud( eTrend ) ):
         label = '$\\varepsilon = %0.1f$' % eps
         eAvrg = error.mean()
