@@ -74,7 +74,7 @@ if __name__ == '__main__':
                 # eTrend[k,j] = np.linalg.norm( U )
                 eTrend[k,j] = formationError( X, Xeq )[1]
                 if eTrend[k,j] > 10*eps:
-                    eTrend[k,j:] = np.nan*np.ones( (Nt-j,) )
+                    eTrend[k,j:] = np.inf*np.ones( (Nt-j,) )
                     break
 
             # Update iterator.
