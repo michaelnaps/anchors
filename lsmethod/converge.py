@@ -105,7 +105,7 @@ if __name__ == '__main__':
     plt.show( block=0 )
 
     # Exit program.
-    ans = input( 'Press ENTER to exit the program...' )
+    ans = input( 'Press ENTER to exit the program... ' )
     if save or ans == 'save':
         fig.savefig( figurepath + 'convergence_e%i.png' % eMax, dpi=1000 )
         print( 'Figure saved.' )
