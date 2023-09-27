@@ -94,8 +94,8 @@ if __name__ == '__main__':
 
     # Calculate error after transformation.
     print( '\nError: ', eList[1,-1] )
-    input( "Press ENTER to exit program..." )
-    if save:
+    ans = input( "Press ENTER to exit program..." )
+    if save or ans == 'save':
         fig.savefig( figurepath
             + 'ls_formation_d%i' % delta
             + '_e%i.png' % eps,

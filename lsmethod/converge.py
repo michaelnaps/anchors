@@ -7,20 +7,15 @@ from root import *
 
 # Set hyper parameter(s).
 # N = np.random.randint(1,10)
-N = 3                       # Number of anchors.
+N = 6                       # Number of anchors.
 M = N                       # Number of vehicles.
 
 # Exclusion elements in measurement function.
 def exclude(i, j):
-    return False # (j - i) % N == 0
+    return False
 
 # Anchor set.
-Aset = np.array( [[-3,5,2],[1,4,-3]] )
-# A = Abound*np.random.rand( 2,N )
-# A = np.array( [
-#     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
-#     [i for i in range( int( Abound + 1 ) ) if i%2 != 0]] )
-# A = noise( eps=Abound, shape=(2,N) )
+Aset = np.array( [[-1, 1, 1, -4, 4, 4],[1, 1, -1, 4, 4, -4]] )
 print( 'Aset:\n', Aset )
 
 # For consistency with notes and error calc.
@@ -40,12 +35,12 @@ print( 'K:', K )
 # Main execution block.
 if __name__ == '__main__':
     # Simulation time.
-    T = 10;  Nt = round( T/dt ) + 1
+    T = 1;  Nt = round( T/dt ) + 1
     tList = np.array( [ [i for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
     X0 = Xeq
-    eMax = 10
+    eMax = 25
     epsList = [i for i in range( 0,eMax+1,2 )]
     print( 'eps:\n', epsList )
 
@@ -56,30 +51,14 @@ if __name__ == '__main__':
     # Simulation block.
     for i, eps in enumerate( epsList ):
         # Reset initial conditions.
-        X = X0
-
-        # Swarm variable.
-        if sim:
-            R1 = 0.40
-            figSim, axsSim = plt.subplots()
-            swrm = Swarm2D( X, fig=figSim, axs=axsSim, zorder=100,
-                radius=-R1, color='cornflowerblue', draw_tail=False
-                ).draw()
-            anchors = Swarm2D( Xeq, fig=figSim, axs=axsSim, zorder=50,
-                radius=R1, draw_tail=False, color='indianred'
-                ).setLineStyle( None, body=True ).draw()
-            axsSim.axis( 1.5*Abound*np.array( [-1, 1, -1, 1] ) )
-            axsSim.axis( 'equal' )
-            axsSim.set_title( '$\\varepsilon = %0.1f$' % eps )
-            plt.show( block=0 )
-            input( "Press ENTER to start sim for eps = %.1f..." % eps )
+        X = X0 + noiseCirc( eps=eps, N=M )
 
         # Initial error calculation.
         eTrend[i,0] = formationError( X, Xeq )[1]
 
         for j in range( 1,Nt ):
             # Calculate control.
-            U = asymmetricControl( X, Xeq, C, K, B, eps=eps )
+            U = asymmetricControl( X, Xeq, C, K, B )
 
             # Apply dynamics.
             X = model( X, U )
@@ -88,22 +67,21 @@ if __name__ == '__main__':
                 swrm.update( X )
                 plt.pause( pausesim )
 
-            # # Calculate tranformation error.
-            # eTrend[i,j] = formationError( X, Xeq )[1]
-            eTrend[i,j] = np.linalg.norm( U )
-
-        # Close simulation plot.
-        if sim:
-           plt.close( 'all' )
+            # Calculate error and break if too large.
+            eTrend[i,j] = formationError( X, Xeq )[1]
+            # eTrend[i,j] = np.linalg.norm( U )
+            if eTrend[i,j] > 10*eMax:
+                eTrend[i,j:] = eTrend[i,j]*np.ones( (Nt-j,) )
+                break
 
     # Plot error results.
     fig, axs = plt.subplots( 1,2 )
-    ymax = np.max( eTrend[-1] )
+    ymax = np.max( eTrend.reshape(Nt*Ne) )
     # fig.suptitle( 'Formation Error' )
     titles = ('Trend', 'Mean')
     xlabels = ('Iteration', '$\\varepsilon$')
     # ylabels = ('$|| X - (\\Psi X^{(\\text{eq})} + \\psi) ||_2$', None)
-    ylabels = ('$|| U ||_2$', None)
+    ylabels = ('$|| X - (\Psi X^{\\text{eq}} + \psi) ||_2$', None)
     for a, t, x, y in zip( axs, titles, xlabels, ylabels ):
         a.set_title( t )
         a.set_xlabel( x )
@@ -115,12 +93,12 @@ if __name__ == '__main__':
     for eps, error in zip( np.flipud( epsList ), np.flipud( eTrend ) ):
         label = '$\\varepsilon = %0.1f$' % eps
         eAvrg = error.mean()
-        axs[0].plot( tList[0], error, linestyle='None', marker='.', markersize=2 )
+        axs[0].plot( tList[0], error, marker='.', markersize=2 )
         axs[1].plot( [0, epsList[-1]], [eAvrg, eAvrg], label=label )
 
     axs[1].set_xticks( epsList )
     handles, labels = axs[1].get_legend_handles_labels()
-    axs[1].legend(handles[::-1], labels[::-1])
+    # axs[1].legend(handles[::-1], labels[::-1])
 
     fig.tight_layout()
     fig.set_figheight( figheight )
@@ -129,7 +107,7 @@ if __name__ == '__main__':
     # Exit program.
     ans = input( 'Press ENTER to exit the program...' )
     if save or ans == 'save':
-        fig.savefig( figurepath + 'control_norm_e%i.png' % eMax, dpi=1000 )
+        fig.savefig( figurepath + 'convergence_e%i.png' % eMax, dpi=1000 )
         print( 'Figure saved.' )
 
     # figBox, axsBox = plt.subplots()
