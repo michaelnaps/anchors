@@ -46,13 +46,14 @@ if __name__ == '__main__':
     print( 'eps:\n', epsList )
 
     # For error trend plotting.
-    Ni = 20;  Ne = len( epsList )
-    eTrend = np.empty( (Ni*Ne,Nt) )
+    Ne = len( epsList )
+    Ni = 100
+    eTrend = np.empty( (Ne*Ni,Nt) )
 
     # Simulation block.
     k = 0
     for i, eps in enumerate( epsList ):
-        # Number of iterations at each eps
+        # Repitition block.
         for _ in range( Ni ):
             # Reset initial conditions.
             X = X0 + noiseCirc( eps=eps, N=M )
@@ -60,23 +61,18 @@ if __name__ == '__main__':
             # Initial error calculation.
             eTrend[k,0] = formationError( X, Xeq )[1]
 
+            # SModel block..
             for j in range( 1,Nt ):
                 # Calculate control.
                 U = asymmetricControl( X, Xeq, C, K, B )
 
-                print( U )
-
                 # Apply dynamics.
                 X = model( X, U )
-
-                if sim:
-                    swrm.update( X )
-                    plt.pause( pausesim )
 
                 # Calculate error and break if too large.
                 # eTrend[k,j] = np.linalg.norm( U )
                 eTrend[k,j] = formationError( X, Xeq )[1]
-                if eTrend[k,j] > 10*eps:
+                if eTrend[k,j] > 10*eps and eps != 0:
                     eTrend[k,j:] = np.inf
                     infCount[eps] += 1
                     break
@@ -85,15 +81,15 @@ if __name__ == '__main__':
             k += 1
 
     # Maximum axis value.
-    eTotal = eTrend.reshape(Nt*Ni*Ne)
+    eTotal = eTrend.reshape(Nt*Ne*Ni)
     ymax = np.max( eTotal[np.isfinite(eTotal)] )
 
     # Plot error results.
     fig, axs = plt.subplots( 1,2 )
     # fig.suptitle( 'Formation Error' )
-    titles = ('Trend', 'Mean')
+    titles = (None, None)
     xlabels = ('Iteration', '$\\varepsilon$')
-    ylabels = ('$|| X - (\\Psi X^{(\\text{eq})} + \\psi) ||_2$', None)
+    ylabels = ('$|| X - (\\Psi X^{(\\text{eq})} + \\psi) ||_2$', '\% Diverged')
     # ylabels = ('$|| U ||_2$', None)
     for a, t, x, y in zip( axs, titles, xlabels, ylabels ):
         a.set_title( t )
@@ -105,12 +101,11 @@ if __name__ == '__main__':
     for eps, error in zip( epsList[::-1], eTrend[::-1] ):
         label = '$\\varepsilon = %0.1f$' % eps
         brkRatio = infCount[eps]/Ni
-        print( brkRatio )
         axs[0].plot( tList[0], error, marker='.', markersize=2 )
         axs[1].plot( [eps, eps], [0, brkRatio], linewidth=3, label=label )
 
     # Legend and axis ticks.
-    axs[1].set_xticks( epsList )
+    axs[1].set_xticks( epsList[::2] )
     handles, labels = axs[1].get_legend_handles_labels()
     # axs[1].legend(handles[::-1], labels[::-1])
 
