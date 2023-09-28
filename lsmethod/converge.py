@@ -40,12 +40,13 @@ if __name__ == '__main__':
 
     # Initialize vehicle positions and error list.
     X0 = Xeq
-    eMax = 25
-    epsList = [i for i in range( 0,eMax+1,2 )]
+    eMax = 20
+    epsList = np.array( [i for i in range( eMax+1 )] )
+    infCount = {eps: 0 for eps in epsList}
     print( 'eps:\n', epsList )
 
     # For error trend plotting.
-    Ni = 10;  Ne = len( epsList )
+    Ni = 20;  Ne = len( epsList )
     eTrend = np.empty( (Ni*Ne,Nt) )
 
     # Simulation block.
@@ -63,6 +64,8 @@ if __name__ == '__main__':
                 # Calculate control.
                 U = asymmetricControl( X, Xeq, C, K, B )
 
+                print( U )
+
                 # Apply dynamics.
                 X = model( X, U )
 
@@ -74,7 +77,8 @@ if __name__ == '__main__':
                 # eTrend[k,j] = np.linalg.norm( U )
                 eTrend[k,j] = formationError( X, Xeq )[1]
                 if eTrend[k,j] > 10*eps:
-                    eTrend[k,j:] = np.inf*np.ones( (Nt-j,) )
+                    eTrend[k,j:] = np.inf
+                    infCount[eps] += 1
                     break
 
             # Update iterator.
@@ -95,16 +99,17 @@ if __name__ == '__main__':
         a.set_title( t )
         a.set_xlabel( x )
         a.set_ylabel( y )
-        a.set_ylim( [0, 1.1*ymax] )
         a.grid( 1 )
 
     # axs[1].plot( epsList, eTrend.mean( axis=1 ), color='grey', marker='.' )
-    for eps, error in zip( np.flipud( epsList ), np.flipud( eTrend ) ):
+    for eps, error in zip( epsList[::-1], eTrend[::-1] ):
         label = '$\\varepsilon = %0.1f$' % eps
-        eAvrg = error.mean()
+        brkRatio = infCount[eps]/Ni
+        print( brkRatio )
         axs[0].plot( tList[0], error, marker='.', markersize=2 )
-        axs[1].plot( [0, epsList[-1]], [eAvrg, eAvrg], label=label )
+        axs[1].plot( [eps, eps], [0, brkRatio], linewidth=3, label=label )
 
+    # Legend and axis ticks.
     axs[1].set_xticks( epsList )
     handles, labels = axs[1].get_legend_handles_labels()
     # axs[1].legend(handles[::-1], labels[::-1])
