@@ -225,6 +225,13 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1/3 ):
 
 
 # Operator functions (currently not being used).
+def rotz(theta):
+    R = np.array( [
+        [np.cos(theta), np.sin(theta)],
+        [-np.sin(theta), np.cos(theta)]
+        ] )
+    return R
+
 def vec(A):
     m, n = A.shape
     return A.reshape( m*n,1 )

@@ -7,17 +7,18 @@ from root import *
 
 # Set hyper parameter(s).
 # N = np.random.randint(1,10)
-N = 8                    # Number of anchors.
+N = 3                    # Number of anchors.
 M = N                    # Number of vehicles.
 
+R = rotz( np.pi )
+v = np.array(
+    [[0, 0, 0],
+    [1, 0, 0]] )
 
 # Anchor set.
-# Aset = Abound/2*np.array( [[-1,1,1],[1,1,-1]] )
-Aset = noiseCirc( eps=Abound, N=N )
-# Aset = np.array( [
-#     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
-#     [i for i in range( int( Abound + 1 ) ) if i%2 != 0]] )
-# Aset = noise( eps=Abound, shape=(2,N) )
+Aset = np.array( [
+    [0, 3, -3],
+    [2, 0, 0]] )
 print( 'Aset:\n', Aset )
 
 
@@ -44,7 +45,7 @@ if __name__ == '__main__':
     # Initialize vehicle positions.
     delta = 5.0
     eps = 0.0
-    X = Aset + noiseCirc( eps=delta, N=M )
+    X = R@(Xeq + v)
 
     # Initial error calculation.
     ge = 1
@@ -89,7 +90,7 @@ if __name__ == '__main__':
     print( 'Xf:\n', X )
 
     # Plot transformed grid for reference.
-    finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1 )
+    finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=0.1 )
     plt.pause( pausesim )
 
     # Calculate error after transformation.
