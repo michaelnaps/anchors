@@ -34,7 +34,7 @@ print( 'K:', K )
 # Main execution block.
 if __name__ == '__main__':
     # Simulation time.
-    T = 1;  Nt = round( T/dt ) + 1
+    T = 2.5;  Nt = round( T/dt ) + 1
     tList = np.array( [ [i for i in range( Nt )] ] )
 
     # Initialize vehicle positions and error list.
@@ -46,8 +46,8 @@ if __name__ == '__main__':
     print( 'infCount:\n', infCount )
 
     # For error trend plotting.
-    Ni = 100
-    eps = 0.1
+    Ni = 50
+    eps = 1.0
     eTrend = np.empty( (Nth*Ni,Nt) )
 
     # Simulation block.
@@ -88,28 +88,28 @@ if __name__ == '__main__':
     fig, axs = plt.subplots( 1,2 )
     # fig.suptitle( 'Formation Error' )
     titles = (None, None)
-    xlabels = ('Iteration', '$\\varepsilon$')
+    xlabels = ('Iteration', '$R(\\theta)$')
     ylabels = ('$|| X - (\\Psi X^{(\\text{eq})} + \\psi) ||_2$', '\% Diverged')
-    # ylabels = ('$|| U ||_2$', None)
     for a, t, x, y in zip( axs, titles, xlabels, ylabels ):
         a.set_title( t )
         a.set_xlabel( x )
         a.set_ylabel( y )
         a.grid( 1 )
 
-    # axs[1].plot( epsList, eTrend.mean( axis=1 ), color='grey', marker='.' )
     for i, error in enumerate( eTrend[::-1] ):
-        axs[0].plot( tList[0], error, marker='.', markersize=2 )
+        axs[0].plot( tList[0], error, # color='cornflowerblue',
+            marker='.', markersize=2 )
 
     for key in infCount.keys():
         label = '$\\theta = %0.1f$' % infCount[key][0]
         theta = infCount[key][0]
         brkRatio = infCount[key][1]/Ni
-        axs[1].plot( [theta, theta], [0, brkRatio],
-            marker='o', linewidth=3, label=label )
+        axs[1].plot( [theta, theta], [0, brkRatio], # color='cornflowerblue',
+            marker='.', markersize=2,
+            linewidth=6, label=label )
 
     # Legend and axis ticks.
-    axs[1].set_xticks( thList[::10] )
+    axs[1].set_xticks( [k*np.pi/2 for k in range(4)] )
     handles, labels = axs[1].get_legend_handles_labels()
     # axs[1].legend(handles[::-1], labels[::-1])
 
