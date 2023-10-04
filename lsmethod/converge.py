@@ -39,24 +39,25 @@ if __name__ == '__main__':
     tList = np.array( [ [i for i in range( Nt )] ] )
 
     # Initialize vehicle positions and error list.
-    X0 = Xeq
-    eMax = 20
-    epsList = np.array( [i for i in range( eMax+1 )] )
-    infCount = {eps: 0 for eps in epsList}
-    print( 'eps:\n', epsList )
+    Nth = 25
+    thList = np.linspace( 0,2*np.pi,Nth )
+    rotList = [rotz(theta) for theta in thList]
+    infCount = {i: [thList[i], 0] for i in range( Nth )}
+    print( 'theta:\n', thList )
+    print( 'infCount:\n', infCount )
 
     # For error trend plotting.
-    Ne = len( epsList )
-    Ni = 100
-    eTrend = np.empty( (Ne*Ni,Nt) )
+    Ni = 10
+    eps = 0.1
+    eTrend = np.empty( (Nth*Ni,Nt) )
 
     # Simulation block.
     k = 0
-    for i, eps in enumerate( epsList ):
+    for i, R in enumerate( rotList ):
         # Repitition block.
         for _ in range( Ni ):
             # Reset initial conditions.
-            X = X0 + noiseCirc( eps=eps, N=M )
+            X = R@(Xeq + noiseCirc( eps=eps, N=M ))
 
             # Initial error calculation.
             eTrend[k,0] = formationError( X, Xeq )[1]
@@ -72,16 +73,16 @@ if __name__ == '__main__':
                 # Calculate error and break if too large.
                 # eTrend[k,j] = np.linalg.norm( U )
                 eTrend[k,j] = formationError( X, Xeq )[1]
-                if eTrend[k,j] > 10*eps and eps != 0:
+                if eTrend[k,j] > 100 and eps != 0:
                     eTrend[k,j:] = np.inf
-                    infCount[eps] += 1
+                    infCount[i][1] += 1
                     break
 
             # Update iterator.
             k += 1
 
     # Maximum axis value.
-    eTotal = eTrend.reshape(Nt*Ne*Ni)
+    eTotal = eTrend.reshape(Nt*Nth*Ni)
     ymax = np.max( eTotal[np.isfinite(eTotal)] )
 
     # Plot error results.
@@ -98,14 +99,15 @@ if __name__ == '__main__':
         a.grid( 1 )
 
     # axs[1].plot( epsList, eTrend.mean( axis=1 ), color='grey', marker='.' )
-    for eps, error in zip( epsList[::-1], eTrend[::-1] ):
+    for i, error in enumerate( eTrend[::-1] ):
         label = '$\\varepsilon = %0.1f$' % eps
-        brkRatio = infCount[eps]/Ni
+        theta = infCount[key][0]
+        brkRatio = infCount[key][1]/Ni
         axs[0].plot( tList[0], error, marker='.', markersize=2 )
-        axs[1].plot( [eps, eps], [0, brkRatio], linewidth=3, label=label )
+        axs[1].plot( [theta, theta], [0, brkRatio], linewidth=3, label=label )
 
     # Legend and axis ticks.
-    axs[1].set_xticks( epsList[::2] )
+    axs[1].set_xticks( thList[::2] )
     handles, labels = axs[1].get_legend_handles_labels()
     # axs[1].legend(handles[::-1], labels[::-1])
 
