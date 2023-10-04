@@ -28,7 +28,6 @@ A, B = anchorDifferenceMatrices(Aset, N=M)
 Z, _ = Regressor( A.T@A, np.eye( Nx,Nx ) ).dmd()
 K = Z@A.T
 print( 'A:', A )
-print( 'B:', B )
 print( 'K:', K )
 
 
@@ -47,7 +46,7 @@ if __name__ == '__main__':
     print( 'infCount:\n', infCount )
 
     # For error trend plotting.
-    Ni = 10
+    Ni = 100
     eps = 0.1
     eTrend = np.empty( (Nth*Ni,Nt) )
 
@@ -57,7 +56,7 @@ if __name__ == '__main__':
         # Repitition block.
         for _ in range( Ni ):
             # Reset initial conditions.
-            X = R@(Xeq + noiseCirc( eps=eps, N=M ))
+            X = R@Xeq + noiseCirc( eps=eps, N=M )
 
             # Initial error calculation.
             eTrend[k,0] = formationError( X, Xeq )[1]
@@ -100,14 +99,17 @@ if __name__ == '__main__':
 
     # axs[1].plot( epsList, eTrend.mean( axis=1 ), color='grey', marker='.' )
     for i, error in enumerate( eTrend[::-1] ):
-        label = '$\\varepsilon = %0.1f$' % eps
+        axs[0].plot( tList[0], error, marker='.', markersize=2 )
+
+    for key in infCount.keys():
+        label = '$\\theta = %0.1f$' % infCount[key][0]
         theta = infCount[key][0]
         brkRatio = infCount[key][1]/Ni
-        axs[0].plot( tList[0], error, marker='.', markersize=2 )
-        axs[1].plot( [theta, theta], [0, brkRatio], linewidth=3, label=label )
+        axs[1].plot( [theta, theta], [0, brkRatio],
+            marker='o', linewidth=3, label=label )
 
     # Legend and axis ticks.
-    axs[1].set_xticks( thList[::2] )
+    axs[1].set_xticks( thList[::10] )
     handles, labels = axs[1].get_legend_handles_labels()
     # axs[1].legend(handles[::-1], labels[::-1])
 
