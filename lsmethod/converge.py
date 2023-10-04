@@ -97,16 +97,15 @@ if __name__ == '__main__':
         a.grid( 1 )
 
     for i, error in enumerate( eTrend[::-1] ):
-        axs[0].plot( tList[0], error, # color='cornflowerblue',
+        axs[0].plot( tList[0], error, color='cornflowerblue',
             marker='.', markersize=2 )
 
     for key in infCount.keys():
         label = '$\\theta = %0.1f$' % infCount[key][0]
         theta = infCount[key][0]
         brkRatio = infCount[key][1]/Ni
-        axs[1].plot( [theta, theta], [0, brkRatio], # color='cornflowerblue',
-            marker='.', markersize=2,
-            linewidth=6, label=label )
+        axs[1].plot( [theta, theta], [0, brkRatio], color='cornflowerblue',
+            marker='.', markersize=2, linewidth=6, label=label )
 
     # Legend and axis ticks.
     axs[1].set_xticks( [k*np.pi/2 for k in range(4)] )
@@ -120,7 +119,7 @@ if __name__ == '__main__':
     # Exit program.
     ans = input( 'Press ENTER to exit the program... ' )
     if save or ans == 'save':
-        fig.savefig( figurepath + 'convergence_e%i.png' % eMax, dpi=1000 )
+        fig.savefig( figurepath + 'convergence_e%i.png' % eps, dpi=1000 )
         print( 'Figure saved.' )
 
     # figBox, axsBox = plt.subplots()
