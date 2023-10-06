@@ -11,10 +11,14 @@ N = 6                       # Number of anchors.
 M = N                       # Number of vehicles.
 
 # Plot color ranges.
-def getColor(th):
-    cList = ['yellowgreen', 'indianred', 'cornflowerblue']
-    iColor = round( abs(th)/np.pi )
-    return cList[iColor]
+def getColorError(bk):
+    if bk:
+        return 'indianred'
+    return 'cornflowerblue'
+def getColorTheta(th):
+    # cList = ['yellowgreen', 'indianred', 'cornflowerblue']
+    # iColor = round( abs(th)/np.pi )
+    return 'indianred'
 
 # Anchor set.
 Aset = np.array( [[-1, 1, 1, -4, 4, 4],[1, 1, -1, 4, 4, -4]] )
@@ -34,7 +38,7 @@ print( 'K:', K )
 # Main execution block.
 if __name__ == '__main__':
     # Simulation time.
-    T = 2.5;  Nt = round( T/dt ) + 1
+    T = 5.0;  Nt = round( T/dt ) + 1
     tList = np.array( [ [i for i in range( Nt )] ] )
 
     # Initialize vehicle positions and error list.
@@ -46,8 +50,8 @@ if __name__ == '__main__':
     print( 'infCount:\n', infCount )
 
     # For error trend plotting.
-    Ni = 10
-    eps = 1.0
+    Ni = 50
+    eps = 0.01
     eTrend = np.empty( (Nth*Ni,Nt) )
 
     # Simulation block.
@@ -72,7 +76,7 @@ if __name__ == '__main__':
                 # Calculate error and break if too large.
                 # eTrend[k,j] = np.linalg.norm( U )
                 eTrend[k,j] = formationError( X, Xeq )[1]
-                if eTrend[k,j] > 50 and eps != 0:
+                if eTrend[k,j] > 20 and eps != 0:
                     eTrend[k,j:] = np.inf
                     infCount[i][1] += 1
                     break
@@ -85,34 +89,44 @@ if __name__ == '__main__':
     ymax = np.max( eTotal[np.isfinite(eTotal)] )
 
     # Plot error results.
-    fig, axs = plt.subplots( 1,2 )
+    fig, axs = plt.subplots()
     # fig.suptitle( 'Formation Error' )
     titles = (None, None)
     xlabels = ('Iteration', '$\\theta$')
     ylabels = ('$|| X - (\\Psi X^{(\\text{eq})} + \\psi) ||_2$', '\% Diverged')
-    for a, t, x, y in zip( axs, titles, xlabels, ylabels ):
-        a.set_title( t )
-        a.set_xlabel( x )
-        a.set_ylabel( y )
-        a.grid( 1 )
+    # for a, t, x, y in zip( axs, titles, xlabels, ylabels ):
+    #     a.set_title( t )
+    #     a.set_xlabel( x )
+    #     a.set_ylabel( y )
+    #     a.grid( 1 )
 
-    for i, error in enumerate( eTrend[::-1] ):
-        axs[0].plot( tList[0], error, # color='cornflowerblue',
-            marker='.', markersize=2 )
+    axs.set_title( titles[1] )
+    axs.set_xlabel( xlabels[1] )
+    axs.set_ylabel( ylabels[1] )
+    axs.grid( 1 )
+
+    # for i, error in enumerate( eTrend ):
+    #     axs[0].plot( tList[0], error,
+    #         color=getColorError( not np.isfinite( error[-1] ) ),
+    #         marker='.', markersize=2 )
 
     for key in infCount.keys():
         label = '$\\theta = %0.1f$' % infCount[key][0]
         theta = infCount[key][0]
         brkRatio = infCount[key][1]/Ni
-        axs[1].plot( [theta, theta], [0, brkRatio], color=getColor( theta ),
-            marker='.', markersize=2, linewidth=4, label=label )
+        axs.plot( [theta, theta], [0, brkRatio],
+            color=getColorTheta( theta ),
+            marker='.', markersize=2, linewidth=2.5, label=label )
+
+    stability_bounds = np.array( [k*np.pi/2 for k in range(-3,4,2)] )
+    for bound in stability_bounds:
+        axs.plot([bound, bound], [0, 1], color='k', linestyle='--')
 
     # Legend and axis ticks.
-    axs[1].set_xticks(
-        [k*np.pi for k in range(-2,3)],
-        ['$-2 \\pi$', '$-\\pi$', '0', '$\\pi$', '$2 \\pi$'] )
-    handles, labels = axs[1].get_legend_handles_labels()
-    # axs[1].legend(handles[::-1], labels[::-1])
+    axs.set_xticks(
+        stability_bounds,
+        ['$\\frac{-3 \\pi}{2}$', '$\\frac{-\\pi}{2}$', '$\\frac{\\pi}{2}$', '$\\frac{3 \\pi}{2}$'] )
+    handles, labels = axs.get_legend_handles_labels()
 
     fig.tight_layout()
     fig.set_figheight( figheight )
@@ -121,7 +135,7 @@ if __name__ == '__main__':
     # Exit program.
     ans = input( 'Press ENTER to exit the program... ' )
     if save or ans == 'save':
-        fig.savefig( figurepath + 'convergence_e%i.png' % eps, dpi=1000 )
+        fig.savefig( figurepath + 'convergence_e%.3f.png' % eps, dpi=1000 )
         print( 'Figure saved.' )
 
     # figBox, axsBox = plt.subplots()
