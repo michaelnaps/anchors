@@ -22,7 +22,7 @@ def getColorTheta(th):
 
 # Anchor set.
 Aset = np.array( [[-1, 1, 1, -4, 4, 4],[1, 1, -1, 4, 4, -4]] )
-print( 'Aset:\n', Aset )
+# print( 'Aset:\n', Aset )
 
 # For consistency with notes and error calc.
 Xeq = Aset
@@ -42,15 +42,15 @@ if __name__ == '__main__':
     tList = np.array( [ [i for i in range( Nt )] ] )
 
     # Initialize vehicle positions and error list.
-    Nth = 50
+    Nth = 100
     thList = np.linspace( -2*np.pi,2*np.pi,Nth )
     rotList = [rotz(theta) for theta in thList]
     infCount = {i: [thList[i], 0] for i in range( Nth )}
-    print( 'theta:\n', thList )
-    print( 'infCount:\n', infCount )
+    # print( 'theta:\n', thList )
+    # print( 'infCount:\n', infCount )
 
     # For error trend plotting.
-    Ni = 50
+    Ni = 100
     eps = 0.01
     eTrend = np.empty( (Nth*Ni,Nt) )
 
