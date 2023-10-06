@@ -10,9 +10,11 @@ from root import *
 N = 6                       # Number of anchors.
 M = N                       # Number of vehicles.
 
-# Exclusion elements in measurement function.
-def exclude(i, j):
-    return False
+# Plot color ranges.
+def getColor(th):
+    cList = ['yellowgreen', 'indianred', 'cornflowerblue']
+    iColor = round( abs(th)/np.pi )
+    return cList[iColor]
 
 # Anchor set.
 Aset = np.array( [[-1, 1, 1, -4, 4, 4],[1, 1, -1, 4, 4, -4]] )
@@ -22,14 +24,12 @@ print( 'Aset:\n', Aset )
 Xeq = Aset
 PSI = lambda A: np.vstack( (A, np.ones( (1,A.shape[1]) )) )
 
-
 # Calculate anchor coefficient matrices.
 A, B = anchorDifferenceMatrices(Aset, N=M)
 Z, _ = Regressor( A.T@A, np.eye( Nx,Nx ) ).dmd()
 K = Z@A.T
 print( 'A:', A )
 print( 'K:', K )
-
 
 # Main execution block.
 if __name__ == '__main__':
@@ -38,15 +38,15 @@ if __name__ == '__main__':
     tList = np.array( [ [i for i in range( Nt )] ] )
 
     # Initialize vehicle positions and error list.
-    Nth = 25
-    thList = np.linspace( 0,2*np.pi,Nth )
+    Nth = 50
+    thList = np.linspace( -2*np.pi,2*np.pi,Nth )
     rotList = [rotz(theta) for theta in thList]
     infCount = {i: [thList[i], 0] for i in range( Nth )}
     print( 'theta:\n', thList )
     print( 'infCount:\n', infCount )
 
     # For error trend plotting.
-    Ni = 50
+    Ni = 10
     eps = 1.0
     eTrend = np.empty( (Nth*Ni,Nt) )
 
@@ -72,7 +72,7 @@ if __name__ == '__main__':
                 # Calculate error and break if too large.
                 # eTrend[k,j] = np.linalg.norm( U )
                 eTrend[k,j] = formationError( X, Xeq )[1]
-                if eTrend[k,j] > 100 and eps != 0:
+                if eTrend[k,j] > 50 and eps != 0:
                     eTrend[k,j:] = np.inf
                     infCount[i][1] += 1
                     break
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     fig, axs = plt.subplots( 1,2 )
     # fig.suptitle( 'Formation Error' )
     titles = (None, None)
-    xlabels = ('Iteration', '$R(\\theta)$')
+    xlabels = ('Iteration', '$\\theta$')
     ylabels = ('$|| X - (\\Psi X^{(\\text{eq})} + \\psi) ||_2$', '\% Diverged')
     for a, t, x, y in zip( axs, titles, xlabels, ylabels ):
         a.set_title( t )
@@ -97,18 +97,20 @@ if __name__ == '__main__':
         a.grid( 1 )
 
     for i, error in enumerate( eTrend[::-1] ):
-        axs[0].plot( tList[0], error, color='cornflowerblue',
+        axs[0].plot( tList[0], error, # color='cornflowerblue',
             marker='.', markersize=2 )
 
     for key in infCount.keys():
         label = '$\\theta = %0.1f$' % infCount[key][0]
         theta = infCount[key][0]
         brkRatio = infCount[key][1]/Ni
-        axs[1].plot( [theta, theta], [0, brkRatio], color='cornflowerblue',
-            marker='.', markersize=2, linewidth=6, label=label )
+        axs[1].plot( [theta, theta], [0, brkRatio], color=getColor( theta ),
+            marker='.', markersize=2, linewidth=4, label=label )
 
     # Legend and axis ticks.
-    axs[1].set_xticks( [k*np.pi/2 for k in range(4)] )
+    axs[1].set_xticks(
+        [k*np.pi for k in range(-2,3)],
+        ['$-2 \\pi$', '$-\\pi$', '0', '$\\pi$', '$2 \\pi$'] )
     handles, labels = axs[1].get_legend_handles_labels()
     # axs[1].legend(handles[::-1], labels[::-1])
 
