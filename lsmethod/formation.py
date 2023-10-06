@@ -42,7 +42,7 @@ if __name__ == '__main__':
     tList = np.array( [ [i*dt for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
-    delta = 5.0
+    delta = 25.0
     eps = 0.0
     X = Aset + noiseCirc( eps=delta, N=M )
 
@@ -94,7 +94,7 @@ if __name__ == '__main__':
 
     # Calculate error after transformation.
     print( '\nError: ', eList[1,-1] )
-    ans = input( "Press ENTER to exit program..." )
+    ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
         fig.savefig( figurepath
             + 'ls_formation_d%i' % delta
