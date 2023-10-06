@@ -118,8 +118,8 @@ if __name__ == '__main__':
             color=getColorTheta( theta ),
             marker='.', markersize=2, linewidth=2.5, label=label )
 
-    stability_bounds = np.array( [k*np.pi/2 for k in range(-3,4,2)] )
-    bound_nums = [
+    bound_nums = np.array( [k*np.pi/2 for k in range(-3,4,2)] )
+    bound_labels = [
         '$\\frac{-3 \\pi}{2}$',
         '$\\frac{-\\pi}{2}$',
         '$\\frac{\\pi}{2}$',
