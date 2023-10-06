@@ -22,7 +22,7 @@ def getColorTheta(th):
 
 # Anchor set.
 Aset = np.array( [[-1, 1, 1, -4, 4, 4],[1, 1, -1, 4, 4, -4]] )
-# print( 'Aset:\n', Aset )
+print( 'Aset:\n', Aset )
 
 # For consistency with notes and error calc.
 Xeq = Aset
@@ -32,8 +32,8 @@ PSI = lambda A: np.vstack( (A, np.ones( (1,A.shape[1]) )) )
 A, B = anchorDifferenceMatrices(Aset, N=M)
 Z, _ = Regressor( A.T@A, np.eye( Nx,Nx ) ).dmd()
 K = Z@A.T
-print( 'A:', A )
-print( 'K:', K )
+# print( 'A:', A )
+# print( 'K:', K )
 
 # Main execution block.
 if __name__ == '__main__':
@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     # For error trend plotting.
     Ni = 100
-    eps = 0.01
+    delta = 0.01
     eTrend = np.empty( (Nth*Ni,Nt) )
 
     # Simulation block.
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         # Repitition block.
         for _ in range( Ni ):
             # Reset initial conditions.
-            X = R@Xeq + noiseCirc( eps=eps, N=M )
+            X = R@Xeq + noiseCirc( eps=delta, N=M )
 
             # Initial error calculation.
             eTrend[k,0] = formationError( X, Xeq )[1]
@@ -76,7 +76,7 @@ if __name__ == '__main__':
                 # Calculate error and break if too large.
                 # eTrend[k,j] = np.linalg.norm( U )
                 eTrend[k,j] = formationError( X, Xeq )[1]
-                if eTrend[k,j] > 20 and eps != 0:
+                if eTrend[k,j] > 20 and delta != 0:
                     eTrend[k,j:] = np.inf
                     infCount[i][1] += 1
                     break
@@ -119,13 +119,16 @@ if __name__ == '__main__':
             marker='.', markersize=2, linewidth=2.5, label=label )
 
     stability_bounds = np.array( [k*np.pi/2 for k in range(-3,4,2)] )
-    for bound in stability_bounds:
+    bound_nums = [
+        '$\\frac{-3 \\pi}{2}$',
+        '$\\frac{-\\pi}{2}$',
+        '$\\frac{\\pi}{2}$',
+        '$\\frac{3 \\pi}{2}$' ]
+    for bound in bound_nums:
         axs.plot([bound, bound], [0, 1], color='k', linestyle='--')
 
     # Legend and axis ticks.
-    axs.set_xticks(
-        stability_bounds,
-        ['$\\frac{-3 \\pi}{2}$', '$\\frac{-\\pi}{2}$', '$\\frac{\\pi}{2}$', '$\\frac{3 \\pi}{2}$'] )
+    axs.set_xticks(bound_nums, bound_labels)
     handles, labels = axs.get_legend_handles_labels()
 
     fig.tight_layout()
@@ -135,10 +138,5 @@ if __name__ == '__main__':
     # Exit program.
     ans = input( 'Press ENTER to exit the program... ' )
     if save or ans == 'save':
-        fig.savefig( figurepath + 'convergence_e%.3f.png' % eps, dpi=1000 )
+        fig.savefig( figurepath + f'bounds_n{N}_d{delta}_r{Ni}.png', dpi=1000 )
         print( 'Figure saved.' )
-
-    # figBox, axsBox = plt.subplots()
-    # axsBox.boxplot( eTrend.T )
-    # axsBox.set_xticklabels( epsList )
-    # plt.show()
