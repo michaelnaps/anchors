@@ -23,7 +23,6 @@ print( 'Aset:\n', Aset )
 
 # For consistency with notes and error calc.
 Xeq = Aset
-PSI = lambda A: np.vstack( (A, np.ones( (1,A.shape[1]) )) )
 
 
 # Calculate anchor coefficient matrices.
@@ -42,7 +41,7 @@ if __name__ == '__main__':
     tList = np.array( [ [i*dt for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
-    delta = 25.0
+    delta = 5.0
     eps = 0.0
     X = Aset + noiseCirc( eps=delta, N=M )
 

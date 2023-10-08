@@ -22,6 +22,10 @@ C = W*np.eye( Nx )
 Rx = np.array( [ [1, 0], [0, -1] ] )
 Ry = np.array( [ [-1, 0], [0, 1] ] )
 
+def PSI(A):
+    n = A.shape[1]
+    return np.vstack( (A, np.ones( (1,n) )) )
+
 
 # Model function.
 def model(X, U):
@@ -220,6 +224,8 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1/3 ):
     yaxis = shrink*T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
     axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
     axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
+    axs[0].plot( xaxis[0,1], xaxis[1,1], color='grey', marker='o' )
+    axs[0].plot( yaxis[0,1], yaxis[1,1], color='grey', marker='o' )
     axs[1].axis( np.array( [0.0, max( eList[0] ), 0.0, max( eList[1] )] ) )
     return fig, axs
 
