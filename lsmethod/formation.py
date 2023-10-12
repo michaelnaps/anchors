@@ -7,21 +7,19 @@ from root import *
 
 # Set hyper parameter(s).
 # N = np.random.randint(1,10)
-N = 16                   # Number of anchors.
+N = 25                   # Number of anchors.
 M = N                    # Number of vehicles.
 
 
 # Anchor set.
 # Aset = Abound/2*np.array( [[-1,1,1],[1,1,-1]] )
 # Aset = noiseCirc( eps=Abound, N=N )
-# Aset = np.array( [
-#     [i for i in range( int( Abound + 1 ) ) if i%2 != 0],
-#     [i for i in range( int( Abound + 1 ) ) if i%2 != 0]] )
 # Aset = noise( eps=Abound, shape=(2,N) )
-
-Aset = np.array( [
-    [-3, -3, -3, -3, 3, 3, 3, 3, -5, -3.5, -2, -0.5, 0.5, 2, 3.5, 5],
-    [2, 4, 6, 8, 2, 4, 6, 8, 0, -1.5, -3, -3.5, -3.5, -3, -1.5, 0] ] )
+# Aset = np.array( [        # SMILEY FACE
+#     [-3, -3, -3, -3, 3, 3, 3, 3, -5, -3.5, -2, -0.5, 0.5, 2, 3.5, 5],
+#     [2, 4, 6, 8, 2, 4, 6, 8, 0, -1.5, -3, -3.5, -3.5, -3, -1.5, 0] ] )
+Aset = np.hstack( (
+    [rotz(2*np.pi*k/N)@[[k/2],[0]] for k in range( 1,N+1 )] ) )
 print( 'Aset:\n', Aset )
 
 
