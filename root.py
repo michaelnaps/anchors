@@ -98,7 +98,7 @@ def formationError( X, Xeq ):
 
 def lyapunovCandidate( X, Xeq ):
     V = 0
-    T, _ = Regressor(PSI( X ), Xeq).dmd()
+    T, _ = Regressor( PSI( X ), Xeq ).dmd()
     for x, xeq in zip( X.T, Xeq.T ):
         xerr = T@PSI( x[:,None] ) - xeq[:,None]
         V += (xerr.T@xerr)[0][0]
