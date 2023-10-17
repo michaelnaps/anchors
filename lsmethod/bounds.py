@@ -21,7 +21,8 @@ def getColorTheta(th):
     return 'indianred'
 
 # Anchor set.
-Aset = np.array( [[-1, 1, 1, -4, 4, 4],[1, 1, -1, 4, 4, -4]] )
+# Aset = np.array( [[-1, 1, 1, -4, 4, 4],[1, 1, -1, 4, 4, -4]] )
+Aset = noiseCirc( eps=Abound, N=N )
 print( 'Aset:\n', Aset )
 
 # For consistency with notes and error calc.
@@ -42,7 +43,7 @@ if __name__ == '__main__':
     tList = np.array( [ [i for i in range( Nt )] ] )
 
     # Initialize vehicle positions and error list.
-    Nth = 100
+    Nth = 50
     thList = np.linspace( -2*np.pi,2*np.pi,Nth )
     rotList = [rotz(theta) for theta in thList]
     infCount = {i: [thList[i], 0] for i in range( Nth )}
@@ -50,7 +51,7 @@ if __name__ == '__main__':
     # print( 'infCount:\n', infCount )
 
     # For error trend plotting.
-    Ni = 100
+    Ni = 5
     delta = 0.01
     eTrend = np.empty( (Nth*Ni,Nt) )
 
@@ -75,11 +76,13 @@ if __name__ == '__main__':
 
                 # Calculate error and break if too large.
                 # eTrend[k,j] = np.linalg.norm( U )
-                eTrend[k,j] = formationError( X, Xeq )[1]
-                if eTrend[k,j] > 20 and delta != 0:
+                eTrend[k,j] = lyapunovCandidate( X, Xeq )
+                if (eTrend[k,j] > 20 and delta != 0) :
                     eTrend[k,j:] = np.inf
                     infCount[i][1] += 1
                     break
+                elif np.linalg.norm( U ) < 1e-3:
+                    eTrend[k,j:] = eTrend[k,j]
 
             # Update iterator.
             k += 1
