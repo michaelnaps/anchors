@@ -19,7 +19,7 @@ M = N                    # Number of vehicles.
 #     [-3, -3, -3, -3, 3, 3, 3, 3, -5, -3.5, -2, -0.5, 0.5, 2, 3.5, 5],
 #     [2, 4, 6, 8, 2, 4, 6, 8, 0, -1.5, -3, -3.5, -3.5, -3, -1.5, 0] ] )
 Aset = np.hstack( (
-    [rotz(2*np.pi*k/N)@[[k/2],[0]] for k in range( 1,N+1 )] ) )
+    [rotz( 2*np.pi*k/N - np.pi/2 )@[[k/2],[0]] for k in range( 1,N+1 )] ) )
 print( 'Aset:\n', Aset )
 
 
@@ -74,11 +74,10 @@ if __name__ == '__main__':
         X = model( X, U )
 
         # Calculate tranformation error.
-        regr = Regressor( PSI( Xeq ), X )
-        T, _ = regr.dmd()
+        V = lyapunovCandidate( X, Xeq )
 
         # Save values.
-        eList[:,i] = np.array( [ge*i, regr.err] )
+        eList[:,i] = np.array( [ge*i, V] )
         xList[:,i,:] = X.T
 
         # Update simulation.
@@ -90,6 +89,7 @@ if __name__ == '__main__':
     print( 'Xf:\n', X )
 
     # Plot transformed grid for reference.
+    T, _ = Regressor( PSI( Xeq ), X ).dmd()
     finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1 )
     plt.pause( pausesim )
 

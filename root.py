@@ -89,12 +89,20 @@ def vehicleMeasureStack(X, A, eps=0):
 
 
 # Control-related members.
-def formationError( X, Q ):
-    Qerr = np.vstack(
-        (Q, np.ones( (1,Q.shape[1]) )) )
-    regr = Regressor( Qerr, X )
+def formationError( X, Xeq ):
+    Q = np.vstack(
+        (Xeq, np.ones( (1,Xeq.shape[1]) )) )
+    regr = Regressor( Q, X )
     T, _ = regr.dmd()
     return T, regr.err
+
+def lyapunovCandidate( X, Xeq ):
+    V = 0
+    T, _ = Regressor(PSI( X ), Xeq).dmd()
+    for x, xeq in zip( X.T, Xeq.T ):
+        xerr = T@PSI( x[:,None] ) - xeq[:,None]
+        V += (xerr.T@xerr)[0][0]
+    return V
 
 def signedCoefficientMatrix(N):
     # Signed coefficient matrix.
@@ -179,9 +187,10 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
     axs[1].plot( [0, ge*Nt], [0, 0], color='indianred', linestyle='--' )
 
     # Axis setup.
-    titles = ('Environment', 'Formation Error')
+    titles = ('Environment', 'Lyapunov Trend')
     xlabels = ('$\\mathbf{x}$', 'Iteration')
-    ylabels = ('$\\mathbf{y}$', '$|| X - (\\Psi X^{(\\text{eq})} + \\psi) ||_2$')
+    # ylabels = ('$\\mathbf{y}$', '$|| X - (\\Psi X^{(\\text{eq})} + \\psi) ||_2$')
+    ylabels = ('$\\mathbf{y}$', '$V(\\Psi X + \\psi)$')
     bounds = np.vstack( [
         1.5*Abound*np.array( [-1, 1, -1, 1] ),
         np.hstack( [e0[0], ge*Nt, -0.01, e0[1]] ) ] )
@@ -220,13 +229,17 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1/3 ):
         axs[1].plot( eList[0], eList[1], color='cornflowerblue' )
     for vhc in xList:
         axs[0].plot( vhc.T[0], vhc.T[1], color='cornflowerblue' )
-    xaxis = shrink*T@np.array( [[-Abound, Abound],[0, 0],[1, 1]] )
-    yaxis = shrink*T@np.array( [[0, 0],[-Abound, Abound],[1, 1]] )
-    axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--' )
-    axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--' )
-    axs[0].plot( xaxis[0,1], xaxis[1,1], color='grey', marker='o' )
-    axs[0].plot( yaxis[0,1], yaxis[1,1], color='grey', marker='o' )
+
+    xaxis = shrink*T@PSI( np.array( [[-Abound, Abound],[0, 0]] ) )
+    yaxis = shrink*T@PSI( np.array( [[0, 0],[-Abound, Abound]] ) )
+
+    axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--', zorder=150 )
+    axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--', zorder=150 )
+    axs[0].plot( xaxis[0,1], xaxis[1,1], color='grey', marker='o', zorder=150 )
+    axs[0].plot( yaxis[0,1], yaxis[1,1], color='grey', marker='o', zorder=150 )
     axs[1].axis( np.array( [0.0, max( eList[0] ), 0.0, max( eList[1] )] ) )
+
+    # Return figure.
     return fig, axs
 
 
