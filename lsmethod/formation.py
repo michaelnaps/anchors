@@ -108,7 +108,6 @@ if __name__ == '__main__':
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
         fig.savefig( figurepath
-            + 'ls_formation_d%i' % delta
-            + '_e%i.png' % eps,
+            + 'ls_formation_d%i' % delta + '_e%i.png' % eps,
             dpi=600 )
         print( 'Figure saved.' )
