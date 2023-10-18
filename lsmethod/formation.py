@@ -7,7 +7,7 @@ from root import *
 
 # Set hyper parameter(s).
 # N = np.random.randint(1,10)
-N = 25                   # Number of anchors.
+N = 15                   # Number of anchors.
 M = N                    # Number of vehicles.
 
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     # Initialize vehicle positions.
     delta = 5.0
-    eps = 0.0
+    eps = 10.0
     X = Aset + noiseCirc( eps=delta, N=M )
 
     # Initial error calculation.
@@ -68,7 +68,13 @@ if __name__ == '__main__':
     input( "Press ENTER to begin simulation..." )
     for i in range( Nt ):
         # Calculate control term.
-        U = asymmetricControl( X, Xeq, C, K, B )
+        U = asymmetricControl( X, Xeq, C, K, B, eps=eps )
+
+        # if i > 100 and i < 150:
+            # upush = 10*np.ones( (2,) )
+            # U[:,0] = upush
+            # U[:,int( 2/3*N )] = upush
+            # U[:,-1] = upush
 
         # Apply dynamics.
         X = model( X, U )
