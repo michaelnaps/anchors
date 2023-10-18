@@ -19,9 +19,8 @@ M = N                    # Number of vehicles.
 #     [-3, -3, -3, -3, 3, 3, 3, 3, -5, -3.5, -2, -0.5, 0.5, 2, 3.5, 5],
 #     [2, 4, 6, 8, 2, 4, 6, 8, 0, -1.5, -3, -3.5, -3.5, -3, -1.5, 0] ] )
 Aset = np.hstack( (
-    [rotz( 2*np.pi*k/N - np.pi/2 )@[[k/2],[0]] for k in range( 1,N+1 )] ) )
+    [rotz( 2*np.pi*k/N - np.pi/2 )@[[k/2],[0]] for k in range( 1,15+1 )] ) )
 print( 'Aset:\n', Aset )
-
 
 # For consistency with notes and error calc.
 Xeq = Aset
@@ -39,12 +38,12 @@ K = Z@A.T
 # Main execution block.
 if __name__ == '__main__':
     # Simulation time.
-    T = 2;  Nt = round( T/dt ) + 1
+    T = 10;  Nt = round( T/dt ) + 1
     tList = np.array( [ [i*dt for i in range( Nt )] ] )
 
     # Initialize vehicle positions.
-    delta = 5.0
-    eps = 10.0
+    delta = 10.0
+    eps = 0.0
     X = Aset + noiseCirc( eps=delta, N=M )
 
     # Initial error calculation.
@@ -54,8 +53,8 @@ if __name__ == '__main__':
     e0 = np.vstack( (0, regr.err) )
 
     # Used for plotting without sim.
-    xList = np.empty( (M,Nt,Nx) )
-    eList = np.empty( (2,Nt) )
+    xList = np.nan*np.ones( (M,Nt,Nx) )
+    eList = np.nan*np.ones( (2,Nt) )
     xList[:,0,:] = X.T
     eList[:,0] = e0[:,0]
 
@@ -92,6 +91,11 @@ if __name__ == '__main__':
             error.update( eList[:,i,None] )
             # axs[1].set_title( 'time: %s' % i )
             plt.pause( pausesim )
+
+        # Equilibrium break.
+        if V < 1e-6:
+            print( 'Equilibrium reached: V(X) = %.3e' % V )
+            break
     print( 'Xf:\n', X )
 
     # Plot transformed grid for reference.
@@ -100,7 +104,7 @@ if __name__ == '__main__':
     plt.pause( pausesim )
 
     # Calculate error after transformation.
-    print( '\nError: ', eList[1,-1] )
+    print( '\nError: ', eList[1,np.isfinite(eList[1])][-1] )
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
         fig.savefig( figurepath
