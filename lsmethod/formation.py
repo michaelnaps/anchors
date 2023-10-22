@@ -94,6 +94,7 @@ if __name__ == '__main__':
 
         # Equilibrium break.
         if V < 1e-6:
+            xList[:,-1,:] = xList[:,i,:]
             print( 'Equilibrium reached: V(X) = %.3e' % V )
             break
     print( 'Xf:\n', X )

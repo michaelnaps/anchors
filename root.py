@@ -235,6 +235,7 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1/3 ):
 
     axs[0].plot( xaxis[0], xaxis[1], color='grey', linestyle='--', zorder=150 )
     axs[0].plot( yaxis[0], yaxis[1], color='grey', linestyle='--', zorder=150 )
+    print( 'TEST' )
     axs[0].plot( xaxis[0,1], xaxis[1,1], color='grey', marker='o', zorder=150 )
     axs[0].plot( yaxis[0,1], yaxis[1,1], color='grey', marker='o', zorder=150 )
     axs[1].axis( np.array( [0.0, max( eList[0] ), 0.0, max( eList[1] )] ) )
