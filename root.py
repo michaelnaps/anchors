@@ -174,8 +174,8 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
 
     # Swarm variables.
     swrm = Swarm2D( X, fig=fig, axs=axs[0], zorder=100,
-        radius=-R1, color='cornflowerblue', draw_tail=sim
-        ).draw()
+        radius=-R1, color='cornflowerblue', tail_length=Nt,
+        draw_tail=sim ).draw()
     axs[0].plot( Q[0], Q[1], zorder=50, color='indianred',
         linestyle='none', marker='x' )
     axs[0].plot( X[0], X[1], zorder=50, color='cornflowerblue',

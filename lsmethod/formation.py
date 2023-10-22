@@ -7,7 +7,7 @@ from root import *
 
 # Set hyper parameter(s).
 # N = np.random.randint(1,10)
-N = 15                   # Number of anchors.
+N = 16                   # Number of anchors.
 M = N                    # Number of vehicles.
 
 
@@ -19,7 +19,7 @@ M = N                    # Number of vehicles.
 #     [-3, -3, -3, -3, 3, 3, 3, 3, -5, -3.5, -2, -0.5, 0.5, 2, 3.5, 5],
 #     [2, 4, 6, 8, 2, 4, 6, 8, 0, -1.5, -3, -3.5, -3.5, -3, -1.5, 0] ] )
 Aset = np.hstack( (
-    [rotz( 2*np.pi*k/N - np.pi/2 )@[[k/2],[0]] for k in range( 1,15+1 )] ) )
+    [rotz( 2*np.pi*k/N - np.pi/2 )@[[k/2],[0]] for k in range( 1,N+1 )] ) )
 print( 'Aset:\n', Aset )
 
 # For consistency with notes and error calc.
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     # Initialize vehicle positions.
     delta = 10.0
     eps = 0.0
-    X = Aset + noiseCirc( eps=delta, N=M )
+    X = Xeq + noiseCirc( eps=delta, N=M )
 
     # Initial error calculation.
     ge = 1
@@ -94,7 +94,8 @@ if __name__ == '__main__':
 
         # Equilibrium break.
         if V < 1e-6:
-            xList[:,-1,:] = xList[:,i,:]
+            for j in range( 1,Nt-i ):
+                xList[:,i+j,:] = xList[:,i,:]
             print( 'Equilibrium reached: V(X) = %.3e' % V )
             break
     print( 'Xf:\n', X )
