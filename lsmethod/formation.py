@@ -27,7 +27,7 @@ Xeq = Aset
 
 
 # Calculate anchor coefficient matrices.
-A, B = anchorDifferenceMatrices(Aset, N=M)
+A, B = anchorDifferenceMatrices( Aset, N=M )
 Z, _ = Regressor( A.T@A, np.eye( Nx,Nx ) ).dmd()
 K = Z@A.T
 # print( 'A:', A )
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     # Initialize plot with vehicles, anchors and markers.
     fig, axs, swrm, anchors, error = initAnchorEnvironment(
-        X, Xeq, Aset, e0, Nt=Nt, ge=1, R1=0.40, R2=delta, anchs=False, dist=False)
+        X, Xeq, Aset, e0, Nt=Nt, ge=1, R1=0.40, R2=delta, anchs=False, dist=False )
 
     # Environment block.
     print( 'Xi: %0.3f\n' % regr.err, X )
@@ -101,8 +101,11 @@ if __name__ == '__main__':
     print( 'Xf:\n', X )
 
     # Plot transformed grid for reference.
-    T, _ = Regressor( PSI( Xeq ), X ).dmd()
-    finalAnchorEnvironment( fig, axs, swrm, xList, eList, T, shrink=1 )
+    Xbar = centroid( X )
+    Abar = centroid( Xeq )
+
+    Psi, _ = Regressor( X - Xbar, Xeq - Abar ).dmd()
+    finalAnchorEnvironment( fig, axs, swrm, xList, eList, Psi, Xbar, shrink=1 )
     plt.pause( pausesim )
 
     # Calculate error after transformation.
