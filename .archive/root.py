@@ -18,17 +18,22 @@ else:
 W = 5.0
 C = W*np.eye( Nx )
 
-# 2-D rotation by theta.
-def rotz(theta):
-    R = np.array( [
-        [np.cos(theta), -np.sin(theta)],
-        [np.sin(theta), np.cos(theta)]
-        ] )
-    return R
+# Symmetric tranformations.
+Rx = np.array( [ [1, 0], [0, -1] ] )
+Ry = np.array( [ [-1, 0], [0, 1] ] )
+
+def PSI(A):
+    n = A.shape[1]
+    return np.vstack( (A, np.ones( (1,n) )) )
+
 
 # Model function.
 def model(X, U):
     return X + dt*U
+
+# Control function.
+def control(x, C=np.eye( Nx ), q=np.zeros( (Nx,1) )):
+    return C@(q - x)
 
 # Calculate anchor coefficient matrices.
 def distanceBasedControlMatrices( Aset, N ):
@@ -36,6 +41,7 @@ def distanceBasedControlMatrices( Aset, N ):
     Z, _ = Regressor( A.T@A, np.eye( Nx,Nx ) ).dmd()
     K = Z@A.T
     return C, K, B
+
 
 # Shaped noise functions.
 # Boxed noise.
@@ -52,6 +58,7 @@ def noiseCirc(eps=1e-3, N=1):
         R = eps*np.random.rand()
         y[:,i] = [R*np.cos( t ), R*np.sin( t )]
     return y
+
 
 # Anchor measurement function.
 def anchorMeasure(X, A, eps=None, exclude=lambda i,j: False):
@@ -87,11 +94,19 @@ def vehicleMeasureStack(X, A, eps=0):
         H[:,i] = anchorMeasureStack( D )[:,0]
     return H
 
+
 # Control-related members.
 def centroid(X):
     n = X.shape[1]
     Xbar = 1/n*np.sum( X, axis=1 )
     return Xbar[:,None]
+
+def formationError( X, Xeq ):
+    Q = np.vstack(
+        (Xeq, np.ones( (1,Xeq.shape[1]) )) )
+    regr = Regressor( Q, X )
+    T, _ = regr.dmd()
+    return T, regr.err
 
 def lyapunovCandidate( X, A ):
     n = X.shape[1]
@@ -106,6 +121,24 @@ def lyapunovCandidate( X, A ):
         V += (xerr.T@xerr)[0][0]
 
     return V
+
+def signedCoefficientMatrix(N):
+    # Signed coefficient matrix.
+    S = np.array( [
+        np.hstack( ([1 for i in range( N )], [0 for i in range( N )], [-1 for i in range( N )]) ),
+        np.hstack( ([1 for i in range( N )], [-1 for i in range( N )], [0 for i in range( N )]) ) ] )
+    return S
+
+def anchorCoefficientMatrix(A, N, exclude=None):
+    if exclude is None:
+        exclude = lambda i, j: False
+    # Anchor-position coefficients.
+    z = -1/4*np.hstack( [
+        [ 1/np.sum( np.hstack( [A[:,j,None]
+            for j in range( N ) if not exclude(i,j)] ), axis=1 )
+                for i in range( N ) ] ] ).T
+    Z = np.hstack( (z, z, z) )
+    return Z
 
 def anchorDifferenceMatrices(Aset, N=1):
     # Non-squared coefficient matrix.
@@ -122,9 +155,18 @@ def anchorDifferenceMatrices(Aset, N=1):
     # Return matrices.
     return A, B
 
-def distanceBasedControl(X, Xeq, C, K, B, eps=0):
+def symmetricControl(X, Q, C, Z, S, K=None, eps=0, exclude=lambda i,j: False):
+    # Include all elements if None.
+    if K is None:
+        K = X.shape[1]
+    # Take measurements and return control.
+    H = anchorMeasure( X, X, eps=eps, exclude=exclude )**2
+    return C@(Q - (Z*S)@H[:K])
+
+def asymmetricControl(X, Q, C, K, B, eps=0):
     H = vehicleMeasureStack( X, X, eps=eps )
-    return -C@(K@(H - B) - Xeq)
+    return -C@(K@(H - B) - Q)
+
 
 # Plotting-related members.
 def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=True, dist=True):
@@ -218,3 +260,29 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, eList, Psi, Xbar, shrink=1/3 
 
     # Return figure.
     return fig, axs
+
+
+# Operator functions (currently not being used).
+def rotz(theta):
+    R = np.array( [
+        [np.cos(theta), -np.sin(theta)],
+        [np.sin(theta), np.cos(theta)]
+        ] )
+    return R
+
+def vec(A):
+    m, n = A.shape
+    return A.reshape( m*n,1 )
+
+def kronsum(x1, x2):
+    m1, n1 = x1.shape
+    m2, n2 = x2.shape
+    y = np.empty( (m1*m2, n1*n2) )
+    i = 0
+    for r1 in x1:
+        j = 0
+        for c1 in r1:
+            y[i:i+m2,j:j+n2] = c1 + x2
+            j += n2
+        i += m2
+    return y

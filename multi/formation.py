@@ -10,7 +10,6 @@ from root import *
 N = 16                   # Number of anchors.
 M = N                    # Number of vehicles.
 
-
 # Anchor set.
 # Aset = Abound/2*np.array( [[-1,1,1],[1,1,-1]] )
 # Aset = noiseCirc( eps=Abound, N=N )
@@ -25,15 +24,8 @@ print( 'Aset:\n', Aset )
 # For consistency with notes and error calc.
 Xeq = Aset
 
-
-# Calculate anchor coefficient matrices.
-A, B = anchorDifferenceMatrices( Aset, N=M )
-Z, _ = Regressor( A.T@A, np.eye( Nx,Nx ) ).dmd()
-K = Z@A.T
-# print( 'A:', A )
-# print( 'B:', B )
-# print( 'K:', K )
-
+# Control formula components.
+C, K, B = distanceBasedControlMatrices( Aset, M )
 
 # Main execution block.
 if __name__ == '__main__':
@@ -48,9 +40,7 @@ if __name__ == '__main__':
 
     # Initial error calculation.
     ge = 1
-    regr = Regressor( PSI( Xeq ), X )
-    T, _ = regr.dmd();
-    e0 = np.vstack( (0, regr.err) )
+    e0 = np.vstack( (0, lyapunovCandidate( X, Xeq )) )
 
     # Used for plotting without sim.
     xList = np.nan*np.ones( (M,Nt,Nx) )
@@ -63,11 +53,11 @@ if __name__ == '__main__':
         X, Xeq, Aset, e0, Nt=Nt, ge=1, R1=0.40, R2=delta, anchs=False, dist=False )
 
     # Environment block.
-    print( 'Xi: %0.3f\n' % regr.err, X )
+    print( 'Xi: %0.3f\n' % e0[1,0], X )
     input( "Press ENTER to begin simulation..." )
     for i in range( Nt ):
         # Calculate control term.
-        U = asymmetricControl( X, Xeq, C, K, B, eps=eps )
+        U = distanceBasedControl( X, Xeq, C, K, B, eps=eps )
 
         # if i > 100 and i < 150:
             # upush = 10*np.ones( (2,) )

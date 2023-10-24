@@ -15,6 +15,7 @@ def getColorError(bk):
     if bk:
         return 'indianred'
     return 'cornflowerblue'
+
 def getColorTheta(th):
     # cList = ['yellowgreen', 'indianred', 'cornflowerblue']
     # iColor = round( abs(th)/np.pi )
@@ -27,14 +28,9 @@ print( 'Aset:\n', Aset )
 
 # For consistency with notes and error calc.
 Xeq = Aset
-PSI = lambda A: np.vstack( (A, np.ones( (1,A.shape[1]) )) )
 
-# Calculate anchor coefficient matrices.
-A, B = anchorDifferenceMatrices(Aset, N=M)
-Z, _ = Regressor( A.T@A, np.eye( Nx,Nx ) ).dmd()
-K = Z@A.T
-# print( 'A:', A )
-# print( 'K:', K )
+# Control formula components.
+C, K, B = distanceBasedControlMatrices( Aset, M )
 
 # Main execution block.
 if __name__ == '__main__':
@@ -64,12 +60,12 @@ if __name__ == '__main__':
             X = R@Xeq + noiseCirc( eps=delta, N=M )
 
             # Initial error calculation.
-            eTrend[k,0] = formationError( X, Xeq )[1]
+            eTrend[k,0] = lyapunovCandidate( X, Xeq )
 
             # SModel block..
             for j in range( 1,Nt ):
                 # Calculate control.
-                U = asymmetricControl( X, Xeq, C, K, B )
+                U = distanceBasedControl( X, Xeq, C, K, B )
 
                 # Apply dynamics.
                 X = model( X, U )
