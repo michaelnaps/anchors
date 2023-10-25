@@ -93,6 +93,12 @@ def centroid(X):
     Xbar = 1/n*np.sum( X, axis=1 )
     return Xbar[:,None]
 
+def anchoredLyapunovCandidate( X, A ):
+    V = 0
+    for x, a in zip( X.T, A.T ):
+        V += (x[:,None] - a[:,None]).T@(x[:,None] - a[:,None])
+    return V
+
 def lyapunovCandidate( X, A ):
     n = X.shape[1]
 
@@ -122,27 +128,29 @@ def anchorDifferenceMatrices(Aset, N=1):
     # Return matrices.
     return A, B
 
-def distanceBasedControl(X, Xeq, C, K, B, eps=0):
-    H = vehicleMeasureStack( X, X, eps=eps )
+def distanceBasedControl(X, Xeq, C, K, B, A=None, eps=0):
+    if A is None:
+        A = X
+    H = vehicleMeasureStack( X, A, eps=eps )
     return -C@(K@(H - B) - Xeq)
 
 # Plotting-related members.
-def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=True, dist=True):
+def initAnchorEnvironment(X, Xeq, A, e0, Nt=1000, ge=1, R1=0.40, delta=0.00, anchs=True, dist=True):
     # Plot initialization.
     Np = 2
     fig, axs = plt.subplots(1,Np)
 
     # Optionally plot anchors.
     if anchs:
-        anchors = Swarm2D( Q, fig=fig, axs=axs[0], zorder=50,
+        anchors = Swarm2D( A, fig=fig, axs=axs[0], zorder=50,
             radius=R1, draw_tail=False, color='indianred'
             ).setLineStyle( None, body=True ).draw()
     else:
         anchors = None
 
     if dist:
-        disturb = Swarm2D( Q, fig=fig, axs=axs[0], zorder=10,
-            radius=R2, draw_tail=False, color='none'
+        disturb = Swarm2D( Xeq, fig=fig, axs=axs[0], zorder=10,
+            radius=delta, draw_tail=False, color='none'
             ).setLineStyle( ':', body=True
             ).setLineWidth( 1.0, body=True ).draw()
     else:
@@ -152,7 +160,7 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
     swrm = Swarm2D( X, fig=fig, axs=axs[0], zorder=100,
         radius=-R1, color='cornflowerblue', tail_length=Nt,
         draw_tail=sim ).draw()
-    axs[0].plot( Q[0], Q[1], zorder=50, color='indianred',
+    axs[0].plot( Xeq[0], Xeq[1], zorder=50, color='indianred',
         linestyle='none', marker='x' )
     axs[0].plot( X[0], X[1], zorder=50, color='cornflowerblue',
         linestyle='none', marker='x' )
@@ -160,7 +168,7 @@ def initAnchorEnvironment(X, Q, A, e0, Nt=1000, ge=1, R1=0.40, R2=1.00, anchs=Tr
     # For plotting error.
     error = Vehicle2D( e0, fig=fig, axs=axs[1],
         radius=0.0, color='cornflowerblue', tail_length=Nt ).draw()
-    axs[1].plot( [0, ge*Nt], [0, 0], color='indianred', linestyle='--' )
+    axs[1].plot( [0, ge*Nt], [0, 0], color='gray', linestyle='--' )
 
     # Axis setup.
     titles = ('Environment', 'Lyapunov Trend')

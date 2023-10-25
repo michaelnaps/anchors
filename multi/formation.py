@@ -59,12 +59,6 @@ if __name__ == '__main__':
         # Calculate control term.
         U = distanceBasedControl( X, Xeq, C, K, B, eps=eps )
 
-        # if i > 100 and i < 150:
-            # upush = 10*np.ones( (2,) )
-            # U[:,0] = upush
-            # U[:,int( 2/3*N )] = upush
-            # U[:,-1] = upush
-
         # Apply dynamics.
         X = model( X, U )
 
