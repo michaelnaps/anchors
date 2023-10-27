@@ -24,11 +24,17 @@ if __name__ == '__main__':
 
     # Initial vehicle positions.
     delta = Abound/2
-    eps = 0.0
-    X0 = Xeq + delta/2 # noiseCirc( eps=delta, N=m )
+    eps = 10.0
+    X0 = Xeq + noiseCirc( eps=delta, N=m )
+    e0 = np.vstack( ([0],anchoredLyapunovCandidate( X0, Xeq )) )
+
+    # Used for plotting without sim.
+    xList = np.nan*np.ones( (n,Nt,Nx) )
+    eList = np.nan*np.ones( (2,Nt) )
+    xList[:,0,:] = X0.T
+    eList[:,0] = e0[:,0]
 
     # Initialize simulation variables.
-    e0 = np.vstack( ([0],anchoredLyapunovCandidate( X0, Xeq )) )
     fig, axs, swrm, anchors, error = initAnchorEnvironment(
         X0, Xeq, Aset, e0, Nt=Nt, delta=delta, anchs=True, dist=True )
 
@@ -40,13 +46,20 @@ if __name__ == '__main__':
 
         # Apply dynamics.
         X = model( X, U )
-        e = np.vstack( ([t],anchoredLyapunovCandidate( X, Xeq )) )
+        V = np.vstack( ([t],anchoredLyapunovCandidate( X, Xeq )) )
+
+        # Save values.
+        eList[:,t] = V[:,0]
+        xList[:,t,:] = X.T
 
         # Update simulation.
         if sim and t % n == 0:
             swrm.update( X )
-            error.update( e )
-            # axs[1].set_title( 'time: %s' % i )
+            error.update( V )
             plt.pause( pausesim )
+
+    # Plot transformed grid for reference.
+    finalAnchorEnvironmentAnchored( fig, axs, swrm, xList, eList, shrink=1 )
+    plt.pause( pausesim )
 
     input("Press ENTER to end program.")

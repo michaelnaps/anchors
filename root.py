@@ -226,3 +226,14 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, eList, Psi, Xbar, shrink=1/3 
 
     # Return figure.
     return fig, axs
+
+def finalAnchorEnvironmentAnchored( fig, axs, swrm, xList, eList, shrink=1/3 ):
+    if not sim:
+        swrm.update( xList[:,-1,:].T )
+        axs[1].plot( eList[0], eList[1], color='cornflowerblue' )
+    for vhc in xList:
+        axs[0].plot( vhc.T[0], vhc.T[1], color='cornflowerblue' )
+    axs[1].axis( np.array( [0.0, max( eList[0] ), 0.0, max( eList[1] )] ) )
+
+    # Return figure.
+    return fig, axs
