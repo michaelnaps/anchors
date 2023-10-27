@@ -15,7 +15,7 @@ from KMAN.Regressors import *
 
 # Figure filepath.
 figurepath = expanduser('~') \
-    + '/bu_research/anchor_based_formation_control/figures/sim/'
+    + '/bu_research/anchor_based_formation_control/figures/multi/'
 
 # Plot font.
 default_cycler = cycler(
