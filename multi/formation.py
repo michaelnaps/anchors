@@ -57,7 +57,7 @@ if __name__ == '__main__':
     input( "Press ENTER to begin simulation..." )
     for i in range( Nt ):
         # Calculate control term.
-        U = distanceBasedControl( X, Xeq, C, K, B, eps=eps )
+        U = distanceBasedControl( X, Xeq, C, K, B, eps=eps )[0]
 
         # Apply dynamics.
         X = model( X, U )

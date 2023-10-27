@@ -132,7 +132,8 @@ def distanceBasedControl(X, Xeq, C, K, B, A=None, eps=0):
     if A is None:
         A = X
     H = vehicleMeasureStack( X, A, eps=eps )
-    return -C@(K@(H - B) - Xeq)
+    Y = K@(H - B)
+    return -C@(Y - Xeq), Y
 
 # Plotting-related members.
 def initAnchorEnvironment(X, Xeq, A, e0, Nt=1000, ge=1, R1=0.40, delta=0.00, anchs=True, dist=True):

@@ -13,10 +13,11 @@ Aset = Abound/2*np.array( [
     [1, 1, -1] ] )
 
 # For consistency with notes and error calc.
-Xeq = noiseCirc( eps=Abound, N=1 )
+Xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
 
 # Control formula components.
 C, K, B = distanceBasedControlMatrices( Aset, m )
+Aset = rotz( 0.0 )@Aset
 
 # Main execution block.
 if __name__ == '__main__':
@@ -26,7 +27,7 @@ if __name__ == '__main__':
 
     # Initial vehicle positions.
     delta = Abound
-    eps = 0.5
+    eps = 1.0
     X0 = Xeq + noiseCirc( eps=delta, N=m )
     e0 = np.vstack( ([0],lyapunovCandidateAnchored( X0, Xeq )) )
 
@@ -41,19 +42,18 @@ if __name__ == '__main__':
     # Initialize simulation variables.
     fig, axs, xswrm, anchors, error = initAnchorEnvironment(
         X0, Xeq, Aset, e0, Nt=Nt, delta=delta, anchs=True, dist=False )
-    yswrm = Swarm2D( X0, fig=fig, axs=axs[0], zorder=200,
+    yswrm = Swarm2D( X0, fig=fig, axs=axs[0], zorder=50,
         radius=-0.30, color='yellowgreen', tail_length=Nt,
-        draw_tail=sim ).draw()
+        draw_tail=sim ).setLineStyle( '--' ).draw()
 
     # Simulation block.
     X = X0;  Y = X0;  e = e0
     for t in range( Nt ):
         # Anchor-based control.
-        X = Y + noiseCirc( eps=eps, N=m )
-        U = distanceBasedControl( X, Xeq, C, K, B, A=Aset )
+        U, Y = distanceBasedControl( X, Xeq, C, K, B, A=Aset, eps=eps )
 
         # Apply dynamics.
-        Y = model( Y, U )
+        X = model( X, U )
         V = np.vstack( ([t],lyapunovCandidateAnchored( X, Xeq )) )
 
         # Save values.

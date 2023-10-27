@@ -65,7 +65,7 @@ if __name__ == '__main__':
             # SModel block..
             for j in range( 1,Nt ):
                 # Calculate control.
-                U = distanceBasedControl( X, Xeq, C, K, B )
+                U = distanceBasedControl( X, Xeq, C, K, B )[0]
 
                 # Apply dynamics.
                 X = model( X, U )
