@@ -231,11 +231,14 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, eList, Psi, Xbar, shrink=1/3 
 def finalAnchorEnvironmentAnchored( fig, axs, xswrm, yswrm, xList, yList, eList, shrink=1/3 ):
     if not sim:
         xswrm.update( xList[:,-1,:].T )
-        yswrm.update( yList[:,-1,:].T )
+        if yswrm is not None:
+            yswrm.update( yList[:,-1,:].T )
         axs[1].plot( eList[0], eList[1], color='cornflowerblue' )
-    for xvhc, yvhc in zip( xList, yList ):
-        axs[0].plot( xvhc.T[0], xvhc.T[1], color='cornflowerblue' )
-        axs[0].plot( yvhc.T[0], yvhc.T[1], color='yellowgreen' )
+    for xvhc in xList:
+        axs[0].plot( xvhc.T[0], xvhc.T[1], color='cornflowerblue', linestyle='--', zorder=50 )
+    if yList is not None:
+        for yvhc in yList:
+            axs[0].plot( yvhc.T[0], yvhc.T[1], color='yellowgreen', zorder=10 )
     axs[1].axis( np.array( [0.0, max( eList[0] ), 0.0, max( eList[1] )] ) )
 
     # Return figure.
