@@ -136,6 +136,12 @@ def distanceBasedControl(X, Xeq, C, K, B, A=None, eps=0):
     return -C@(Y - Xeq), Y
 
 # Plotting-related members.
+def plotAnchors(fig, axs, Aset, R):
+    anchors = Swarm2D( Aset, fig=fig, axs=axs, zorder=50,
+        radius=R, draw_tail=False, color='indianred'
+        ).setLineStyle( None, body=True ).draw()
+    return anchors
+
 def initAnchorEnvironment(X, Xeq, A, e0, Nt=1000, ge=1, R1=0.40, delta=0.00, anchs=True, dist=True):
     # Plot initialization.
     Np = 2
@@ -143,9 +149,7 @@ def initAnchorEnvironment(X, Xeq, A, e0, Nt=1000, ge=1, R1=0.40, delta=0.00, anc
 
     # Optionally plot anchors.
     if anchs:
-        anchors = Swarm2D( A, fig=fig, axs=axs[0], zorder=50,
-            radius=R1, draw_tail=False, color='indianred'
-            ).setLineStyle( None, body=True ).draw()
+        anchors = plotAnchors(fig, axs[0], A, R1)
     else:
         anchors = None
 

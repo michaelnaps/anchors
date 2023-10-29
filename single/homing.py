@@ -79,8 +79,7 @@ if __name__ == '__main__':
         Line2D([0], [0], color='yellowgreen', marker='o', markerfacecolor='none',
             label='$X + p(\\varepsilon)$'),
         Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
-            label='$\\mathcal{A}$' )
-    ]
+            label='$\\mathcal{A}$' ) ]
     axs[1].legend( handles=legend_elements, ncol=1 )
     plt.pause( pausesim )
 

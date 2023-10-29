@@ -20,11 +20,9 @@ C, K, B = distanceBasedControlMatrices( Aset, m )
 
 # Rotation list.
 Nth = 40
-thList = np.array( [k/Nth*2*np.pi for k in range( Nth+1 )] )
-rotList = np.array( [rotz( theta ) for theta in thList] )
-
-print( thList )
-print( rotList )
+# thList = np.array( [k/Nth*2*np.pi for k in range( Nth+1 )] )
+# rotList = np.array( [rotz( theta ) for theta in thList] )
+rotList = np.array( [noise( eps=100, shape=(2,m) ) for k in range( Nth+1 )] )
 
 # Main execution block.
 if __name__ == '__main__':
@@ -56,14 +54,14 @@ if __name__ == '__main__':
         for i, R in enumerate( rotList ):
             # Get i-th vehicle positions.
             x = X[:,i,None]
-            xeq = Xeq
 
-            # Check if position is still within bounds.
-            if np.linalg.norm( x ) > 2*Abound:
-                break
+            # # Check if position is still within bounds.
+            # if np.linalg.norm( x ) > 2*Abound:
+            #     break
 
             # Anchor-based control.
-            u = distanceBasedControl( x, xeq, C, K, B, A=R@Aset )[0]
+            print( Aset + R )
+            u = distanceBasedControl( x, Xeq, C, K, B, A=Aset + R )[0]
 
             # Apply dynamics.
             X[:,i] = model( x, u )[:,0]
@@ -94,8 +92,7 @@ if __name__ == '__main__':
         Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
             label='$X + p(\\varepsilon)$'),
         Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
-            label='$\\mathcal{A}$' )
-    ]
+            label='$\\mathcal{A}$' ) ]
     axs[1].legend( handles=legend_elements, ncol=1 )
     plt.pause( pausesim )
 
