@@ -90,7 +90,7 @@ if __name__ == '__main__':
     Abar = centroid( Xeq )
     Psi = rotation( X - Xbar, Xeq - Abar )
 
-    finalAnchorEnvironment( fig, axs, swrm, xList, eList, Psi, Xbar, shrink=1 )
+    finalAnchorEnvironment( fig, axs, swrm, xList, eList, Psi, Xbar, shrink=3/4 )
     plt.pause( pausesim )
 
     # Calculate error after transformation.
@@ -98,6 +98,6 @@ if __name__ == '__main__':
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
         fig.savefig( figurepath
-            + 'multi/formation_%i' % delta + '_e%i.png' % eps,
+            + 'multi/formation_d%i' % delta + '.png' % eps,
             dpi=600 )
         print( 'Figure saved.' )
