@@ -36,7 +36,6 @@ if __name__ == '__main__':
 
     # Used for plotting without sim.
     xList = np.nan*np.ones( (m*(Nth+1),Nt,Nx) )
-    # yList = np.nan*np.ones( (m,Nt,Nx) )
     eList = np.nan*np.ones( (2,Nt) )
     xList[:,0,:] = X0.T
     eList[:,0] = e0[:,0]
@@ -44,9 +43,6 @@ if __name__ == '__main__':
     # Initialize simulation variables.
     fig, axs, xswrm, anchors, error = initAnchorEnvironment(
         X0, Xeq, Aset, e0, Nt=Nt, anchs=True, dist=False )
-    # yswrm = Swarm2D( X0, fig=fig, axs=axs[0], zorder=50,
-    #     radius=-0.30, color='yellowgreen', tail_length=Nt,
-    #     draw_tail=sim ).setLineStyle( '--' ).draw()
 
     # Simulation block.
     X = X0;  e = e0
@@ -70,13 +66,11 @@ if __name__ == '__main__':
 
         # Save values.
         xList[:,t+1,:] = X.T
-        # yList[:,t+1,:] = Y.T
         eList[:,t] = V[:,0]
 
         # Update simulation.
         if sim and t % n == 0:
             xswrm.update( X )
-            # yswrm.update( Y )
             error.update( V )
             plt.pause( pausesim )
 
@@ -86,10 +80,8 @@ if __name__ == '__main__':
     legend_elements = [
         Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='x',
             label='$X^{(0)}$'),
-        Line2D([0], [0], color='yellowgreen', marker='o', markerfacecolor='none',
-            label='$X$'),
         Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
-            label='$X + p(\\varepsilon)$'),
+            label='$X$'),
         Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
             label='$\\mathcal{A}$' ) ]
     axs[1].legend( handles=legend_elements, ncol=1 )

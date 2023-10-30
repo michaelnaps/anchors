@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
     # Initial vehicle positions.
     delta = 1.0
-    eps = 5.0
+    eps = 10.0
     X0 = 3*Abound/4*np.hstack(
         [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
         ) + noiseCirc( eps=delta, N=m )
@@ -76,10 +76,10 @@ if __name__ == '__main__':
     legend_elements = [
         Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='x',
             label='$X^{(0)}$'),
-        Line2D([0], [0], color='cornflowerblue', linestyle='--', marker='o', markerfacecolor='none',
+        Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
             label='$X$'),
-        Line2D([0], [0], color='yellowgreen', marker='o', markerfacecolor='none',
-            label='$X + p(\\varepsilon)$'),
+        Line2D([0], [0], color='yellowgreen', linestyle='--', marker='o', markerfacecolor='none',
+            label='$K(h(x) - b)$'),
         Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
             label='$\\mathcal{A}$' ) ]
     axs[1].legend( handles=legend_elements, ncol=1 )
@@ -89,5 +89,5 @@ if __name__ == '__main__':
     print( '\nError: ', eList[1,np.isfinite(eList[1])][-1] )
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        fig.savefig( figurepath + f'single/homing_e{eps}.png', dpi=600 )
+        fig.savefig( figurepath + 'single/homing_e%i.png' % eps, dpi=600 )
         print( 'Figure saved.' )

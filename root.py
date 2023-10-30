@@ -195,8 +195,7 @@ def initAnchorEnvironment(X, Xeq, A, e0, Nt=1000, ge=1, R1=0.40, delta=0.00, anc
         axs[i].set_xlabel( xlabels[i] )
         axs[i].set_ylabel( ylabels[i] )
         axs[i].axis( bounds[i] )
-    axs[0].grid( 0 )
-    axs[1].grid( 1 )
+        axs[i].grid( 1 )
     axs[0].axis( 'equal' )
 
     # Legend formation.
@@ -246,10 +245,11 @@ def finalAnchorEnvironmentAnchored( fig, axs, xswrm, yswrm, xList, yList, eList,
             yswrm.update( yList[:,-1,:].T )
         axs[1].plot( eList[0], eList[1], color='cornflowerblue' )
     for xvhc in xList:
-        axs[0].plot( xvhc.T[0], xvhc.T[1], color='cornflowerblue', linestyle='--', zorder=50 )
+        axs[0].plot( xvhc.T[0], xvhc.T[1], color='cornflowerblue', zorder=50 )
     if yList is not None:
         for yvhc in yList:
-            axs[0].plot( yvhc.T[0], yvhc.T[1], color='yellowgreen', zorder=10 )
+            axs[0].plot( yvhc.T[0], yvhc.T[1], color='yellowgreen',
+                linewidth=1, zorder=10 )
     axs[1].axis( np.array( [0.0, max( eList[0] ), 0.0, max( eList[1] )] ) )
 
     # Return figure.
