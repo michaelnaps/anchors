@@ -17,7 +17,6 @@ Xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
 
 # Control formula components.
 C, K, B = distanceBasedControlMatrices( Aset, m )
-Aset = rotz( 0.0 )@Aset
 
 # Main execution block.
 if __name__ == '__main__':
@@ -27,7 +26,7 @@ if __name__ == '__main__':
 
     # Initial vehicle positions.
     delta = 1.0
-    eps = 10.0
+    eps = 0.0
     X0 = 3*Abound/4*np.hstack(
         [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
         ) + noiseCirc( eps=delta, N=m )
@@ -78,7 +77,7 @@ if __name__ == '__main__':
             label='$X^{(0)}$'),
         Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
             label='$X$'),
-        Line2D([0], [0], color='yellowgreen', linestyle='--', marker='o', markerfacecolor='none',
+        Line2D([0], [0], color='yellowgreen', linewidth=1, marker='o', markerfacecolor='none',
             label='$K(h(x) - b)$'),
         Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
             label='$\\mathcal{A}$' ) ]
