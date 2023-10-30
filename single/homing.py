@@ -7,7 +7,7 @@ from root import *
 
 # Anchor initialization.
 n = 3
-m = 10
+m = 20
 Aset = Abound/2*np.array( [
     [-1, 1, 1],
     [1, 1, -1] ] )
@@ -28,7 +28,9 @@ if __name__ == '__main__':
     # Initial vehicle positions.
     delta = Abound
     eps = 1.0
-    X0 = Xeq + noiseCirc( eps=delta, N=m )
+    X0 = 3*Abound/4*np.hstack(
+        [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
+        ) + noiseCirc( eps=eps, N=m )
     e0 = np.vstack( ([0],lyapunovCandidateAnchored( X0, Xeq )) )
 
     # Used for plotting without sim.
@@ -83,4 +85,11 @@ if __name__ == '__main__':
     axs[1].legend( handles=legend_elements, ncol=1 )
     plt.pause( pausesim )
 
-    input("Press ENTER to end program.")
+    # Calculate error after transformation.
+    print( '\nError: ', eList[1,np.isfinite(eList[1])][-1] )
+    ans = input( 'Press ENTER to exit program... ' )
+    if save or ans == 'save':
+        fig.savefig( figurepath
+            + 'single/homing_d%i' % delta + '_e%i.png' % eps,
+            dpi=600 )
+        print( 'Figure saved.' )

@@ -137,5 +137,5 @@ if __name__ == '__main__':
     # Exit program.
     ans = input( 'Press ENTER to exit the program... ' )
     if save or ans == 'save':
-        fig.savefig( figurepath + f'bounds_n{N}_d{delta}_r{Ni}.png', dpi=1000 )
+        fig.savefig( figurepath + f'multi/bounds_n{N}_d{delta}_r{Ni}.png', dpi=1000 )
         print( 'Figure saved.' )
