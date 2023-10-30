@@ -7,7 +7,7 @@ from root import *
 
 # Set hyper parameter(s).
 # N = np.random.randint(1,10)
-N = 6                       # Number of anchors.
+N = 3                       # Number of anchors.
 M = N                       # Number of vehicles.
 
 # Plot color ranges.
@@ -22,8 +22,8 @@ def getColorTheta(th):
     return 'indianred'
 
 # Anchor set.
-# Aset = np.array( [[-1, 1, 1, -4, 4, 4],[1, 1, -1, 4, 4, -4]] )
-Aset = noiseCirc( eps=Abound, N=N )
+Aset = Abound*np.array( [[-1, 1, 1],[1, 1, -1]] )
+# Aset = noiseCirc( eps=Abound, N=N )
 print( 'Aset:\n', Aset )
 
 # For consistency with notes and error calc.
