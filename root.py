@@ -93,6 +93,13 @@ def centroid(X):
     Xbar = 1/n*np.sum( X, axis=1 )
     return Xbar[:,None]
 
+def rotation(X, Y):
+    C = X@Y.T
+    U, _, V = np.linalg.svd( C )
+    d = np.sign( np.linalg.det( V@U.T ) )
+    R = V@[[1, 0],[0,d]]@U.T
+    return R
+
 def lyapunovCandidateAnchored( X, A ):
     V = 0
     for x, a in zip( X.T, A.T ):
@@ -104,7 +111,7 @@ def lyapunovCandidate( X, A ):
 
     Xbar = centroid( X )
     Abar = centroid( A )
-    Psi, _ = Regressor( X - Xbar, A - Abar ).dmd()
+    Psi = rotation( X - Xbar, A - Abar )
 
     V = 0
     for x, a in zip( X.T, A.T ):

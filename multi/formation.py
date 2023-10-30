@@ -50,7 +50,8 @@ if __name__ == '__main__':
 
     # Initialize plot with vehicles, anchors and markers.
     fig, axs, swrm, anchors, error = initAnchorEnvironment(
-        X, Xeq, Aset, e0, Nt=Nt, ge=1, R1=0.40, R2=delta, anchs=False, dist=False )
+        X, Xeq, Aset, e0, Nt=Nt, ge=1, R1=0.40, delta=delta,
+        anchs=False, dist=False )
 
     # Environment block.
     print( 'Xi: %0.3f\n' % e0[1,0], X )
@@ -87,8 +88,8 @@ if __name__ == '__main__':
     # Plot transformed grid for reference.
     Xbar = centroid( X )
     Abar = centroid( Xeq )
+    Psi = rotation( X - Xbar, Xeq - Abar )
 
-    Psi, _ = Regressor( X - Xbar, Xeq - Abar ).dmd()
     finalAnchorEnvironment( fig, axs, swrm, xList, eList, Psi, Xbar, shrink=1 )
     plt.pause( pausesim )
 

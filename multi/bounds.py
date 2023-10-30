@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     # For error trend plotting.
     Ni = 10
-    delta = 0.01
+    delta = 10
     eTrend = np.empty( (Nth*Ni,Nt) )
 
     # Simulation block.
