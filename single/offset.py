@@ -19,22 +19,22 @@ Xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
 C, K, B = distanceBasedControlMatrices( Aset, m )
 
 # Rotation list.
-Nr = 2
+Nr = 3
 rList = 2*Abound*np.array(
-    [rotz(k*2*np.pi/(Nr+1))@[[1],[0]] for k in range( Nr+1 )] )
+    [rotz(k*2*np.pi/(Nr))@[[1],[0]] for k in range( Nr )] )
 
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
-    T = 2;  Nt = round( T/dt ) + 1
+    T = 1;  Nt = round( T/dt ) + 1
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Initial vehicle positions.
-    X0 = np.zeros( (Nx,Nr+1) )
+    X0 = np.zeros( (Nx,Nr) )
     V0 = np.vstack( ([0],lyapunovCandidateAnchored( X0, Xeq )) )
 
     # Used for plotting without sim.
-    xList = np.nan*np.ones( (m*(Nr+1),Nt,Nx) )
+    xList = np.nan*np.ones( (m*(Nr),Nt,Nx) )
     VList = np.nan*np.ones( (2,Nt) )
     xList[:,0,:] = X0.T
     VList[:,0] = V0[:,0]
@@ -93,5 +93,5 @@ if __name__ == '__main__':
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        fig.savefig( figurepath + 'single/offset_r%i.png' % (Nr+1), dpi=600 )
+        fig.savefig( figurepath + 'single/offset_r%i.png' % (Nr), dpi=600 )
         print( 'Figure saved.' )
