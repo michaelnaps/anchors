@@ -100,10 +100,10 @@ def rotation(X, Y):
     R = V@[[1, 0],[0,d]]@U.T
     return R
 
-def lyapunovCandidateAnchored( X, A ):
+def lyapunovCandidateAnchored( X, A, R=np.eye( Nx,Nx ), r=np.zeros( (Nx,1) ) ):
     V = 0
     for x, a in zip( X.T, A.T ):
-        V += (x[:,None] - a[:,None]).T@(x[:,None] - a[:,None])
+        V += (x[:,None] - (R@a[:,None] + r)).T@(x[:,None] - (R@a[:,None] + r))
     return V
 
 def lyapunovCandidate( X, A ):
@@ -143,20 +143,24 @@ def distanceBasedControl(X, Xeq, C, K, B, A=None, eps=0):
     return -C@(Y - Xeq), Y
 
 # Plotting-related members.
-def plotAnchors(fig, axs, Aset, R):
-    anchors = Swarm2D( Aset, fig=fig, axs=axs, zorder=50,
-        radius=R, draw_tail=False, color='indianred'
-        ).setLineStyle( None, body=True ).draw()
+def plotAnchors(fig, axs, A, radius=0.40, connect=False, color='indianred'):
+    anchors = Swarm2D( A, fig=fig, axs=axs, zorder=50,
+        radius=radius, draw_tail=False, color=color
+        ).setLineWidth( 1.0 ).setLineStyle( None, body=True ).draw()
+    if connect:
+        c = Vectors( A, fig=fig, axs=axs,
+            zorder=1, color='gray'
+        ).setLineStyle( '--' ).setLineWidth( 1.0 ).draw()
     return anchors
 
-def initAnchorEnvironment(X, Xeq, A, e0, Nt=1000, ge=1, R1=0.40, delta=0.00, anchs=True, dist=True):
+def initAnchorEnvironment(X, Xeq, A, e0, Nt=1000, ge=1, radius=0.40, delta=0.00, anchs=True, dist=True):
     # Plot initialization.
     Np = 2
     fig, axs = plt.subplots(1,Np)
 
     # Optionally plot anchors.
     if anchs:
-        anchors = plotAnchors(fig, axs[0], A, R1)
+        anchors = plotAnchors(fig, axs[0], A, radius)
     else:
         anchors = None
 
@@ -170,7 +174,7 @@ def initAnchorEnvironment(X, Xeq, A, e0, Nt=1000, ge=1, R1=0.40, delta=0.00, anc
 
     # Swarm variables.
     swrm = Swarm2D( X, fig=fig, axs=axs[0], zorder=100,
-        radius=-R1, color='cornflowerblue', tail_length=Nt,
+        radius=-radius, color='cornflowerblue', tail_length=Nt,
         draw_tail=sim ).draw()
     axs[0].plot( Xeq[0], Xeq[1], zorder=50, color='indianred',
         linestyle='none', marker='x' )

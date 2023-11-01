@@ -41,9 +41,9 @@ if __name__ == '__main__':
 
     # Initialize simulation variables.
     fig, axs, xswrm, anchors, error = initAnchorEnvironment(
-        X0, Xeq, Aset, V0, Nt=Nt, radius=0.75, anchs=True, dist=False )
+        X0, Xeq, Aset, V0, Nt=Nt, radius=1.00, anchs=True, dist=False )
     for r in rList:
-        plotAnchors(fig, axs[0], Aset + r, radius=0.60,
+        plotAnchors(fig, axs[0], Aset + r, radius=0.85,
             connect=True, color='orange')
 
     # Simulation block.
@@ -93,5 +93,5 @@ if __name__ == '__main__':
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        fig.savefig( figurepath + 'single/offset_r%i.png' % Nr+1, dpi=600 )
+        fig.savefig( figurepath + 'single/offset_r%i.png' % (Nr+1), dpi=600 )
         print( 'Figure saved.' )
