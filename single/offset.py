@@ -20,7 +20,7 @@ C, K, B = distanceBasedControlMatrices( Aset, m )
 
 # Rotation list.
 Nr = 3
-R = rotz( 1.0 )
+R = rotz( 0.0 )
 rList = 2*Abound*np.array(
     [rotz(k*2*np.pi/(Nr))@[[1],[0]] for k in range( Nr )] )
 
