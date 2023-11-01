@@ -20,13 +20,14 @@ C, K, B = distanceBasedControlMatrices( Aset, m )
 
 # Rotation list.
 Nr = 3
+R = rotz( 1.0 )
 rList = 2*Abound*np.array(
     [rotz(k*2*np.pi/(Nr))@[[1],[0]] for k in range( Nr )] )
 
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
-    T = 1;  Nt = round( T/dt ) + 1
+    T = 5;  Nt = round( T/dt ) + 1
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Initial vehicle positions.
@@ -43,7 +44,7 @@ if __name__ == '__main__':
     fig, axs, xswrm, anchors, error = initAnchorEnvironment(
         X0, Xeq, Aset, V0, Nt=Nt, radius=1.00, anchs=True, dist=False )
     for r in rList:
-        plotAnchors(fig, axs[0], Aset + r, radius=0.85,
+        plotAnchors(fig, axs[0], R@Aset + r, radius=0.85,
             connect=True, color='orange')
 
     # Simulation block.
@@ -55,11 +56,11 @@ if __name__ == '__main__':
             x = X[:,i,None]
 
             # Check if position is still within bounds.
-            if np.linalg.norm( x ) > 2*Abound:
+            if np.linalg.norm( x ) > 10*Abound:
                 break
 
             # Anchor-based control.
-            u = distanceBasedControl( x, Xeq, C, K, B, A=Aset + r )[0]
+            u = distanceBasedControl( x, Xeq, C, K, B, A=R@Aset + r )[0]
 
             # Apply dynamics.
             X[:,i] = model( x, u )[:,0]

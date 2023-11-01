@@ -8,7 +8,7 @@ from root import *
 # Anchor initialization.
 n = 3
 m = 1
-Aset = Abound/2*np.array( [
+Aset = Abound/4*np.array( [
     [-1, 1, 1, -1],
     [1, 1, -1, -1] ] )
 
@@ -19,19 +19,24 @@ Xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
 C, K, B = distanceBasedControlMatrices( Aset, m )
 
 # Rotation list.
-Nth = 40
+Nth = 3
 thList = np.array( [k/Nth*2*np.pi for k in range( Nth+1 )] )
 rotList = np.array( [rotz( theta ) for theta in thList] )
-# rotList = np.array( [noise( eps=100, shape=(2,m) ) for k in range( Nth+1 )] )
+
+r0 = np.array( [[-Abound],[-Abound*Nth/2]] )
+rList = np.array( [[[0],[Nth*Abound*k/Nth]]+r0 for k in range( Nth+1 )] )
+
+print( thList )
+print( rList )
 
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
-    T = 2;  Nt = round( T/dt ) + 1
+    T = 10;  Nt = round( T/dt ) + 1
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Initial vehicle positions.
-    X0 = Abound*np.kron( np.array( [[0],[1]] ), np.ones( (1,Nth+1) ) )
+    X0 = Abound*np.zeros( (Nx,Nth+1) )
     e0 = np.vstack( ([0],lyapunovCandidateAnchored( X0, Xeq )) )
 
     # Used for plotting without sim.
@@ -43,20 +48,23 @@ if __name__ == '__main__':
     # Initialize simulation variables.
     fig, axs, xswrm, anchors, error = initAnchorEnvironment(
         X0, Xeq, Aset, e0, Nt=Nt, anchs=True, dist=False )
+    for (R, r) in zip( rotList, rList ):
+        plotAnchors(fig, axs[0], R@Aset + r, radius=0.30,
+            connect=True, color='orange')
 
     # Simulation block.
     X = X0;  e = e0
     for t in range( Nt-1 ):
-        for i, R in enumerate( rotList ):
+        for i, (R, r) in enumerate( zip( rotList, rList ) ):
             # Get i-th vehicle positions.
             x = X[:,i,None]
 
             # Check if position is still within bounds.
-            if np.linalg.norm( x ) > 2*Abound:
+            if np.linalg.norm( x ) > 10*Abound:
                 break
 
             # Anchor-based control.
-            u = distanceBasedControl( x, Xeq, C, K, B, A=R@Aset )[0]
+            u = distanceBasedControl( x, Xeq, C, K, B, A=R@Aset + r )[0]
 
             # Apply dynamics.
             X[:,i] = model( x, u )[:,0]
