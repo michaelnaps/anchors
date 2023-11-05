@@ -37,30 +37,30 @@ if __name__ == '__main__':
 
     # Initial vehicle positions.
     X0 = Abound*np.zeros( (Nx,Nth+1) )
-    e0 = np.vstack( ([0],lyapunovCandidateAnchored( X0, Xeq )) )
+    V0 = np.vstack( ([0],lyapunovCandidateAnchored( X0, Xeq )) )
 
     # Used for plotting without sim.
     xList = np.nan*np.ones( (m*(Nth+1),Nt,Nx) )
-    eList = np.nan*np.ones( (2,Nt) )
+    VList = np.nan*np.ones( (2,Nt) )
     xList[:,0,:] = X0.T
-    eList[:,0] = e0[:,0]
+    VList[:,0] = V0[:,0]
 
     # Initialize simulation variables.
     fig, axs, xswrm, anchors, error = initAnchorEnvironment(
-        X0, Xeq, Aset, e0, Nt=Nt, anchs=True, dist=False )
+        X0, Xeq, Aset, V0, Nt=Nt, anchs=True, dist=False )
     for (R, r) in zip( rotList, rList ):
         plotAnchors(fig, axs[0], R@Aset + r, radius=0.30,
             connect=True, color='orange')
 
     # Simulation block.
-    X = X0;  e = e0
+    X = X0
     for t in range( Nt-1 ):
         for i, (R, r) in enumerate( zip( rotList, rList ) ):
             # Get i-th vehicle positions.
             x = X[:,i,None]
 
             # Check if position is still within bounds.
-            if np.linalg.norm( x ) > 10*Abound:
+            if np.linalg.norm( x ) > 3*Abound:
                 break
 
             # Anchor-based control.
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
         # Save values.
         xList[:,t+1,:] = X.T
-        eList[:,t] = V[:,0]
+        VList[:,t+1] = V[:,0]
 
         # Update simulation.
         if sim and t % n == 0:
@@ -83,7 +83,7 @@ if __name__ == '__main__':
             plt.pause( pausesim )
 
     # Plot transformed grid for reference.
-    finalAnchorEnvironmentAnchored( fig, axs, xswrm, None, xList, None, eList, shrink=1 )
+    finalAnchorEnvironmentAnchored( fig, axs, xswrm, None, xList, None, VList, shrink=1 )
     axs[1].set_ylabel( '$V(x)$' )
     legend_elements = [
         Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='x',
