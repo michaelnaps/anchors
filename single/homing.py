@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     # Initial vehicle positions.
     delta = 1.0
-    eps = 0.0
+    epsList = [0.0, 5.0, 10.0]
     X0 = 3*Abound/4*np.hstack(
         [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
         ) + noiseCirc( eps=delta, N=m )
@@ -48,26 +48,27 @@ if __name__ == '__main__':
         draw_tail=sim ).setLineStyle( '--' ).draw()
 
     # Simulation block.
-    X = X0;  Y = X0
-    for t in range( Nt ):
-        # Anchor-based control.
-        U, Y = distanceBasedControl( X, Xeq, C, K, B, A=Aset, eps=eps )
+    for eps in epsList:
+        X = X0;  Y = X0
+        for t in range( Nt ):
+            # Anchor-based control.
+            U, Y = distanceBasedControl( X, Xeq, C, K, B, A=Aset, eps=eps )
 
-        # Apply dynamics.
-        X = model( X, U )
-        V = np.vstack( ([t],lyapunovCandidateAnchored( X, Xeq )) )
+            # Apply dynamics.
+            X = model( X, U )
+            V = np.vstack( ([t],lyapunovCandidateAnchored( X, Xeq )) )
 
-        # Save values.
-        xList[:,t,:] = X.T
-        yList[:,t,:] = Y.T
-        VList[:,t] = V[:,0]
+            # Save values.
+            xList[:,t,:] = X.T
+            yList[:,t,:] = Y.T
+            VList[:,t] = V[:,0]
 
-        # Update simulation.
-        if sim and t % n == 0:
-            xswrm.update( X )
-            yswrm.update( Y )
-            error.update( V )
-            plt.pause( pausesim )
+            # Update simulation.
+            if sim and t % n == 0:
+                xswrm.update( X )
+                yswrm.update( Y )
+                error.update( V )
+                plt.pause( pausesim )
 
     # Plot transformed grid for reference.
     finalAnchorEnvironmentAnchored( fig, axs, xswrm, yswrm, xList, yList, VList, shrink=1 )
