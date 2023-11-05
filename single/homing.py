@@ -43,7 +43,7 @@ if __name__ == '__main__':
     # Initialize simulation variables.
     fig, axs, xswrm, anchors, error = initAnchorEnvironment(
         X0, Xeq, Aset, V0, Nt=Nt, delta=delta, anchs=True, dist=False )
-    yswrm = Swarm2D( X0, fig=fig, axs=axs[0], zorder=10,
+    yswrm = Swarm2D( X0, fig=fig, axs=axs[0], zorder=z_swrm-1,
         radius=-0.30, color='yellowgreen', tail_length=Nt,
         draw_tail=sim ).setLineStyle( '--' ).draw()
 

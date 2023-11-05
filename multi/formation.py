@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     # Initialize plot with vehicles, anchors and markers.
     fig, axs, swrm, anchors, error = initAnchorEnvironment(
-        X, Xeq, Aset, e0, Nt=Nt, ge=1, radius=0.40, delta=delta,
+        X, Xeq, Aset, e0, Nt=Nt, radius=0.40, delta=delta,
         anchs=False, dist=False )
 
     # Environment block.
