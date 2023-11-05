@@ -47,8 +47,8 @@ if __name__ == '__main__':
     # print( 'infCount:\n', infCount )
 
     # For error trend plotting.
-    Ni = 10
-    delta = 10
+    Ni = 25
+    delta = 0.01
     eTrend = np.empty( (Nth*Ni,Nt) )
 
     # Simulation block.
@@ -73,7 +73,7 @@ if __name__ == '__main__':
                 # Calculate error and break if too large.
                 # eTrend[k,j] = np.linalg.norm( U )
                 eTrend[k,j] = lyapunovCandidate( X, Xeq )
-                if (eTrend[k,j] > 20 and delta != 0) :
+                if (eTrend[k,j] > 10*Abound and delta != 0) :
                     eTrend[k,j:] = np.inf
                     infCount[i][1] += 1
                     break
