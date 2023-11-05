@@ -39,7 +39,7 @@ if __name__ == '__main__':
     tList = np.array( [ [i for i in range( Nt )] ] )
 
     # Initialize vehicle positions and error list.
-    Nth = 25
+    Nth = 10
     thList = np.linspace( -2*np.pi,2*np.pi,Nth )
     rotList = [rotz(theta) for theta in thList]
     infCount = {i: [thList[i], 0] for i in range( Nth )}
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # print( 'infCount:\n', infCount )
 
     # For error trend plotting.
-    Ni = 25
+    Ni = 10
     delta = 0.01
     eTrend = np.empty( (Nth*Ni,Nt) )
 
