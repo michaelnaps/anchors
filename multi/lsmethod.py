@@ -4,7 +4,7 @@ from os.path import expanduser
 sys.path.insert(0, expanduser('~')+'/prog/anchors')
 
 # Import related functions.
-from root import *
+from plotfuncs import *
 
 
 # Dimensional variables.
