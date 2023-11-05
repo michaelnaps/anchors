@@ -48,7 +48,7 @@ if __name__ == '__main__':
             connect=True, color='orange')
 
     # Simulation block.
-    X = X0;
+    X = X0
     for t in range( Nt-1 ):
         V = np.array( [[t],[0]] )
         for i, r in enumerate( rList ):
