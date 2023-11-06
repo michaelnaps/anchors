@@ -35,8 +35,8 @@ def plotAnchors(fig, axs, A, radius=0.40, color='indianred', connect=False):
     return anchors
 
 # Lyapunov-related plots.
-def plotLyapunovTrend(fig, axs, VList, color='cornflowerblue'):
-    axs.plot( VList[0], VList[1], color=color )
+def plotLyapunovTrend(fig, axs, VList, color='cornflowerblue', linestyle='solid'):
+    axs.plot( VList[0], VList[1], color=color, linestyle=linestyle, linewidth=2.5 )
     axs.axis( np.array( [0.0, max( VList[0] ), 0.0, max( VList[1] )] ) )
     return fig, axs
 
@@ -174,7 +174,7 @@ def initAnchorEnvironment(X, Xeq, A, V0, Nt=1000, radius=0.40, delta=0.00, anchs
     # Return figure.
     return fig, axs, swrm, anchors, cand
 
-def finalAnchorEnvironment( fig, axs, swrm, xList, VList, R, r, shrink=1/3 ):
+def finalAnchorEnvironment(fig, axs, swrm, xList, VList, R, r, shrink=1/3):
     fig, axs[0], swrm = plotVehiclePaths( fig, axs[0], swrm, xList )
     fig, axs[0] = plotAxesRotation( fig, axs[0], R, r )
     fig, axs[1] = plotLyapunovTrend( fig, axs[1], VList )
@@ -182,13 +182,13 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, VList, R, r, shrink=1/3 ):
     # Return figure.
     return fig, axs
 
-def plotEnvironment( fig, axs, swrm, xList, VList=None, color='cornflowerblue', plotXf=True, zorder=z_swrm):
+def plotEnvironment(fig, axs, swrm, xList, VList=None, plotXf=True, zorder=z_swrm, color='cornflowerblue', linestyle='solid'):
     # Plot results of simulation.
     fig, axs[0], swrm = plotVehiclePaths( fig, axs[0], swrm, xList,
         plotXf=plotXf, zorder=zorder )
     if VList is not None:
         fig, axs[1] = plotLyapunovTrend( fig, axs[1], VList,
-            color=color )
+        color=color, linestyle=linestyle )
 
     # Return updated figure.
     return fig, axs
