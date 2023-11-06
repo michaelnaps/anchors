@@ -87,8 +87,6 @@ if __name__ == '__main__':
             yList[:,t+1,:] = Y.T
             VList[:,t+1,:] = V.T
 
-        print( VList )
-
         plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList, VList,
             plotXf=False, color=vcolor[i], linestyle=vlinestyle[i] )
         plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList,
@@ -138,6 +136,6 @@ if __name__ == '__main__':
     print( '\nError: ', VList[1,np.isfinite(VList[1])][-1] )
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        filename = '_'.join( ['homing'] + ['e%i' % eps for eps in epsList] ) + '.png'
+        filename = 'single/' + '_'.join( ['homing'] + ['e%i' % eps for eps in epsList] ) + '.png'
         fig.savefig( figurepath + filename, dpi=600 )
         print( 'Figure saved to:\n ' + figurepath + filename )
