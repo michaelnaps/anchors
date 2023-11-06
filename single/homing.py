@@ -40,7 +40,9 @@ if __name__ == '__main__':
 
     # Initialize simulation variables.
     fig, axs = plt.subplots( 1,Ne+1 )
-    fig.set_figwidth( 3*plt.rcParams.get('figure.figsize')[0] )
+    fig.set_figwidth( 2.5*plt.rcParams.get('figure.figsize')[0] )
+    vcolor = ['cornflowerblue', 'mediumpurple', 'sandybrown']
+    vlinestyle = ['solid', '--', ':']
 
     xswrm = [None for i in range( Ne )]
     yswrm = [None for i in range( Ne )]
@@ -73,8 +75,8 @@ if __name__ == '__main__':
             VList[:,t+1] = V[:,0]
 
         plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList, VList,
-            plotXf=False )
-        plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList, VList,
+            plotXf=False, color=vcolor[i], linestyle=vlinestyle[i] )
+        plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList,
             plotXf=False, zorder=z_swrm-100 )
 
     # Axis and plot labels.
@@ -85,23 +87,42 @@ if __name__ == '__main__':
     # axs[i].set_xlabel( xlabels[i] )
     # axs[i].set_ylabel( ylabels[i] )
 
+    # Plot and axis labels.
+    titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Lyapunov Trend']
+    xlabels = [None, '$x$', None, 'Iteration']
+    ylabels = ['$y$', None, None, '$V(x)$']
+    for a, title, xlabel, ylabel in zip( axs, titles, xlabels, ylabels ):
+        a.set_title( title )
+        a.set_xlabel( xlabel )
+        a.set_ylabel( ylabel )
+
     # Plot transformed grid for reference.
-    axs[0].set_ylabel( '$V(x)$' )
-    legend_elements = [
+    legend_elements_1 = [
         Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='x',
             label='$X^{(0)}$'),
+        Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
+            label='$\\mathcal{A}$' ),
         Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
             label='$X$'),
         Line2D([0], [0], color='yellowgreen', linewidth=1, marker='o', markerfacecolor='none',
             label='$K(h(x) - b)$'),
-        Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
-            label='$\\mathcal{A}$' ) ]
-    axs[-1].legend( handles=legend_elements, ncol=1 )
+    ]
+    axs[0].axis( 1.5*Abound*np.array( [-1, 1, -0.85, 1.15] ) )
+    axs[0].legend( handles=legend_elements_1, ncol=2, loc=1 )
+
+    legend_elements_2 = [
+        Line2D([0], [0], color=vcolor[i], linestyle=vlinestyle[i], linewidth=2,
+            label='$\\varepsilon = %.1f$' % eps) for i, eps in enumerate( epsList )
+    ]
+    axs[-1].legend( handles=legend_elements_2, ncol=1 )
+
+    fig.tight_layout()
     plt.pause( pausesim )
 
     # Calculate error after transformation.
     print( '\nError: ', VList[1,np.isfinite(VList[1])][-1] )
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        fig.savefig( figurepath + 'single/homing_e%i.png' % eps, dpi=600 )
-        print( 'Figure saved.' )
+        filename = '_'.join( ['homing'] + ['e%i' % eps for eps in epsList] ) + '.png'
+        fig.savefig( figurepath + filename, dpi=600 )
+        print( 'Figure saved to:\n ' + figurepath + filename )
