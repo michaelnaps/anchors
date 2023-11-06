@@ -84,12 +84,25 @@ if __name__ == '__main__':
             break
     print( 'Xf:\n', X )
 
-    # Plot transformed grid for reference.
+    # Tranformation.
     Xbar = centroid( X )
     Abar = centroid( Xeq )
     Psi = rotation( X - Xbar, Xeq - Abar )
 
     finalAnchorEnvironment( fig, axs, swrm, xList, eList, Psi, Xbar, shrink=3/4 )
+
+    # Legend setup.
+    axs[0].set_ylabel( '$V(x)$' )
+    legend_elements = [
+        Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='x',
+            label='$X^{(0)}$'),
+        Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
+            label='$X$'),
+        Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
+            label='$\\mathcal{A}, X^{(eq)}$' ),
+        Line2D([0], [0], color='grey', linestyle='--', marker='o', markerfacecolor='grey',
+            label='$\Psi [x,y]^\\top + \psi$') ]
+    axs[-1].legend( handles=legend_elements, ncol=1 )
     plt.pause( pausesim )
 
     # Calculate error after transformation.
