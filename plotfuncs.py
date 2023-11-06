@@ -41,15 +41,18 @@ def plotLyapunovTrend(fig, axs, VList, color='cornflowerblue'):
     return fig, axs
 
 # Vehicle-related plots.
-def plotVehiclePaths(fig, axs, swrm, xList, color=None, zorder=z_swrm):
+def plotVehiclePaths(fig, axs, swrm, xList, plotXf=True, color=None, zorder=z_swrm):
     if color is None:
         color = swrm.color
 
     if not sim:
-        if len( xList.shape ) == 3:
-            swrm.update( xList[:,-1,:].T )
-        elif len( xList.shape ) == 2:
-            swrm.update( xList[-1] )
+        if plotXf:
+            if len( xList.shape ) == 3:
+                swrm.update( xList[:,-1,:].T )
+            elif len( xList.shape ) == 2:
+                swrm.update( xList[-1] )
+        else:
+            swrm.remove()
         for X in xList:
             axs.plot( X.T[0], X.T[1], color=color, zorder=zorder )
 
@@ -179,11 +182,13 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, VList, R, r, shrink=1/3 ):
     # Return figure.
     return fig, axs
 
-def plotEnvironment( fig, axs, swrm, xList, VList=None, color='cornflowerblue', zorder=z_swrm, shrink=1/3 ):
+def plotEnvironment( fig, axs, swrm, xList, VList=None, color='cornflowerblue', plotXf=True, zorder=z_swrm):
     # Plot results of simulation.
-    fig, axs[0], swrm = plotVehiclePaths( fig, axs[0], swrm, xList, zorder=zorder )
+    fig, axs[0], swrm = plotVehiclePaths( fig, axs[0], swrm, xList,
+        plotXf=plotXf, zorder=zorder )
     if VList is not None:
-        fig, axs[1] = plotLyapunovTrend( fig, axs[1], VList, color=color )
+        fig, axs[1] = plotLyapunovTrend( fig, axs[1], VList,
+            color=color )
 
     # Return updated figure.
     return fig, axs

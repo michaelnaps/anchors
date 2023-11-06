@@ -72,8 +72,10 @@ if __name__ == '__main__':
             yList[:,t+1,:] = Y.T
             VList[:,t+1] = V[:,0]
 
-        plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList, VList )
-        plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList, VList, zorder=z_swrm-100 )
+        plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList, VList,
+            plotXf=False )
+        plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList, VList,
+            plotXf=False, zorder=z_swrm-100 )
 
     # Axis and plot labels.
     # titles = ('Environment', 'Lyapunov Trend')
