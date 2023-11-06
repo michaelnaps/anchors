@@ -41,20 +41,30 @@ def plotLyapunovTrend(fig, axs, VList, color='cornflowerblue'):
     return fig, axs
 
 # Vehicle-related plots.
-def plotVehiclePaths(fig, axs, swrm, xList, color='cornflowerblue'):
+def plotVehiclePaths(fig, axs, swrm, xList, color=None, zorder=z_swrm):
+    if color is None:
+        color = swrm.color
+
     if not sim:
-        swrm.update( xList[:,-1,:].T )
+        if len( xList.shape ) == 3:
+            swrm.update( xList[:,-1,:].T )
+        elif len( xList.shape ) == 2:
+            swrm.update( xList[-1] )
         for X in xList:
-            axs.plot( X.T[0], X.T[1], color=color )
+            axs.plot( X.T[0], X.T[1], color=color, zorder=zorder )
+
     return fig, axs, swrm
 
 # Plot initializations.
-def initLyapunovTrend(fig, axs, V, Nt=1000, color='cornflowerblue'):
-    swrm = Vehicle2D( V, fig=fig, axs=axs,
-        radius=0.0, color='cornflowerblue', tail_length=Nt ).draw()
-    axs.plot( [0, Nt], [0, 0], color='gray', linestyle='--' )
+def initAnchors(fig, axs, A, radius=0.40, color='indianred', connect=False):
+    anchors = Swarm2D( A, fig=fig, axs=axs, zorder=z_anch,
+        radius=radius, draw_tail=False, color=color
+        ).setLineWidth( 1.0 ).setLineStyle( None, body=True ).draw()
+    if connect:
+        c = Vectors( A, fig=fig, axs=axs, color='gray',
+            zorder=int( z_anch/2 ) ).setLineStyle( '--' ).setLineWidth( 1.0 ).draw()
 
-    return fig, axs, swrm
+    return anchors
 
 def initVehiclePaths(fig, axs, X, Xeq, Nt=1000, xcolor='cornflowerblue', xeqcolor='indianred'):
     swrm = Swarm2D( X, fig=fig, axs=axs, zorder=z_swrm,
@@ -66,6 +76,37 @@ def initVehiclePaths(fig, axs, X, Xeq, Nt=1000, xcolor='cornflowerblue', xeqcolo
         linestyle='none', marker='x' )
 
     return fig, axs, swrm
+
+def initLyapunovTrend(fig, axs, V, Nt=1000, color='cornflowerblue'):
+    swrm = Vehicle2D( V, fig=fig, axs=axs,
+        radius=0.0, color='cornflowerblue', tail_length=Nt ).draw()
+    axs.plot( [0, Nt], [0, 0], color='gray', linestyle='--' )
+
+    return fig, axs, swrm
+
+def initEnvironment(fig, axs, X0, Xeq, Aset, V0, Nt=1000, radius=0.40):
+    anchors = plotAnchors(fig, axs[0], Aset, radius)
+    fig, axs[0], swrm = initVehiclePaths( fig, axs[0], X0, Xeq, Nt=Nt )
+    fig, axs[1], cand = initLyapunovTrend( fig, axs[1], V0, Nt=Nt)
+
+    # Plot/axis titles.
+    bounds = np.vstack( [
+        1.5*Abound*np.array( [-1, 1, -1, 1] ),
+        np.hstack( [V0[0], Nt, -0.01, V0[1]] ) ] )
+    for a, b in zip( axs, bounds ):
+        a.axis( b )
+        a.grid( 1 )
+    axs[0].axis( 'equal' )
+
+    # Show plot.
+    fig.tight_layout()
+    fig.set_figheight( figheight )
+    plt.show( block=0 )
+
+    # Return figure.
+    return fig, axs, swrm, anchors, cand
+
+    pass
 
 def initAnchorEnvironment(X, Xeq, A, V0, Nt=1000, radius=0.40, delta=0.00, anchs=True, dist=True, fig=None, axsX=None, axsV=None):
     # Plot initialization.
@@ -138,13 +179,11 @@ def finalAnchorEnvironment( fig, axs, swrm, xList, VList, R, r, shrink=1/3 ):
     # Return figure.
     return fig, axs
 
-def finalAnchorEnvironmentAnchored( fig, axs, xswrm, yswrm, xList, yList, VList, shrink=1/3 ):
-    fig, axs[0], swrm = plotVehiclePaths( fig, axs[0], xswrm, xList )
-    fig, axs[1] = plotLyapunovTrend( fig, axs[1], VList )
+def plotEnvironment( fig, axs, swrm, xList, VList=None, color='cornflowerblue', zorder=z_swrm, shrink=1/3 ):
+    # Plot results of simulation.
+    fig, axs[0], swrm = plotVehiclePaths( fig, axs[0], swrm, xList, zorder=zorder )
+    if VList is not None:
+        fig, axs[1] = plotLyapunovTrend( fig, axs[1], VList, color=color )
 
-    if yswrm is not None:
-        fig, axs[0], yswrm = plotVehiclePaths( fig, axs[0], yswrm, yList,
-            color=yswrm.color )
-
-    # Return figure.
+    # Return updated figure.
     return fig, axs

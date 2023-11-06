@@ -55,7 +55,6 @@ if __name__ == '__main__':
 
     # Environment block.
     print( 'Xi: %0.3f\n' % e0[1,0], X )
-    input( "Press ENTER to begin simulation..." )
     for i in range( Nt ):
         # Calculate control term.
         U = distanceBasedControl( X, Xeq, C, K, B, eps=eps )[0]
