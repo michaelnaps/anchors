@@ -88,8 +88,8 @@ def initLyapunovTrend(fig, axs, V, Nt=1000, color='cornflowerblue'):
 
     return fig, axs, swrm
 
-def initEnvironment(fig, axs, X0, Xeq, Aset, V0, Nt=1000, radius=0.40):
-    anchors = plotAnchors(fig, axs[0], Aset, radius)
+def initEnvironment(fig, axs, X0, Xeq, Aset, V0, Nt=1000, radius=0.40, connect=0):
+    anchors = plotAnchors(fig, axs[0], Aset, radius=radius, connect=connect)
     fig, axs[0], swrm = initVehiclePaths( fig, axs[0], X0, Xeq, Nt=Nt )
     fig, axs[1], cand = initLyapunovTrend( fig, axs[1], V0, Nt=Nt)
 
@@ -109,8 +109,6 @@ def initEnvironment(fig, axs, X0, Xeq, Aset, V0, Nt=1000, radius=0.40):
 
     # Return figure.
     return fig, axs, swrm, anchors, cand
-
-    pass
 
 def initAnchorEnvironment(X, Xeq, A, V0, Nt=1000, radius=0.40, delta=0.00, anchs=True, dist=True, fig=None, axsX=None, axsV=None):
     # Plot initialization.

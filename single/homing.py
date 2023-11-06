@@ -18,14 +18,6 @@ Xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
 # Control formula components.
 C, K, B = distanceBasedControlMatrices( Aset, m )
 
-# Per-vehicle candidate function.
-def lyapunovCandidatePerVehicle(t, X):
-    Vsnap = np.hstack( [
-        lyapunovCandidateAnchored( x[:,None], Xeq )
-        for x in X.T] )
-    V = np.vstack( (t*np.ones( (1,m) ), Vsnap) )
-    return V
-
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
@@ -41,7 +33,7 @@ if __name__ == '__main__':
     #     ) + noiseCirc( eps=delta, N=m )
     X0 = np.hstack( (
         [rotz( 2*np.pi*k/m - np.pi/2 )@[[k/2],[0]] for k in range( 1,m+1 )] ) )
-    V0 = np.vstack( ([0],lyapunovCandidateAnchored( X0, Xeq )) )
+    V0 = np.zeros( (2,1) )
 
     # Used for plotting without sim.
     xList = np.nan*np.ones( (m,Nt,Nx) )
@@ -67,7 +59,7 @@ if __name__ == '__main__':
     # Simulation block.
     for i, eps in enumerate( epsList ):
         X = X0;  Y = X0
-        V0 = lyapunovCandidatePerVehicle(0, X0)
+        V0 = lyapunovCandidatePerVehicle( m, 0, X0, Xeq )
 
         xList[:,0,:] = X0.T
         yList[:,0,:] = X0.T
@@ -80,7 +72,7 @@ if __name__ == '__main__':
             X = model( X, U )
 
             # Lyapunov function.
-            V = lyapunovCandidatePerVehicle(t+1, X)
+            V = lyapunovCandidatePerVehicle( m, t+1, X, Xeq )
 
             # Save values.
             xList[:,t+1,:] = X.T

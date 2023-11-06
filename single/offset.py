@@ -32,25 +32,25 @@ if __name__ == '__main__':
 
     # Initial vehicle positions.
     X0 = np.zeros( (Nx,Nr) )
-    V0 = np.vstack( ([0],lyapunovCandidateAnchored( X0, Xeq )) )
+    V0 = np.zeros( (2,1) )
 
     # Used for plotting without sim.
-    xList = np.nan*np.ones( (m*(Nr),Nt,Nx) )
-    VList = np.nan*np.ones( (2,Nt) )
+    xList = np.nan*np.ones( (m*Nr,Nt,Nx) )
+    VList = np.nan*np.ones( (m*Nr,Nt,2) )
     xList[:,0,:] = X0.T
-    VList[:,0] = V0[:,0]
+    VList[:,0,:] = lyapunovCandidatePerVehicle( m*Nr, 0, X0, Xeq ).T
 
     # Initialize simulation variables.
-    fig, axs, xswrm, anchors, error = initAnchorEnvironment(
-        X0, Xeq, Aset, V0, Nt=Nt, radius=1.00, anchs=True, dist=False )
+    fig, axs = plt.subplots( 1,2 )
+    fig, axs, xswrm, anchors, cand = initEnvironment(
+        fig, axs, X0, Xeq, Aset, V0, Nt=Nt, radius=1, connect=True)
     for r in rList:
-        plotAnchors(fig, axs[0], R@Aset + r, radius=0.85,
-            connect=True, color='orange')
+        plotAnchors( fig, axs[0], R@Aset + r, radius=0.85,
+            color='orange', connect=True )
 
     # Simulation block.
     X = X0
     for t in range( Nt-1 ):
-        V = np.array( [[t],[0]] )
         for i, r in enumerate( rList ):
             # Get i-th vehicle positions.
             x = X[:,i,None]
@@ -64,20 +64,21 @@ if __name__ == '__main__':
 
             # Apply dynamics.
             X[:,i] = model( x, u )[:,0]
-            V[1] = V[1] + lyapunovCandidateAnchored( x, Xeq, r=r )
+            VList[i,t+1,:] = lyapunovCandidatePerVehicle( m, t+1, x, R@Xeq+r ).T
 
         # Save values.
         xList[:,t+1,:] = X.T
-        VList[:,t] = V[:,0]
+        # VList[:,t+1,:] = V.T
+        print( VList )
 
         # Update simulation.
         if sim and t % n == 0:
             xswrm.update( X )
-            error.update( V )
+            cand.update( V )
             plt.pause( pausesim )
 
     # Plot transformed grid for reference.
-    finalAnchorEnvironmentAnchored( fig, axs, xswrm, None, xList, None, VList, shrink=1 )
+    fig, axs = plotEnvironment( fig, axs, xswrm, xList, VList )
     axs[1].set_ylabel( '$V(x)$' )
     legend_elements = [
         Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='x',

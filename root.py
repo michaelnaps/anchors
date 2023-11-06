@@ -98,12 +98,6 @@ def rotation(X, Y):
     R = V@[[1, 0],[0,d]]@U.T
     return R
 
-def lyapunovCandidateAnchored( X, A, R=np.eye( Nx,Nx ), r=np.zeros( (Nx,1) ) ):
-    V = 0
-    for x, a in zip( X.T, A.T ):
-        V += (x[:,None] - (R@a[:,None] + r)).T@(x[:,None] - (R@a[:,None] + r))
-    return V
-
 def lyapunovCandidate( X, A ):
     n = X.shape[1]
 
@@ -116,6 +110,20 @@ def lyapunovCandidate( X, A ):
         xerr = Psi@( x[:,None] - Xbar ) - (a[:,None] - Abar)
         V += (xerr.T@xerr)[0][0]
 
+    return V
+
+def lyapunovCandidateAnchored( X, A, R=np.eye( Nx,Nx ), r=np.zeros( (Nx,1) ) ):
+    V = 0
+    for x, a in zip( X.T, A.T ):
+        V += (x[:,None] - (R@a[:,None] + r)).T@(x[:,None] - (R@a[:,None] + r))
+    return V
+
+# Per-vehicle candidate function.
+def lyapunovCandidatePerVehicle(N, t, X, Xeq):
+    Vsnap = np.hstack( [
+        lyapunovCandidateAnchored( x[:,None], Xeq )
+        for x in X.T] )
+    V = np.vstack( (t*np.ones( (1,N) ), Vsnap) )
     return V
 
 def anchorDifferenceMatrices(Aset, N=1):
