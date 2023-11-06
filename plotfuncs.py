@@ -36,8 +36,9 @@ def plotAnchors(fig, axs, A, radius=0.40, color='indianred', connect=False):
 
 # Lyapunov-related plots.
 def plotLyapunovTrend(fig, axs, VList, color='cornflowerblue', linestyle='solid'):
-    axs.plot( VList[0], VList[1], color=color, linestyle=linestyle, linewidth=2.5 )
-    axs.axis( np.array( [0.0, max( VList[0] ), 0.0, max( VList[1] )] ) )
+    for V in VList:
+        axs.plot( V.T[0], V.T[1], color=color, linestyle=linestyle, linewidth=2.5 )
+    axs.axis( np.array( [0.0, np.max( VList[:,:,0] ), 0.0, np.max( VList[:,:,1] )] ) )
     return fig, axs
 
 # Vehicle-related plots.
@@ -81,7 +82,7 @@ def initVehiclePaths(fig, axs, X, Xeq, Nt=1000, xcolor='cornflowerblue', xeqcolo
     return fig, axs, swrm
 
 def initLyapunovTrend(fig, axs, V, Nt=1000, color='cornflowerblue'):
-    swrm = Vehicle2D( V, fig=fig, axs=axs,
+    swrm = Swarm2D( V, fig=fig, axs=axs,
         radius=0.0, color='cornflowerblue', tail_length=Nt ).draw()
     axs.plot( [0, Nt], [0, 0], color='gray', linestyle='--' )
 
@@ -188,7 +189,7 @@ def plotEnvironment(fig, axs, swrm, xList, VList=None, plotXf=True, zorder=z_swr
         plotXf=plotXf, zorder=zorder )
     if VList is not None:
         fig, axs[1] = plotLyapunovTrend( fig, axs[1], VList,
-        color=color, linestyle=linestyle )
+            color=color, linestyle=linestyle )
 
     # Return updated figure.
     return fig, axs

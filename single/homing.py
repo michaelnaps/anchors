@@ -18,6 +18,14 @@ Xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
 # Control formula components.
 C, K, B = distanceBasedControlMatrices( Aset, m )
 
+# Per-vehicle candidate function.
+def lyapunovCandidatePerVehicle(t, X):
+    Vsnap = np.hstack( [
+        lyapunovCandidateAnchored( x[:,None], Xeq )
+        for x in X.T] )
+    V = np.vstack( (t*np.ones( (1,m) ), Vsnap) )
+    return V
+
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
@@ -28,15 +36,17 @@ if __name__ == '__main__':
     delta = 0.0
     epsList = [0.0, 5.0, 10.0]
     Ne = len( epsList )
-    X0 = 3*Abound/4*np.hstack(
-        [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
-        ) + noiseCirc( eps=delta, N=m )
+    # X0 = 3*Abound/4*np.hstack(
+    #     [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
+    #     ) + noiseCirc( eps=delta, N=m )
+    X0 = np.hstack( (
+        [rotz( 2*np.pi*k/m - np.pi/2 )@[[k/2],[0]] for k in range( 1,m+1 )] ) )
     V0 = np.vstack( ([0],lyapunovCandidateAnchored( X0, Xeq )) )
 
     # Used for plotting without sim.
     xList = np.nan*np.ones( (m,Nt,Nx) )
     yList = np.nan*np.ones( (m,Nt,Nx) )
-    VList = np.nan*np.ones( (2,Nt) )
+    VList = np.nan*np.ones( (m,Nt,2) )
 
     # Initialize simulation variables.
     fig, axs = plt.subplots( 1,Ne+1 )
@@ -46,6 +56,7 @@ if __name__ == '__main__':
 
     xswrm = [None for i in range( Ne )]
     yswrm = [None for i in range( Ne )]
+    cand = [None for i in range( Ne )]
     for i, eps in enumerate( epsList ):
         _, _, xswrm[i], _, _ = initEnvironment(
             fig, [axs[i], axs[-1]], X0, Xeq, Aset, V0, Nt=Nt)
@@ -56,23 +67,27 @@ if __name__ == '__main__':
     # Simulation block.
     for i, eps in enumerate( epsList ):
         X = X0;  Y = X0
-        V0 = np.vstack( ([0],lyapunovCandidateAnchored( X0, Xeq )) )
+        V0 = lyapunovCandidatePerVehicle(0, X0)
 
         xList[:,0,:] = X0.T
         yList[:,0,:] = X0.T
-        VList[:,0] = V0[:,0]
+        VList[:,0,:] = V0.T
         for t in range( Nt-1 ):
             # Anchor-based control.
             U, Y = distanceBasedControl( X, Xeq, C, K, B, A=Aset, eps=eps )
 
             # Apply dynamics.
             X = model( X, U )
-            V = np.vstack( ([t],lyapunovCandidateAnchored( X, Xeq )) )
+
+            # Lyapunov function.
+            V = lyapunovCandidatePerVehicle(t+1, X)
 
             # Save values.
             xList[:,t+1,:] = X.T
             yList[:,t+1,:] = Y.T
-            VList[:,t+1] = V[:,0]
+            VList[:,t+1,:] = V.T
+
+        print( VList )
 
         plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList, VList,
             plotXf=False, color=vcolor[i], linestyle=vlinestyle[i] )
@@ -107,7 +122,7 @@ if __name__ == '__main__':
         Line2D([0], [0], color='yellowgreen', linewidth=1, marker='o', markerfacecolor='none',
             label='$K(h(x) - b)$'),
     ]
-    axs[0].axis( 1.5*Abound*np.array( [-1, 1, -0.85, 1.15] ) )
+    axs[0].axis( Abound*np.array( [-1, 1, -1.15, 1.1] ) )
     axs[0].legend( handles=legend_elements_1, ncol=2, loc=1 )
 
     legend_elements_2 = [
