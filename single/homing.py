@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     # Initialize simulation variables.
     fig, axs = plt.subplots( 1,Ne+1 )
-    fig.set_figwidth( 2.5*plt.rcParams.get('figure.figsize')[0] )
+    fig.set_figwidth( 3*plt.rcParams.get('figure.figsize')[0] )
     vcolor = ['cornflowerblue', 'mediumseagreen', 'mediumpurple']
     vlinestyle = ['solid', '--', ':']
 
