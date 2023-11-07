@@ -28,11 +28,7 @@ if __name__ == '__main__':
     delta = 0.0
     epsList = [0.0, 5.0, 10.0]
     Ne = len( epsList )
-    # X0 = 3*Abound/4*np.hstack(
-    #     [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
-    #     ) + noiseCirc( eps=delta, N=m )
-    X0 = np.hstack( (
-        [rotz( 2*np.pi*k/m - np.pi/2 )@[[k/2],[0]] for k in range( 1,m+1 )] ) )
+    X0 = noiseCirc( eps=Abound, N=m )
     V0 = np.zeros( (2,1) )
 
     # Used for plotting without sim.
