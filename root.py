@@ -112,7 +112,7 @@ def lyapunovCandidate( X, A ):
 
     return V
 
-def lyapunovCandidateAnchored( X, A, R=np.eye( Nx,Nx ), r=np.zeros( (Nx,1) ) ):
+def lyapunovCandidateAnchored( X, A, R=np.eye( Nx,Nx ), r=0 ):
     V = 0
     for x, a in zip( X.T, A.T ):
         V += (x[:,None] - (R@a[:,None] + r)).T@(x[:,None] - (R@a[:,None] + r))
