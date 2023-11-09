@@ -7,7 +7,7 @@ from plotfuncs import *
 
 # Anchor initialization.
 n = 3
-m = 20
+m = 10
 Aset = Abound/2*np.array( [
     [-1, 1, 1],
     [1, 1, -1] ] )
@@ -24,11 +24,17 @@ if __name__ == '__main__':
     T = 1;  Nt = round( T/dt ) + 1
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
-    # Initial vehicle positions.
-    delta = 0.0
+    # Set parameters.
     epsList = [0.0, 5.0, 10.0]
+    vcolor = ['mediumpurple', 'cornflowerblue', 'mediumseagreen']
+    vlinestyle = ['solid', '--', ':']
+
+    # Initial vehicle positions.
+    delta = 2.5
     Ne = len( epsList )
-    X0 = noiseCirc( eps=Abound, N=m )
+    X0 = 3*Abound/4*np.hstack(
+        [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
+        ) + noiseCirc( eps=delta, N=m )
     V0 = np.zeros( (2,1) )
 
     # Used for plotting without sim.
@@ -39,9 +45,8 @@ if __name__ == '__main__':
     # Initialize simulation variables.
     fig, axs = plt.subplots( 1,Ne+1 )
     fig.set_figwidth( 3*plt.rcParams.get('figure.figsize')[0] )
-    vcolor = ['cornflowerblue', 'mediumseagreen', 'mediumpurple']
-    vlinestyle = ['solid', '--', ':']
 
+    # Simulation block.
     xswrm = [None for i in range( Ne )]
     yswrm = [None for i in range( Ne )]
     cand = [None for i in range( Ne )]
