@@ -6,11 +6,13 @@ from plotfuncs import *
 
 
 # Anchor initialization.
-n = 3
+n = 4
 m = 1
+delta = 3.0
 Aset = Abound/2*np.array( [
     [-1, 1, 1, -1],
-    [1, 1, -1, -1] ] )
+    [1, 1, -1, -1] ]
+) + noiseCirc( eps=delta, N=n )
 
 # For consistency with notes and error calc.
 Xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
@@ -68,8 +70,6 @@ if __name__ == '__main__':
 
         # Save values.
         xList[:,t+1,:] = X.T
-        # VList[:,t+1,:] = V.T
-        print( VList )
 
         # Update simulation.
         if sim and t % n == 0:

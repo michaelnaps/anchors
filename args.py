@@ -12,10 +12,15 @@ from cycler import cycler
 from GEOM.Vehicle2D import *
 from KMAN.Regressors import *
 
+# Get the sub root directory (specific to my machines).
+if 'linux' in sys.platform:
+    subroot = '/Documents'
+elif 'darwin' in sys.platform:
+    subroot = '/prog'
 
 # Figure filepath.
 figurepath = expanduser('~') \
-    + '/prog/anchors_paper/figures/'
+    + subroot + '/anchors_paper/figures/'
 
 # Plot font.
 default_cycler = cycler(

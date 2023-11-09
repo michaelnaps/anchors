@@ -5,12 +5,16 @@ sys.path.insert(0, expanduser('~')+'/prog/anchors')
 from plotfuncs import *
 
 
-# Anchor initialization.
+# Anchor/vehicle dimensions.
 n = 3
 m = 10
+
+# Anchor position definition.
+delta = 3.0
 Aset = Abound/2*np.array( [
-    [-1, 1, 1],
-    [1, 1, -1] ] )
+    [-1.5, 1, 1],
+    [0, 1, -1] ]
+) + noiseCirc( eps=delta, N=n )
 
 # For consistency with notes and error calc.
 Xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
@@ -30,7 +34,6 @@ if __name__ == '__main__':
     vlinestyle = ['solid', '--', ':']
 
     # Initial vehicle positions.
-    delta = 2.5
     Ne = len( epsList )
     X0 = 3*Abound/4*np.hstack(
         [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
@@ -44,7 +47,7 @@ if __name__ == '__main__':
 
     # Initialize simulation variables.
     fig, axs = plt.subplots( 1,Ne+1 )
-    fig.set_figwidth( 3*plt.rcParams.get('figure.figsize')[0] )
+    fig.set_figwidth( 3.0*plt.rcParams.get('figure.figsize')[0] )
 
     # Simulation block.
     xswrm = [None for i in range( Ne )]

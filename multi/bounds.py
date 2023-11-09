@@ -62,7 +62,7 @@ if __name__ == '__main__':
             # Initial error calculation.
             eTrend[k,0] = lyapunovCandidate( X, Xeq )
 
-            # SModel block..
+            # Model block.
             for j in range( 1,Nt ):
                 # Calculate control.
                 U = distanceBasedControl( X, Xeq, C, K, B )[0]

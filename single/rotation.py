@@ -83,12 +83,6 @@ if __name__ == '__main__':
         xList[:,t+1,:] = X.T
         VList[:,t+1] = V[:,0]
 
-        # # Update simulation.
-        # if sim and t % n == 0:
-        #     xswrm.update( X )
-        #     error.update( V )
-        #     plt.pause( pausesim )
-
     # Plot transformed grid for reference.
     for i in range( Nth ):
         finalAnchorEnvironmentAnchored( fig, (axs[i], axs[-1]), xswrmList[i],
