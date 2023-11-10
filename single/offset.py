@@ -29,7 +29,7 @@ rList = 2*Abound*np.array(
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
-    T = 5;  Nt = round( T/dt ) + 1
+    T = 1;  Nt = round( T/dt ) + 1
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Initial vehicle positions.
@@ -40,7 +40,6 @@ if __name__ == '__main__':
     xList = np.nan*np.ones( (m*Nr,Nt,Nx) )
     VList = np.nan*np.ones( (m*Nr,Nt,2) )
     xList[:,0,:] = X0.T
-    VList[:,0,:] = lyapunovCandidatePerVehicle( m*Nr, 0, X0, Xeq ).T
 
     # Initialize simulation variables.
     fig, axs = plt.subplots( 1,2 )
@@ -51,35 +50,26 @@ if __name__ == '__main__':
             color='orange', connect=True )
 
     # Simulation block.
-    X = X0
-    for t in range( Nt-1 ):
-        for i, r in enumerate( rList ):
-            # Get i-th vehicle positions.
-            x = X[:,i,None]
-
-            # Check if position is still within bounds.
-            if np.linalg.norm( x ) > 10*Abound:
-                break
-
+    for i, r in enumerate( rList ):
+        # Get i-th vehicle positions.
+        x = X0[:,i,None]
+        xeq = Xeq
+        VList[i,0,:] = [0, lyapunovCandidateAnchored( x, xeq, r=r )[0][0]]
+        for t in range( Nt-1 ):
             # Anchor-based control.
-            u = distanceBasedControl( x, Xeq, C, K, B, A=R@Aset + r )[0]
+            u = distanceBasedControl( x, xeq, C, K, B, A=R@Aset + r )[0]
 
             # Apply dynamics.
-            X[:,i] = model( x, u )[:,0]
-            VList[i,t+1,:] = lyapunovCandidatePerVehicle( m, t+1, x, R@Xeq+r ).T
+            x = model( x, u )
 
-        # Save values.
-        xList[:,t+1,:] = X.T
+            # Save values.
+            VList[i,t+1,:] = [t+1, lyapunovCandidateAnchored( x, xeq, r=r )[0][0]]
+            xList[i,t+1,:] = x[:,0]
 
-        # Update simulation.
-        if sim and t % n == 0:
-            xswrm.update( X )
-            cand.update( V )
-            plt.pause( pausesim )
+    print( VList )
 
     # Plot transformed grid for reference.
     fig, axs = plotEnvironment( fig, axs, xswrm, xList, VList )
-    axs[1].set_ylabel( '$V(x)$' )
     legend_elements = [
         Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='x',
             label='$X^{(0)}$'),
@@ -90,6 +80,14 @@ if __name__ == '__main__':
         Line2D([0], [0], color='orange', linestyle='none', marker='o', markeredgecolor='k',
             label='$\\mathcal{A} + r$' ) ]
     axs[1].legend( handles=legend_elements, ncol=1 )
+
+    # Axes labels and figure dimensions.
+    axs[0].set_xlabel( '$\mathbf{x}$' )
+    axs[0].set_ylabel( '$\mathbf{y}$' )
+    axs[1].set_xlabel( 'Iteration' )
+    axs[1].set_ylabel( '$V(x)$' )
+    fig.set_figheight( 3/4*figheight )
+    fig.tight_layout()
     plt.pause( pausesim )
 
     # Calculate error after transformation.

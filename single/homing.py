@@ -12,8 +12,8 @@ m = 10
 # Anchor position definition.
 delta = 2.0
 Aset = Abound/2*np.array( [
-    [-1, 1, 1],
-    [0, 1, -1] ]
+    [0, -1, 1],
+    [1, -1, -1] ]
 ) + noiseCirc( eps=delta, N=n )
 
 # For consistency with notes and error calc.

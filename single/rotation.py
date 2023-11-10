@@ -30,7 +30,7 @@ if __name__ == '__main__':
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Break count list.
-    Ni = 100
+    Ni = 50
     nList = np.zeros( (Nth+1,) )
 
     # Rotation loop.
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     # Plot results of break simulation.
     fig, axs = plt.subplots()
-    fig.set_figheight( figheight )
+    fig.set_figheight( 3/4*figheight )
     axs.grid( 1 )
 
     b = 0.01
