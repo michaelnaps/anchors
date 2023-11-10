@@ -30,7 +30,7 @@ if __name__ == '__main__':
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Break count list.
-    Ni = 50
+    Ni = 100
     nList = np.zeros( (Nth+1,) )
 
     # Rotation loop.
@@ -88,6 +88,6 @@ if __name__ == '__main__':
     plt.show( block=0 )
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        filename = 'single/' + f'rotation_th{Nth}_r{Ni}.png'
+        filename = 'single/rotation.png'
         fig.savefig( figurepath + filename, dpi=600 )
         print( 'Figure saved to:\n ' + figurepath + filename )

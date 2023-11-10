@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     # Initial vehicle positions.
     Ne = len( epsList )
-    X0 = 3*Abound/4*np.hstack(
+    X0 = Abound/2*np.hstack(
         [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
         ) + noiseCirc( eps=delta, N=m )
     V0 = np.zeros( (2,1) )
@@ -116,7 +116,7 @@ if __name__ == '__main__':
         Line2D([0], [0], color='yellowgreen', linewidth=1, marker='o', markerfacecolor='none',
             label='$K(h(x) - b)$'),
     ]
-    axs[0].axis( Abound*np.array( [-1, 1, -1.15, 1.1] ) )
+    axs[0].axis( Abound*np.array( [-1, 1, -1.1, 1.2] ) )
     axs[0].legend( handles=legend_elements_1, ncol=2, loc=1 )
 
     legend_elements_2 = [
@@ -132,6 +132,6 @@ if __name__ == '__main__':
     print( '\nError: ', VList[1,np.isfinite(VList[1])][-1] )
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        filename = 'single/' + '_'.join( ['homing'] + ['e%i' % eps for eps in epsList] ) + '.png'
+        filename = 'single/homing.png'
         fig.savefig( figurepath + filename, dpi=600 )
         print( 'Figure saved to:\n ' + figurepath + filename )

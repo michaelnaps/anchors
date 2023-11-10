@@ -66,8 +66,6 @@ if __name__ == '__main__':
             VList[i,t+1,:] = [t+1, lyapunovCandidateAnchored( x, xeq, r=r )[0][0]]
             xList[i,t+1,:] = x[:,0]
 
-    print( VList )
-
     # Plot transformed grid for reference.
     fig, axs = plotEnvironment( fig, axs, xswrm, xList, VList )
     legend_elements = [
@@ -93,5 +91,5 @@ if __name__ == '__main__':
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        fig.savefig( figurepath + 'single/offset_r%i.png' % (Nr), dpi=600 )
+        fig.savefig( figurepath + 'single/offset.png', dpi=600 )
         print( 'Figure saved.' )
