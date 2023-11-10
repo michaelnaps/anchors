@@ -6,7 +6,7 @@ from plotfuncs import *
 
 
 # Anchor initialization.
-n = 3
+n = 4
 m = 1
 Aset = Abound/4*np.array( [
     [-1, 1, 1, -1],
@@ -19,7 +19,7 @@ xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
 C, K, B = distanceBasedControlMatrices( Aset, m )
 
 # Rotation list.
-Nth = 10
+Nth = 100
 thList = np.linspace( -2*np.pi,2*np.pi,Nth )
 RList = np.array( [rotz( theta ) for theta in thList] )
 
@@ -30,11 +30,11 @@ if __name__ == '__main__':
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Break count list.
-    Ni = 10
+    Ni = 100
     nList = np.zeros( (Nth+1,) )
 
     # Rotation loop.
-    delta = 0.001
+    delta = 0.01
     for i, R in enumerate( RList ):
         # Repitition loop.
         for j in range( Ni ):
@@ -58,11 +58,12 @@ if __name__ == '__main__':
     # Plot results of break simulation.
     fig, axs = plt.subplots()
     fig.set_figheight( figheight )
+    axs.grid( 1 )
 
     b = 0.01
-    axs.axis( [-2*np.pi-b, 2*np.pi+b, 0, 1+b] )
+    axs.axis( [thList[0]-b, thList[-1]+b, 0, 1+b] )
     axs.set_xlabel( '$\\theta$' )
-    axs.set_ylabel( '$\%$ Divergence' )
+    axs.set_ylabel( 'Ratio Divergence' )
     fig.tight_layout()
 
     # Divergence rates.
@@ -79,8 +80,9 @@ if __name__ == '__main__':
         '$\\frac{\\pi}{2}$',
         '$\\frac{3 \\pi}{2}$' ]
     for bound in bound_nums:
-        axs.plot([bound, bound], [0, 1], color='k', linestyle='--')
-    axs.set_xticks(bound_nums, bound_labels)
+        axs.plot( [bound, bound], [0, 1], color='gray', linestyle='--' )
+    axs.plot( [thList[0], thList[-1]], [1, 1], color='k', linestyle='--' )
+    axs.set_xticks( bound_nums, bound_labels )
     handles, labels = axs.get_legend_handles_labels()
 
     plt.show( block=0 )
