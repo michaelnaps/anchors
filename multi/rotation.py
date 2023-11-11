@@ -8,9 +8,11 @@ from plotfuncs import *
 # Anchor initialization.
 n = 4
 m = n
-Aset = Abound/4*np.array( [
+eps = 3.0
+Aset = Abound/2*np.array( [
     [-1, 1, 1, -1],
-    [1, 1, -1, -1] ] )
+    [1, 1, -1, -1] ]
+) + noiseCirc( eps=eps, N=n )
 
 # For consistency with notes and error calc.
 Xeq = Aset
@@ -33,13 +35,13 @@ if __name__ == '__main__':
     nList = np.zeros( (Nth,) )
 
     # Rotation loop.
-    delta = 0.001
+    delta = 0.1
     for i, R in enumerate( RList ):
         # Repitition loop.
         for j in range( Ni ):
             # Simulation loop.
             t = 0;  con = 1  # Default: assume policy converged.
-            X = R@(Xeq + circ( delta, t=noise( eps=2*np.pi, shape=(1,1) ) ))
+            X = R@Xeq + circ( delta, 2*np.pi*np.random.rand( m, ) )
             while t < T:
                 # Anchor-based control.
                 U = distanceBasedControl( X, Xeq, C, K, B )[0]
@@ -49,15 +51,14 @@ if __name__ == '__main__':
 
                 # Lyapunov function.
                 V = lyapunovCandidate( X, Xeq )
-                print( V )
 
                 # Check for convergence/divergence of Lyapunov candidate.
                 t += 1
-                if V**2 > 1e3:
+                if V > 1e3:
                     con = 0
                     nList[i] = nList[i] + 1
                     break
-                elif V**2 < 1e-24:
+                elif V < 1e-24:
                     break
 
             print( 'Iteration stopped:', (con, t) )
@@ -86,6 +87,6 @@ if __name__ == '__main__':
     plt.show( block=0 )
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        filename = 'single/rotation.png'
+        filename = 'multi/rotation.png'
         fig.savefig( figurepath + filename, dpi=600 )
         print( 'Figure saved to:\n ' + figurepath + filename )

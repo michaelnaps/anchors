@@ -39,7 +39,7 @@ if __name__ == '__main__':
         for j in range( Ni ):
             # Simulation loop.
             t = 0;  con = 1  # Default: assume policy converged.
-            x = circ( delta, t=noise( eps=2*np.pi, shape=(1,1) ) )
+            x = circ( delta, noise( eps=2*np.pi, shape=(1,1) ) )
             while t < T:
                 # Anchor-based control.
                 u = distanceBasedControl( x, xeq, C, K, B, A=R@Aset )[0]
@@ -52,11 +52,11 @@ if __name__ == '__main__':
 
                 # Check for convergence/divergence of Lyapunov candidate.
                 t += 1
-                if V**2 > 1e3:
+                if V > 1e3:
                     con = 0
                     nList[i] = nList[i] + 1
                     break
-                elif V**2 < 1e-24:
+                elif V < 1e-24:
                     break
 
             print( 'Iteration stopped:', (con, t) )

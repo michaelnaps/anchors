@@ -43,13 +43,17 @@ def noise(eps=1e-3, shape=(2,1), shape3=None):
     return 2*eps*np.random.rand( shape[0], shape[1] ) - eps
 
 # Noise in radius.
-def circ(R, t):
-    return np.array( [R*np.cos( t ), R*np.sin( t )] ).reshape( 2,1 )
+def circ(R, tList):
+    Nth = tList.shape[0]
+    cList = np.empty( (2,Nth) )
+    for i, t in enumerate( tList ):
+        cList[:,i] = np.array( [R*np.cos( t ), R*np.sin( t )] ).reshape( 2, )
+    return cList
 
 def noiseCirc(eps=1e-3, N=1):
     y = np.empty( (2,N) )
     for i in range( N ):
-        t = 2*np.pi*np.random.rand()
+        t = 2*np.pi*np.random.rand( 1, )
         R = eps*np.random.rand()
         y[:,i] = circ( R, t )[:,0]
     return y
@@ -113,7 +117,6 @@ def lyapunovCandidate( X, A ):
         xerr = Psi@( x[:,None] - Xbar ) - (a[:,None] - Abar)
         V += xerr.T@xerr
 
-    print( V )
     return V
 
 def lyapunovCandidateAnchored( X, A, R=np.eye( Nx,Nx ), r=0 ):

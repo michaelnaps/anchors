@@ -39,7 +39,6 @@ if __name__ == '__main__':
     X = Xeq + noiseCirc( eps=delta, N=M )
 
     # Initial error calculation.
-    ge = 1
     V0 = np.vstack( (0, lyapunovCandidate( X, Xeq )) )
 
     # Used for plotting without sim.
@@ -65,8 +64,12 @@ if __name__ == '__main__':
         V = lyapunovCandidate( X, Xeq )
 
         # Save values.
-        VList[:,i,:] = np.array( [ge*i, V[0][0]] )
+        VList[:,i,:] = np.array( [i, V[0][0]] )
         xList[:,i,:] = X.T
+
+        if V > 1e3:
+            print( 'ERROR: Vehicle set diverged.' )
+            break
 
     # Tranformation.
     Xbar = centroid( X )
