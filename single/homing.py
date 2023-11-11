@@ -53,7 +53,7 @@ if __name__ == '__main__':
     xswrm = [None for i in range( Ne )]
     yswrm = [None for i in range( Ne )]
     cand = [None for i in range( Ne )]
-    for i, eps in enumerate( epsList ):
+    for i in range( Ne ):
         _, _, xswrm[i], _, _ = initEnvironment(
             fig, [axs[i], axs[-1]], X0, Xeq, Aset, V0, Nt=Nt)
         yswrm[i] = Swarm2D( X0, fig=fig, axs=axs[i], zorder=z_swrm-100,
@@ -87,14 +87,6 @@ if __name__ == '__main__':
             plotXf=False, color=vcolor[i], linestyle=vlinestyle[i] )
         plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList,
             plotXf=False, zorder=z_swrm-100 )
-
-    # Axis and plot labels.
-    # titles = ('Environment', 'Lyapunov Trend')
-    # xlabels = ('$\\mathbf{x}$', 'Iteration')
-    # ylabels = ('$\\mathbf{y}$', '$V(\\Psi X + \\psi)$')
-    # axs[i].set_title( titles[i] )
-    # axs[i].set_xlabel( xlabels[i] )
-    # axs[i].set_ylabel( ylabels[i] )
 
     # Plot and axis labels.
     titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Lyapunov Trend']

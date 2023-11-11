@@ -7,95 +7,134 @@ from plotfuncs import *
 
 # Set hyper parameter(s).
 # N = np.random.randint(1,10)
-N = 16                   # Number of anchors.
-M = N                    # Number of vehicles.
+n = 16                   # Number of anchors.
+m = n                    # Number of vehicles.
 
 # Anchor set.
-# Aset = Abound/2*np.array( [[-1,1,1],[1,1,-1]] )
-# Aset = noiseCirc( eps=Abound, N=N )
-# Aset = noise( eps=Abound, shape=(2,N) )
-# Aset = np.array( [        # SMILEY FACE
-#     [-3, -3, -3, -3, 3, 3, 3, 3, -5, -3.5, -2, -0.5, 0.5, 2, 3.5, 5],
-#     [2, 4, 6, 8, 2, 4, 6, 8, 0, -1.5, -3, -3.5, -3.5, -3, -1.5, 0] ] )
+delta = 2.0
 Aset = np.hstack( (
-    [rotz( 2*np.pi*k/N - np.pi/2 )@[[k/2],[0]] for k in range( 1,N+1 )] ) )
-print( 'Aset:\n', Aset )
+    [rotz( 2*np.pi*k/n - np.pi/2 )@[[k/2],[0]] for k in range( 1,n+1 )] ) )
 
 # For consistency with notes and error calc.
 Xeq = Aset
 
 # Control formula components.
-C, K, B = distanceBasedControlMatrices( Aset, M )
+C, K, B = distanceBasedControlMatrices( Aset, m )
 
 # Main execution block.
 if __name__ == '__main__':
-    # Simulation time.
-    T = 10;  Nt = round( T/dt ) + 1
-    tList = np.array( [ [i*dt for i in range( Nt )] ] )
+    # Time series variables.
+    T = 2.5;  Nt = round( T/dt ) + 1
+    tList = np.array( [[i*dt for i in range( Nt )]] )
 
-    # Initialize vehicle positions.
-    delta = 10.0
-    eps = 0.0
-    X = Xeq + noiseCirc( eps=delta, N=M )
+    # Set parameters.
+    epsList = [1.0, 5.0, 10.0]
+    vcolor = ['mediumpurple', 'cornflowerblue', 'mediumseagreen']
+    vlinestyle = ['solid', '--', ':']
 
-    # Initial error calculation.
-    V0 = np.vstack( (0, lyapunovCandidate( X, Xeq )) )
+    # Initial vehicle positions.
+    Ne = len( epsList )
+    X0 = Xeq
+    V0 = np.zeros( (2,1) )
 
     # Used for plotting without sim.
-    xList = np.nan*np.ones( (M,Nt,Nx) )
+    xList = np.nan*np.ones( (m,Nt,Nx) )
+    yList = np.nan*np.ones( (m,Nt,Nx) )
     VList = np.nan*np.ones( (1,Nt,2) )
-    xList[:,0,:] = X.T
-    VList[:,0,:] = V0.T
 
-    # Initialize plot with vehicles, anchors and markers.
-    fig, axs, swrm, anchors, error = initAnchorEnvironment(
-        X, Xeq, Aset, V0, Nt=Nt, radius=0.40, delta=delta,
-        anchs=False, dist=False )
+    # Initialize simulation variables.
+    fig, axs = plt.subplots( 1,Ne+1 )
+    fig.set_figwidth( 3.0*plt.rcParams.get('figure.figsize')[0] )
 
-    # Environment block.
-    for i in range( Nt ):
-        # Calculate control term.
-        U = distanceBasedControl( X, Xeq, C, K, B, eps=eps )[0]
+    # Simulation block.
+    xswrm = [None for i in range( Ne )]
+    yswrm = [None for i in range( Ne )]
+    cand = [None for i in range( Ne )]
+    for i in range( Ne ):
+        _, _, xswrm[i], _, _ = initEnvironment(
+            fig, [axs[i], axs[-1]], X0, Xeq, Aset, V0, Nt=Nt, anchs=False )
+        yswrm[i] = Swarm2D( X0, fig=fig, axs=axs[i], zorder=z_swrm-100,
+            radius=-0.30, color='yellowgreen', tail_length=Nt,
+            draw_tail=sim ).setLineStyle( '--' ).draw()
 
-        # Apply dynamics.
-        X = model( X, U )
+    # Simulation block.
+    for i, eps in enumerate( epsList ):
+        X = X0# + noiseCirc( eps=eps, N=m )
+        Y = X
+        V0 = lyapunovCandidate( X0, Xeq )
 
-        # Calculate tranformation error.
-        V = lyapunovCandidate( X, Xeq )
+        xList[:,0,:] = X0.T
+        yList[:,0,:] = X0.T
+        VList[:,0,:] = np.hstack( ([0], V0[0]) )
+        for t in range( Nt-1 ):
+            # Anchor-based control.
+            U, Y = distanceBasedControl( X, Xeq, C, K, B )
 
-        # Save values.
-        VList[:,i,:] = np.array( [i, V[0][0]] )
-        xList[:,i,:] = X.T
+            # Apply dynamics.
+            X = model( X, U )
 
-        if V > 1e3:
-            print( 'ERROR: Vehicle set diverged.' )
-            break
+            # Lyapunov function.
+            V = lyapunovCandidate( X, Xeq )
 
-    # Tranformation.
-    Xbar = centroid( X )
-    Abar = centroid( Xeq )
-    Psi = rotation( X - Xbar, Xeq - Abar )
+            # Save values.
+            xList[:,t+1,:] = X.T
+            yList[:,t+1,:] = Y.T
+            VList[:,t+1,:] = np.hstack( ([t+1], V[0]) )
 
-    finalAnchorEnvironment( fig, axs, swrm, xList, VList, Psi, Xbar, shrink=3/4 )
+            # Check for convergence/divergence of Lyapunov candidate.
+            if V > 1e3:
+                break
+            elif V < 1e-24:
+                break
 
-    # Legend setup.
-    axs[0].set_ylabel( '$V(x)$' )
-    legend_elements = [
+        plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList, VList,
+            plotXf=False, color=vcolor[i], linestyle=vlinestyle[i] )
+        plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList,
+            plotXf=False, zorder=z_swrm-100 )
+
+    # Axis and plot labels.
+    # titles = ('Environment', 'Lyapunov Trend')
+    # xlabels = ('$\\mathbf{x}$', 'Iteration')
+    # ylabels = ('$\\mathbf{y}$', '$V(\\Psi X + \\psi)$')
+    # axs[i].set_title( titles[i] )
+    # axs[i].set_xlabel( xlabels[i] )
+    # axs[i].set_ylabel( ylabels[i] )
+
+    # Plot and axis labels.
+    titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Lyapunov Trend']
+    xlabels = [None, '$x$', None, 'Iteration']
+    ylabels = ['$y$', None, None, '$V(x)$']
+    for a, title, xlabel, ylabel in zip( axs, titles, xlabels, ylabels ):
+        a.set_title( title )
+        a.set_xlabel( xlabel )
+        a.set_ylabel( ylabel )
+
+    # Plot transformed grid for reference.
+    legend_elements_1 = [
         Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='x',
             label='$X^{(0)}$'),
+        Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
+            label='$\\mathcal{A}$' ),
         Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
             label='$X$'),
-        Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
-            label='$\\mathcal{A}, X^{(eq)}$' ),
-        Line2D([0], [0], color='grey', linestyle='--', marker='o', markerfacecolor='grey',
-            label='$\Psi [x,y]^\\top + \psi$') ]
-    axs[-1].legend( handles=legend_elements, ncol=1 )
+        Line2D([0], [0], color='yellowgreen', linewidth=1, marker='o', markerfacecolor='none',
+            label='$K(h(x) - b)$'),
+    ]
+    axs[0].axis( Abound*np.array( [-1, 1, -1.1, 1.2] ) )
+    axs[0].legend( handles=legend_elements_1, ncol=2, loc=1 )
+
+    legend_elements_2 = [
+        Line2D([0], [0], color=vcolor[i], linestyle=vlinestyle[i], linewidth=2,
+            label='$\\varepsilon = %.1f$' % eps) for i, eps in enumerate( epsList )
+    ]
+    axs[-1].legend( handles=legend_elements_2, ncol=1 )
+
+    fig.tight_layout()
     plt.pause( pausesim )
 
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        fig.savefig( figurepath
-            + 'multi/formation_d%i' % delta + '.png' % eps,
-            dpi=600 )
-        print( 'Figure saved.' )
+        filename = 'single/homing.png'
+        fig.savefig( figurepath + filename, dpi=600 )
+        print( 'Figure saved to:\n ' + figurepath + filename )
