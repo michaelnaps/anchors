@@ -40,21 +40,20 @@ if __name__ == '__main__':
 
     # Initial error calculation.
     ge = 1
-    e0 = np.vstack( (0, lyapunovCandidate( X, Xeq )) )
+    V0 = np.vstack( (0, lyapunovCandidate( X, Xeq )) )
 
     # Used for plotting without sim.
     xList = np.nan*np.ones( (M,Nt,Nx) )
-    eList = np.nan*np.ones( (2,Nt) )
+    VList = np.nan*np.ones( (1,Nt,2) )
     xList[:,0,:] = X.T
-    eList[:,0] = e0[:,0]
+    VList[:,0,:] = V0.T
 
     # Initialize plot with vehicles, anchors and markers.
     fig, axs, swrm, anchors, error = initAnchorEnvironment(
-        X, Xeq, Aset, e0, Nt=Nt, radius=0.40, delta=delta,
+        X, Xeq, Aset, V0, Nt=Nt, radius=0.40, delta=delta,
         anchs=False, dist=False )
 
     # Environment block.
-    print( 'Xi: %0.3f\n' % e0[1,0], X )
     for i in range( Nt ):
         # Calculate control term.
         U = distanceBasedControl( X, Xeq, C, K, B, eps=eps )[0]
@@ -66,30 +65,15 @@ if __name__ == '__main__':
         V = lyapunovCandidate( X, Xeq )
 
         # Save values.
-        eList[:,i] = np.array( [ge*i, V] )
+        VList[:,i,:] = np.array( [ge*i, V[0][0]] )
         xList[:,i,:] = X.T
-
-        # Update simulation.
-        if sim and i % n == 0:
-            swrm.update( X )
-            error.update( eList[:,i,None] )
-            # axs[1].set_title( 'time: %s' % i )
-            plt.pause( pausesim )
-
-        # Equilibrium break.
-        if V < 1e-6:
-            for j in range( 1,Nt-i ):
-                xList[:,i+j,:] = xList[:,i,:]
-            print( 'Equilibrium reached: V(X) = %.3e' % V )
-            break
-    print( 'Xf:\n', X )
 
     # Tranformation.
     Xbar = centroid( X )
     Abar = centroid( Xeq )
     Psi = rotation( X - Xbar, Xeq - Abar )
 
-    finalAnchorEnvironment( fig, axs, swrm, xList, eList, Psi, Xbar, shrink=3/4 )
+    finalAnchorEnvironment( fig, axs, swrm, xList, VList, Psi, Xbar, shrink=3/4 )
 
     # Legend setup.
     axs[0].set_ylabel( '$V(x)$' )
@@ -106,7 +90,6 @@ if __name__ == '__main__':
     plt.pause( pausesim )
 
     # Calculate error after transformation.
-    print( '\nError: ', eList[1,np.isfinite(eList[1])][-1] )
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
         fig.savefig( figurepath
