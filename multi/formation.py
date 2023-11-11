@@ -38,9 +38,9 @@ if __name__ == '__main__':
     V0 = np.zeros( (2,1) )
 
     # Used for plotting without sim.
-    xList = np.nan*np.ones( (m,Nt,Nx) )
-    yList = np.nan*np.ones( (m,Nt,Nx) )
-    VList = np.nan*np.ones( (1,Nt,2) )
+    xList = np.nan*np.ones( (Ne,m,Nt,Nx) )
+    yList = np.nan*np.ones( (Ne,m,Nt,Nx) )
+    VList = np.nan*np.ones( (Ne,1,Nt,2) )
 
     # Initialize simulation variables.
     fig, axs = plt.subplots( 1,Ne+1 )
@@ -50,22 +50,20 @@ if __name__ == '__main__':
     xswrm = [None for i in range( Ne )]
     yswrm = [None for i in range( Ne )]
     cand = [None for i in range( Ne )]
-    for i in range( Ne ):
+    for i, eps in enumerate( epsList ):
+        X = X0 + noiseCirc( eps=eps, N=m )
+        Y = distanceBasedControl( X, Xeq, C, K, B )[1]
+        V = np.hstack( ([0], lyapunovCandidate( X, Xeq )[0]) )
+
         _, _, xswrm[i], _, _ = initEnvironment(
-            fig, [axs[i], axs[-1]], X0, Xeq, Aset, V0, Nt=Nt, anchs=False )
-        yswrm[i] = Swarm2D( X0, fig=fig, axs=axs[i], zorder=z_swrm-100,
+            fig, [axs[i], axs[-1]], X, Xeq, Aset, V0, Nt=Nt, anchs=False )
+        yswrm[i] = Swarm2D( Y, fig=fig, axs=axs[i], zorder=z_swrm-100,
             radius=-0.30, color='yellowgreen', tail_length=Nt,
             draw_tail=sim ).setLineStyle( '--' ).draw()
 
-    # Simulation block.
-    for i, eps in enumerate( epsList ):
-        X = X0 + noiseCirc( eps=eps, N=m )
-        Y = X
-        V0 = lyapunovCandidate( X0, Xeq )
-
-        xList[:,0,:] = X0.T
-        yList[:,0,:] = X0.T
-        VList[:,0,:] = np.hstack( ([0], V0[0]) )
+        xList[i,:,0] = X.T
+        yList[i,:,0] = Y.T
+        VList[i,:,0] = V.T
         for t in range( Nt-1 ):
             # Anchor-based control.
             U, Y = distanceBasedControl( X, Xeq, C, K, B )
@@ -77,20 +75,18 @@ if __name__ == '__main__':
             V = lyapunovCandidate( X, Xeq )
 
             # Save values.
-            xList[:,t+1,:] = X.T
-            yList[:,t+1,:] = Y.T
-            VList[:,t+1,:] = np.hstack( ([t+1], V[0]) )
+            xList[i,:,t+1] = X.T
+            yList[i,:,t+1] = Y.T
+            VList[i,:,t+1] = np.hstack( ([t+1], V[0]) )
 
             # Check for convergence/divergence of Lyapunov candidate.
-            if V > 1e3:
+            if V > 1e6:
                 break
-            # elif V < 1e-24:
-            #     break
 
-        plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList, VList,
-            plotXf=False, color=vcolor[i], linestyle=vlinestyle[i] )
-        plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList,
-            plotXf=False, zorder=z_swrm-100 )
+        plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList[i], VList[i],
+            plotXf=True, color=vcolor[i], linestyle=vlinestyle[i] )
+        plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList[i],
+            plotXf=True, zorder=z_swrm-100 )
 
     # Plot and axis labels.
     titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Lyapunov Trend']
@@ -112,21 +108,22 @@ if __name__ == '__main__':
         Line2D([0], [0], color='yellowgreen', linewidth=1, marker='o', markerfacecolor='none',
             label='$K(h(x) - b)$'),
     ]
-    axs[0].axis( Abound*np.array( [-1, 1, -1.1, 1.2] ) )
-    axs[0].legend( handles=legend_elements_1, ncol=2, loc=1 )
+    # axs[-2].axis( Abound*np.array( [-1, 1, -1.1, 1.2] ) )
+    axs[-2].legend( handles=legend_elements_1, ncol=2, loc=1 )
 
     legend_elements_2 = [
         Line2D([0], [0], color=vcolor[i], linestyle=vlinestyle[i], linewidth=2,
             label='$\\varepsilon = %.1f$' % eps) for i, eps in enumerate( epsList )
     ]
     axs[-1].legend( handles=legend_elements_2, ncol=1 )
-
     fig.tight_layout()
-    plt.pause( pausesim )
 
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
+    if ans == 'show':
+        plt.show()
+        ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        filename = 'single/homing.png'
+        filename = 'multi/formation.png'
         fig.savefig( figurepath + filename, dpi=600 )
         print( 'Figure saved to:\n ' + figurepath + filename )

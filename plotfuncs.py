@@ -93,10 +93,8 @@ def plotVehiclePaths(fig, axs, swrm, xList, plotXf=True, color=None, zorder=z_sw
 
     if not sim:
         if plotXf:
-            if len( xList.shape ) == 3:
-                swrm.update( xList[:,-1,:].T )
-            elif len( xList.shape ) == 2:
-                swrm.update( xList[-1] )
+            hdim = len( xList.shape )
+            swrm.update( xList[:,-1] if hdim == 2 else xList[:,-1].T )
         else:
             swrm.remove()
         for X in xList:
