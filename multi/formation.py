@@ -24,7 +24,7 @@ C, K, B = distanceBasedControlMatrices( Aset, m )
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
-    T = 2.5;  Nt = round( T/dt ) + 1
+    T = 1.5;  Nt = round( T/dt ) + 1
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Set parameters.
