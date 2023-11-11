@@ -7,13 +7,13 @@ from plotfuncs import *
 
 # Anchor initialization.
 n = 4
-m = 1
+m = n
 Aset = Abound/4*np.array( [
     [-1, 1, 1, -1],
     [1, 1, -1, -1] ] )
 
 # For consistency with notes and error calc.
-xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
+Xeq = Aset
 
 # Control formula components.
 C, K, B = distanceBasedControlMatrices( Aset, m )
@@ -39,16 +39,17 @@ if __name__ == '__main__':
         for j in range( Ni ):
             # Simulation loop.
             t = 0;  con = 1  # Default: assume policy converged.
-            x = circ( delta, t=noise( eps=2*np.pi, shape=(1,1) ) )
+            X = R@(Xeq + circ( delta, t=noise( eps=2*np.pi, shape=(1,1) ) ))
             while t < T:
                 # Anchor-based control.
-                u = distanceBasedControl( x, xeq, C, K, B, A=R@Aset )[0]
+                U = distanceBasedControl( X, Xeq, C, K, B )[0]
 
                 # Apply dynamics.
-                x = model( x, u )
+                X = model( X, U )
 
                 # Lyapunov function.
-                V = lyapunovCandidateAnchored( x, xeq, R=R )
+                V = lyapunovCandidate( X, Xeq )
+                print( V )
 
                 # Check for convergence/divergence of Lyapunov candidate.
                 t += 1

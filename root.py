@@ -111,8 +111,9 @@ def lyapunovCandidate( X, A ):
     V = 0
     for x, a in zip( X.T, A.T ):
         xerr = Psi@( x[:,None] - Xbar ) - (a[:,None] - Abar)
-        V += (xerr.T@xerr)[0][0]
+        V += xerr.T@xerr
 
+    print( V )
     return V
 
 def lyapunovCandidateAnchored( X, A, R=np.eye( Nx,Nx ), r=0 ):

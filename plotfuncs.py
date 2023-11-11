@@ -191,3 +191,16 @@ def plotEnvironment(fig, axs, swrm, xList, VList=None, plotXf=True, zorder=z_swr
 
     # Return updated figure.
     return fig, axs
+
+def plotConvergenceRate( fig, axs, thList, nList, N, color='indianred' ):
+    # Set dimensions.
+    Nth = len( thList )
+
+    # Divergence rates.
+    for i in range( Nth ):
+        theta = thList[i];  brkRatio = nList[i]/N
+        axs.plot( [theta, theta], [0, brkRatio], color=color,
+            marker='.', markersize=2, linewidth=2.5 )
+
+    # Return figure details.
+    return fig, axs
