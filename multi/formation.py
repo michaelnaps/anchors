@@ -28,12 +28,12 @@ if __name__ == '__main__':
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Set parameters.
+    Ne = 3
     epsList = [1.0, 5.0, 10.0]
     vcolor = ['mediumpurple', 'cornflowerblue', 'mediumseagreen']
-    vlinestyle = ['solid', '--', ':']
+    vlinestyle = ['solid' for _ in range( Ne )]
 
     # Initial vehicle positions.
-    Ne = len( epsList )
     X0 = Xeq
     V0 = np.zeros( (2,1) )
 
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     # Simulation block.
     for i, eps in enumerate( epsList ):
-        X = X0# + noiseCirc( eps=eps, N=m )
+        X = X0 + noiseCirc( eps=eps, N=m )
         Y = X
         V0 = lyapunovCandidate( X0, Xeq )
 
@@ -84,21 +84,13 @@ if __name__ == '__main__':
             # Check for convergence/divergence of Lyapunov candidate.
             if V > 1e3:
                 break
-            elif V < 1e-24:
-                break
+            # elif V < 1e-24:
+            #     break
 
         plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList, VList,
             plotXf=False, color=vcolor[i], linestyle=vlinestyle[i] )
         plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList,
             plotXf=False, zorder=z_swrm-100 )
-
-    # Axis and plot labels.
-    # titles = ('Environment', 'Lyapunov Trend')
-    # xlabels = ('$\\mathbf{x}$', 'Iteration')
-    # ylabels = ('$\\mathbf{y}$', '$V(\\Psi X + \\psi)$')
-    # axs[i].set_title( titles[i] )
-    # axs[i].set_xlabel( xlabels[i] )
-    # axs[i].set_ylabel( ylabels[i] )
 
     # Plot and axis labels.
     titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Lyapunov Trend']
