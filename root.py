@@ -43,12 +43,15 @@ def noise(eps=1e-3, shape=(2,1), shape3=None):
     return 2*eps*np.random.rand( shape[0], shape[1] ) - eps
 
 # Noise in radius.
+def circ(R, t):
+    return np.array( [R*np.cos( t ), R*np.sin( t )] ).reshape( 2,1 )
+
 def noiseCirc(eps=1e-3, N=1):
     y = np.empty( (2,N) )
     for i in range( N ):
         t = 2*np.pi*np.random.rand()
         R = eps*np.random.rand()
-        y[:,i] = [R*np.cos( t ), R*np.sin( t )]
+        y[:,i] = circ( R, t )[:,0]
     return y
 
 # Anchor measurement function.

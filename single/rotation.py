@@ -23,24 +23,28 @@ Nth = 100
 thList = np.linspace( -2*np.pi,2*np.pi,Nth )
 RList = np.array( [rotz( theta ) for theta in thList] )
 
+# eps = 0.1
+# Nth = 100
+# thList = np.linspace( np.pi/2-eps,np.pi/2+eps,Nth )
+
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
-    T = 10;  Nt = round( T/dt ) + 1
-    tList = np.array( [[i*dt for i in range( Nt )]] )
+    T = np.inf
 
     # Break count list.
     Ni = 100
     nList = np.zeros( (Nth+1,) )
 
     # Rotation loop.
-    delta = 0.01
+    delta = 0.001
     for i, R in enumerate( RList ):
         # Repitition loop.
         for j in range( Ni ):
             # Simulation loop.
-            x = noiseCirc( eps=delta, N=1 )
-            for t in range( Nt ):
+            t = 0;  con = 1  # Default: assume policy converged.
+            x = circ( delta, t=noise( eps=2*np.pi, shape=(1,1) ) )
+            while t < T:
                 # Anchor-based control.
                 u = distanceBasedControl( x, xeq, C, K, B, A=R@Aset )[0]
 
@@ -50,18 +54,24 @@ if __name__ == '__main__':
                 # Lyapunov function.
                 V = lyapunovCandidateAnchored( x, xeq, R=R )
 
-                # Check for breaks in Lyapunov candidate.
+                # Check for convergence/divergence of Lyapunov candidate.
+                t += 1
                 if V**2 > 1e3:
+                    con = 0
                     nList[i] = nList[i] + 1
                     break
+                elif V**2 < 1e-24:
+                    break
+
+            print( 'Iteration stopped:', (con, t) )
 
     # Plot results of break simulation.
     fig, axs = plt.subplots()
     fig.set_figheight( 3/4*figheight )
     axs.grid( 1 )
 
-    b = 0.01
-    axs.axis( [thList[0]-b, thList[-1]+b, 0, 1+b] )
+    # b = 0.01
+    # axs.axis( [thList[0]-b, thList[-1]+b, 0, 1+b] )
     axs.set_xlabel( '$\\theta$' )
     axs.set_ylabel( 'Ratio Divergence' )
     fig.tight_layout()
@@ -73,10 +83,10 @@ if __name__ == '__main__':
             marker='.', markersize=2, linewidth=2.5 )
 
     # x-label ticks and boundary bars.
-    bound_nums = np.array( [k*np.pi/2 for k in range(-3,4,2)] )
+    bound_nums = np.array( [-3*np.pi/2, -np.pi/2, np.pi/2, 3*np.pi/2] )
     bound_labels = [
-        '$\\frac{-3 \\pi}{2}$',
-        '$\\frac{-\\pi}{2}$',
+        '$-\\frac{3 \\pi}{2}$',
+        '$-\\frac{\\pi}{2}$',
         '$\\frac{\\pi}{2}$',
         '$\\frac{3 \\pi}{2}$' ]
     for bound in bound_nums:
