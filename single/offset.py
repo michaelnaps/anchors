@@ -77,7 +77,7 @@ if __name__ == '__main__':
             label='$\\mathcal{A}$' ),
         Line2D([0], [0], color='orange', linestyle='none', marker='o', markeredgecolor='k',
             label='$\\mathcal{A} + r$' ) ]
-    axs[1].legend( handles=legend_elements, ncol=1 )
+    axs[1].legend( handles=legend_elements, fontsize=fontsize-2, ncol=1 )
 
     # Axes labels and figure dimensions.
     axs[0].set_xlabel( '$\mathbf{x}$' )

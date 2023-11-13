@@ -63,12 +63,11 @@ if __name__ == '__main__':
 
     # Plot results of break simulation.
     fig, axs = plt.subplots()
-    fig.set_figheight( 3/4*figheight )
     fig, axs = plotConvergenceRate( fig, axs, thList, nList, Ni )
 
     # Axes and plot labels.
     axs.set_xlabel( '$\\theta$' )
-    axs.set_ylabel( 'Ratio Divergence' )
+    axs.set_ylabel( '$\\frac{\\text{\# diverged}}{\\text{\# tests run}}$' )
     bound_nums = np.array( [-3*np.pi/2, -np.pi/2, np.pi/2, 3*np.pi/2] )
     bound_labels = [
         '$-\\frac{3 \\pi}{2}$',
@@ -82,6 +81,9 @@ if __name__ == '__main__':
     handles, labels = axs.get_legend_handles_labels()
     axs.grid( 1 )
 
+    fig.set_figwidth( 1.0*plt.rcParams.get('figure.figsize')[0] )
+    fig.set_figheight( 3/4*figheight )
+    fig.tight_layout()
     if show:
         plt.show( block=0 )
 

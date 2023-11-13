@@ -47,7 +47,6 @@ if __name__ == '__main__':
 
     # Initialize simulation variables.
     fig, axs = plt.subplots( 1,Ne+1 )
-    fig.set_figwidth( 3.0*plt.rcParams.get('figure.figsize')[0] )
 
     # Simulation block.
     xswrm = [None for i in range( Ne )]
@@ -108,17 +107,18 @@ if __name__ == '__main__':
         Line2D([0], [0], color='yellowgreen', linewidth=1, marker='o', markerfacecolor='none',
             label='$K(h(x) - b)$'),
     ]
-    axs[0].axis( Abound*np.array( [-1, 1, -1.1, 1.2] ) )
-    axs[0].legend( handles=legend_elements_1, ncol=2, loc=1 )
+    # axs[0].axis( Abound*np.array( [-1, 1, -1.1, 1.2] ) )
+    axs[0].legend( handles=legend_elements_1, fontsize=fontsize-2, ncol=2, loc=1 )
 
     legend_elements_2 = [
         Line2D([0], [0], color=vcolor[i], linestyle=vlinestyle[i], linewidth=2,
             label='$\\varepsilon = %.1f$' % eps) for i, eps in enumerate( epsList )
     ]
-    axs[-1].legend( handles=legend_elements_2, ncol=1 )
+    axs[-1].legend( handles=legend_elements_2, fontsize=fontsize-2, ncol=1 )
 
+    fig.set_figwidth( 2.5*plt.rcParams.get('figure.figsize')[0] )
+    fig.set_figheight( figheight )
     fig.tight_layout()
-
     if show:
         plt.show( block=0 )
 
