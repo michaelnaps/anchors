@@ -24,7 +24,7 @@ C, K, B = distanceBasedControlMatrices( Aset, m )
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
-    T = 1.5;  Nt = round( T/dt ) + 1
+    T = 1.0;  Nt = round( T/dt ) + 1
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Set parameters.
@@ -88,9 +88,9 @@ if __name__ == '__main__':
             plotXf=True, zorder=z_swrm-100 )
 
     # Plot and axis labels.
-    titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Lyapunov Trend']
+    titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Formation Error']
     xlabels = [None, '$x$', None, 'Iteration']
-    ylabels = ['$y$', None, None, '$V(x)$']
+    ylabels = ['$y$', None, None, '$W(X)$']
     for a, title, xlabel, ylabel in zip( axs, titles, xlabels, ylabels ):
         a.set_title( title )
         a.set_xlabel( xlabel )
