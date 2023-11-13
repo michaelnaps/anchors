@@ -86,7 +86,9 @@ if __name__ == '__main__':
     axs[1].set_ylabel( '$V(x)$' )
     fig.set_figheight( 3/4*figheight )
     fig.tight_layout()
-    plt.pause( pausesim )
+
+    if show:
+        plt.show( block=0 )
 
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )

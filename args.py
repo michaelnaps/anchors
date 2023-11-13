@@ -46,6 +46,7 @@ np.set_printoptions(precision=3, suppress=True, linewidth=np.inf)
 # Command-line arguments.
 parser = argparse.ArgumentParser()
 parser.add_argument( '--save' )
+parser.add_argument( '--show' )
 parser.add_argument( '--sim' )
 parser.add_argument( '--dtsim' )
 parser.add_argument( '--pausesim' )
@@ -54,6 +55,7 @@ parser.add_argument( '--fheight' )
 # Program variables.
 args = parser.parse_args()
 save = args.save == '1'
+show = args.show == '1'
 sim = args.sim == '1' and not save
 
 if args.dtsim is None:

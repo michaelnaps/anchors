@@ -118,10 +118,11 @@ if __name__ == '__main__':
     axs[-1].legend( handles=legend_elements_2, ncol=1 )
 
     fig.tight_layout()
-    plt.pause( pausesim )
+
+    if show:
+        plt.show( block=0 )
 
     # Calculate error after transformation.
-    print( '\nError: ', VList[1,np.isfinite(VList[1])][-1] )
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
         filename = 'single/homing.png'

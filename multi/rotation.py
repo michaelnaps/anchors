@@ -84,7 +84,9 @@ if __name__ == '__main__':
     handles, labels = axs.get_legend_handles_labels()
     axs.grid( 1 )
 
-    plt.show( block=0 )
+    if show:
+        plt.show( block=0 )
+
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
         filename = 'multi/rotation.png'

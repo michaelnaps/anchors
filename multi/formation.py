@@ -118,11 +118,11 @@ if __name__ == '__main__':
     axs[-1].legend( handles=legend_elements_2, ncol=1 )
     fig.tight_layout()
 
+    if show:
+        plt.show( block=0 )
+
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
-    if ans == 'show':
-        plt.show()
-        ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
         filename = 'multi/formation.png'
         fig.savefig( figurepath + filename, dpi=600 )
