@@ -5,15 +5,15 @@ sys.path.insert(0, expanduser('~')+'/prog/anchors')
 from plotfuncs import *
 
 
-# Set hyper parameter(s).
-# N = np.random.randint(1,10)
-n = 16                   # Number of anchors.
-m = n                    # Number of vehicles.
-
 # Anchor set.
 delta = 2.0
-Aset = np.hstack( (
-    [rotz( 2*np.pi*k/n - np.pi/2 )@[[k/2],[0]] for k in range( 1,n+1 )] ) )
+Aset = Abound/3*np.array( [
+    [-2, -1, 0, 1, 2, 0, 0, 0, -2, -1, 1, 2],
+    [3, 2, 1, 2, 3, 0, -1, -2, -2, -2, -2, -2]] )
+
+# Set dimensions
+n = Aset.shape[1]        # Number of anchors.
+m = n                    # Number of vehicles.
 
 # For consistency with notes and error calc.
 Xeq = Aset
@@ -56,9 +56,9 @@ if __name__ == '__main__':
 
         _, _, xswrm[i], _, _ = initEnvironment(
             fig, [axs[i], axs[-1]], X, Xeq, Aset, V0, Nt=Nt, anchs=False )
-        yswrm[i] = Swarm2D( Y, fig=fig, axs=axs[i], zorder=z_swrm-100,
-            radius=-0.30, color='yellowgreen', tail_length=Nt,
-            draw_tail=sim ).setLineStyle( '--' ).draw()
+        # yswrm[i] = Swarm2D( Y, fig=fig, axs=axs[i], zorder=z_swrm-100,
+        #     radius=-0.30, color='yellowgreen', tail_length=Nt,
+        #     draw_tail=sim ).setLineStyle( '--' ).draw()
 
         xList[i,:,0] = X.T
         yList[i,:,0] = Y.T
@@ -84,8 +84,8 @@ if __name__ == '__main__':
 
         plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList[i], VList[i],
             plotXf=True, color=vcolor[i], linestyle=vlinestyle[i] )
-        plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList[i],
-            plotXf=True, zorder=z_swrm-100 )
+        # plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList[i],
+        #     plotXf=True, zorder=z_swrm-100 )
 
     # Plot and axis labels.
     titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Formation Error']
@@ -104,8 +104,8 @@ if __name__ == '__main__':
             label='$\\mathcal{A}, X^{\\textrm{(eq)}}$' ),
         Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
             label='$X$'),
-        Line2D([0], [0], color='yellowgreen', linewidth=1, marker='o', markerfacecolor='none',
-            label='$K(h(x) - b)$'),
+        # Line2D([0], [0], color='yellowgreen', linewidth=1, marker='o', markerfacecolor='none',
+        #     label='$K(h(x) - b)$'),
     ]
     # axs[-2].axis( Abound*np.array( [-1, 1, -1.1, 1.2] ) )
     axs[0].legend( handles=legend_elements_1, fontsize=fontsize-2, ncol=2, loc=1 )
