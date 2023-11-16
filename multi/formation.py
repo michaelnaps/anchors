@@ -8,8 +8,8 @@ from plotfuncs import *
 # Anchor set.
 delta = 2.0
 Aset = Abound/3*np.array( [
-    [-2, -1, 0, 1, 2, 0, 0, 0, -2, -1, 1, 2],
-    [3, 2, 1, 2, 3, 0, -1, -2, -2, -2, -2, -2]] )
+    [-2, -1,  0,  1,  2,  0,  0,  0, -2, -1,  1,  2],
+    [ 3,  2,  1,  2,  3,  0, -1, -2, -2, -2, -2, -2]] )
 
 # Set dimensions
 n = Aset.shape[1]        # Number of anchors.
@@ -28,8 +28,7 @@ if __name__ == '__main__':
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Set parameters.
-    Ne = 3
-    epsList = [1.0, 5.0, 10.0]
+    epsList = [5.0, 10.0];  Ne = len( epsList )
     vcolor = ['mediumpurple', 'cornflowerblue', 'mediumseagreen']
     vlinestyle = ['solid' for _ in range( Ne )]
 
@@ -80,6 +79,7 @@ if __name__ == '__main__':
 
             # Check for convergence/divergence of Lyapunov candidate.
             if V > 1e6:
+                print( 'Formation policy diverged.' )
                 break
 
         plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList[i], VList[i],
@@ -87,10 +87,18 @@ if __name__ == '__main__':
         # plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList[i],
         #     plotXf=True, zorder=z_swrm-100 )
 
+    # Plot final anchor positions.
+    abar = centroid( Aset )
+    for ax, xf in zip( axs, xList[:,:,-1] ):
+        X = xf.T;  xbar = centroid( X )
+        Psi = rotation( X-xbar, Aset-abar )
+        plotAnchors( fig, ax, Psi.T@(Aset - abar) + xbar )
+
+
     # Plot and axis labels.
     titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Formation Error']
-    xlabels = [None, '$x$', None, 'Iteration']
-    ylabels = ['$y$', None, None, '$W(X)$']
+    xlabels = Ne*['x'] + ['Iteration']
+    ylabels = ['$y$'] + (Ne-1)*[None] + ['$W(X)$']
     for a, title, xlabel, ylabel in zip( axs, titles, xlabels, ylabels ):
         a.set_title( title )
         a.set_xlabel( xlabel )
@@ -106,8 +114,10 @@ if __name__ == '__main__':
             label='$X$'),
         # Line2D([0], [0], color='yellowgreen', linewidth=1, marker='o', markerfacecolor='none',
         #     label='$K(h(x) - b)$'),
+        Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
+            label='$\\Psi^\\top (X^{\\textrm{(eq)}} - \\psi)$' )
     ]
-    # axs[-2].axis( Abound*np.array( [-1, 1, -1.1, 1.2] ) )
+    axs[0].axis( Abound*np.array( [-1, 1, -1, 1.4] ) )
     axs[0].legend( handles=legend_elements_1, fontsize=fontsize-2, ncol=2, loc=1 )
 
     legend_elements_2 = [
@@ -116,7 +126,7 @@ if __name__ == '__main__':
     ]
     axs[-1].legend( handles=legend_elements_2, fontsize=fontsize-2, ncol=1 )
 
-    fig.set_figwidth( 2.5*plt.rcParams.get('figure.figsize')[0] )
+    fig.set_figwidth( 2*plt.rcParams.get('figure.figsize')[0] )
     fig.set_figheight( figheight )
     fig.tight_layout()
     if show:
