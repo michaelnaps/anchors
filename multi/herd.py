@@ -24,11 +24,11 @@ C, K, B = distanceBasedControlMatrices( Aset, m )
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
-    T = 1.0;  Nt = round( T/dt ) + 1
+    T = 10.0;  Nt = round( T/dt ) + 1
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Set parameters.
-    epsList = [10.0, 25.0];  Ne = len( epsList )
+    epsList = [25.0];  Ne = len( epsList )
     vcolor = ['mediumpurple', 'cornflowerblue', 'mediumseagreen']
     vlinestyle = ['solid' for _ in range( Ne )]
 
@@ -64,7 +64,7 @@ if __name__ == '__main__':
         VList[i,:,0] = V.T
         for t in range( Nt-1 ):
             # Anchor-based control.
-            U, Y = distanceBasedControl( X, Xeq, C, K, B )
+            U, Y = distanceBasedControl( X, Xeq+1, C, K, B )
 
             # Apply dynamics.
             X = model( X, U )
@@ -77,10 +77,10 @@ if __name__ == '__main__':
             yList[i,:,t+1] = Y.T
             VList[i,:,t+1] = np.hstack( ([t+1], V[0]) )
 
-            # Check for convergence/divergence of Lyapunov candidate.
-            if V > 1e6:
-                print( 'Formation policy diverged.' )
-                break
+            # # Check for convergence/divergence of Lyapunov candidate.
+            # if V > 1e6:
+            #     print( 'Formation policy diverged.' )
+            #     break
 
         plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList[i], VList[i],
             plotXf=True, color=vcolor[i], linestyle=vlinestyle[i] )
