@@ -66,12 +66,12 @@ def plotAxesRotation(fig, axs, R, r, color='grey', shrink=1/3):
     # Return plot instances.
     return fig, axs
 
-def plotAnchors(fig, axs, A, radius=0.40, color='indianred', anchs=True, connect=False):
+def plotAnchors(fig, axs, A, radius=0.40, color='indianred', anchs=True, connect=False, zdelta=0):
     if not anchs:
         linestyle = '--' if connect else 'none'
-        axs.plot( A[0], A[1], linestyle=linestyle, marker='x', color=color )
+        axs.plot( A[0], A[1], linestyle=linestyle, marker='x', color=color, zorder=z_anch+zdelta )
         return fig, axs, None
-    anchors = Swarm2D( A, fig=fig, axs=axs, zorder=z_anch,
+    anchors = Swarm2D( A, fig=fig, axs=axs, zorder=z_anch+zdelta,
         radius=radius, draw_tail=False, color=color
         ).setLineWidth( 1.0 ).setLineStyle( None, body=True ).draw()
     if connect:

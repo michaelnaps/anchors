@@ -28,7 +28,7 @@ if __name__ == '__main__':
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Set parameters.
-    epsList = [5.0, 10.0];  Ne = len( epsList )
+    epsList = [10.0, 25.0];  Ne = len( epsList )
     vcolor = ['mediumpurple', 'cornflowerblue', 'mediumseagreen']
     vlinestyle = ['solid' for _ in range( Ne )]
 
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         V = np.hstack( ([0], lyapunovCandidate( X, Xeq )[0]) )
 
         _, _, xswrm[i], _, _ = initEnvironment(
-            fig, [axs[i], axs[-1]], X, Xeq, Aset, V0, Nt=Nt, anchs=False )
+            fig, [axs[i], axs[-1]], X, Xeq, Aset, V0, Nt=Nt, anchs=True )
         # yswrm[i] = Swarm2D( Y, fig=fig, axs=axs[i], zorder=z_swrm-100,
         #     radius=-0.30, color='yellowgreen', tail_length=Nt,
         #     draw_tail=sim ).setLineStyle( '--' ).draw()
@@ -91,8 +91,9 @@ if __name__ == '__main__':
     abar = centroid( Aset )
     for ax, xf in zip( axs, xList[:,:,-1] ):
         X = xf.T;  xbar = centroid( X )
-        Psi = rotation( X-xbar, Aset-abar )
-        plotAnchors( fig, ax, Psi.T@(Aset - abar) + xbar )
+        Psi = rotation( Aset-abar, X-xbar )
+        psi = xbar - Psi@abar
+        plotAnchors( fig, ax, Psi@Aset + psi, anchs=False, zdelta=400 )
 
 
     # Plot and axis labels.
@@ -108,16 +109,16 @@ if __name__ == '__main__':
     legend_elements_1 = [
         Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='x',
             label='$X^{(0)}$'),
-        Line2D([0], [0], color='indianred', linestyle='none', marker='x',
+        Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
             label='$\\mathcal{A}, X^{\\textrm{(eq)}}$' ),
         Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
             label='$X$'),
         # Line2D([0], [0], color='yellowgreen', linewidth=1, marker='o', markerfacecolor='none',
         #     label='$K(h(x) - b)$'),
-        Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
+        Line2D([0], [0], color='indianred', linestyle='none', marker='x',
             label='$\\Psi^\\top (X^{\\textrm{(eq)}} - \\psi)$' )
     ]
-    axs[0].axis( Abound*np.array( [-1, 1, -1, 1.4] ) )
+    # axs[0].axis( Abound*np.array( [-1, 1, -1, 1.4] ) )
     axs[0].legend( handles=legend_elements_1, fontsize=fontsize-2, ncol=2, loc=1 )
 
     legend_elements_2 = [
@@ -126,8 +127,9 @@ if __name__ == '__main__':
     ]
     axs[-1].legend( handles=legend_elements_2, fontsize=fontsize-2, ncol=1 )
 
-    fig.set_figwidth( 2*plt.rcParams.get('figure.figsize')[0] )
-    fig.set_figheight( figheight )
+    scale = 1
+    fig.set_figwidth( 2*scale*plt.rcParams.get('figure.figsize')[0] )
+    fig.set_figheight( scale*figheight )
     fig.tight_layout()
     if show:
         plt.show( block=0 )
