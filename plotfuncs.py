@@ -12,11 +12,11 @@ radius = 0.40
 # Plot initializations.
 def initVehiclePaths(fig, axs, X, Xeq, Nt=1000, xcolor='cornflowerblue', xeqcolor='indianred'):
     swrm = Swarm2D( X, fig=fig, axs=axs, zorder=z_swrm,
-        radius=-radius, color='cornflowerblue', tail_length=Nt,
+        radius=-radius, color=xcolor, tail_length=Nt,
         draw_tail=sim ).draw()
     axs.plot( Xeq[0], Xeq[1], color='indianred', zorder=int( z_swrm/2 ),
         linestyle='none', marker='x' )
-    axs.plot( X[0], X[1], color='cornflowerblue', zorder=z_swrm/2,
+    axs.plot( X[0], X[1], color=xcolor, zorder=z_swrm/2,
         linestyle='none', marker='x' )
 
     return fig, axs, swrm
@@ -28,19 +28,24 @@ def initLyapunovTrend(fig, axs, V, Nt=1000, color='cornflowerblue'):
 
     return fig, axs, swrm
 
-def initEnvironment(fig, axs, X0, Xeq, Aset, V0, Nt=1000, radius=0.40, anchs=1, connect=0):
+def initEnvironment(fig, axs, X0, Xeq, Aset, V0, Nt=1000, radius=0.40, color=None, anchs=1, connect=0):
     anchors = plotAnchors(fig, axs[0], Aset,
         anchs=anchs, radius=radius, connect=connect)[-1]
-    fig, axs[0], swrm = initVehiclePaths( fig, axs[0], X0, Xeq, Nt=Nt )
-    fig, axs[1], cand = initLyapunovTrend( fig, axs[1], V0, Nt=Nt)
+    fig, axs[0], swrm = initVehiclePaths( fig, axs[0], X0, Xeq, xcolor=color, Nt=Nt )
+
+    if axs[1] is not None:
+        fig, axs[1], cand = initLyapunovTrend( fig, axs[1], V0, Nt=Nt)
+    else:
+        cand = None
 
     # Plot/axis titles.
     bounds = np.vstack( [
         1.5*Abound*np.array( [-1, 1, -1, 1] ),
         np.hstack( [V0[0], Nt, -0.01, V0[1]] ) ] )
     for a, b in zip( axs, bounds ):
-        a.axis( b )
-        a.grid( 1 )
+        if a is not None:
+            a.axis( b )
+            a.grid( 1 )
     axs[0].axis( 'equal' )
 
     # Show plot.
@@ -105,7 +110,7 @@ def plotVehiclePaths(fig, axs, swrm, xList, plotXf=True, color=None, zorder=z_sw
 def plotEnvironment(fig, axs, swrm, xList, VList=None, plotXf=True, zorder=z_swrm, color='cornflowerblue', linestyle='solid'):
     # Plot results of simulation.
     fig, axs[0], swrm = plotVehiclePaths( fig, axs[0], swrm, xList,
-        plotXf=plotXf, zorder=zorder )
+        plotXf=plotXf, color=color, zorder=zorder )
     if VList is not None:
         fig, axs[1] = plotLyapunovTrend( fig, axs[1], VList,
             color=color, linestyle=linestyle )
