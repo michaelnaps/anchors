@@ -7,9 +7,9 @@ from plotfuncs import *
 
 # Anchor set.
 delta = 2.0
-Aset = Abound/3*np.array( [
-    [-3, -2, -1,  0,  1,  2,  3,  0,  0,  0,  1,  2,  3],
-    [ 0,  0,  0,  0,  0,  0,  0,  1,  2,  3,  3,  3,  3]] )
+Aset = Abound/2*np.array( [
+    [-1,  0,  1,  0,  1],
+    [ 0,  0,  0,  1,  1]] )
 
 # Set dimensions
 n = Aset.shape[1]        # Number of anchors.
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Set parameters.
-    rList = [np.array( Nx*[[0]] ), np.array( [[2.5*Abound],[0]] )];
+    rList = [np.array( Nx*[[0]] ), np.array( [[2*Abound],[-1/3*Abound]] )];
     Nr = len( rList )
     colorList = ['cornflowerblue', 'yellowgreen']
 
