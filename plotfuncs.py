@@ -85,9 +85,9 @@ def plotAnchors(fig, axs, A, radius=0.40, color='indianred', anchs=True, connect
     return fig, axs, anchors
 
 # Lyapunov-related plots.
-def plotLyapunovTrend(fig, axs, VList, color='cornflowerblue', linestyle='solid'):
+def plotLyapunovTrend(fig, axs, VList, color='cornflowerblue', linestyle='solid', linewidth=2.0):
     for V in VList:
-        axs.plot( V.T[0], V.T[1], color=color, linestyle=linestyle, linewidth=2.5 )
+        axs.plot( V.T[0], V.T[1], color=color, linestyle=linestyle, linewidth=linewidth )
     axs.axis( np.array( [0.0, np.nanmax( VList[:,:,0] ), 0.0, np.nanmax( VList[:,:,1] )] ) )
     return fig, axs
 
@@ -107,13 +107,13 @@ def plotVehiclePaths(fig, axs, swrm, xList, plotXf=True, color=None, zorder=z_sw
 
     return fig, axs, swrm
 
-def plotEnvironment(fig, axs, swrm, xList, VList=None, plotXf=True, zorder=z_swrm, color='cornflowerblue', linestyle='solid'):
+def plotEnvironment(fig, axs, swrm, xList, VList=None, plotXf=True, zorder=z_swrm, xcolor='cornflowerblue', vcolor='cornflowerblue', linestyle='solid', linewidth=2.0):
     # Plot results of simulation.
     fig, axs[0], swrm = plotVehiclePaths( fig, axs[0], swrm, xList,
-        plotXf=plotXf, color=color, zorder=zorder )
+        plotXf=plotXf, color=xcolor, zorder=zorder )
     if VList is not None:
         fig, axs[1] = plotLyapunovTrend( fig, axs[1], VList,
-            color=color, linestyle=linestyle )
+            color=vcolor, linestyle=linestyle, linewidth=linewidth )
 
     # Return updated figure.
     return fig, axs

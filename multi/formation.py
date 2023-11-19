@@ -83,7 +83,7 @@ if __name__ == '__main__':
                 break
 
         plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList[i], VList[i],
-            plotXf=True, color=vcolor[i], linestyle=vlinestyle[i] )
+            plotXf=True, vcolor=vcolor[i], linestyle=vlinestyle[i] )
         # plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList[i],
         #     plotXf=True, zorder=z_swrm-100 )
 

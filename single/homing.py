@@ -29,15 +29,11 @@ if __name__ == '__main__':
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Set parameters.
-    epsList = [0.0, 5.0, 10.0]
-    vcolor = ['mediumpurple', 'cornflowerblue', 'mediumseagreen']
-    vlinestyle = ['solid', '--', ':']
+    epsList = [0.0, 5.0, 10.0];  Ne = len( epsList )
+    vcolor = ['mediumseagreen', 'mediumpurple', 'cornflowerblue']
+    vlinestyle = Ne*['solid']
 
     # Initial vehicle positions.
-    Ne = len( epsList )
-    X0 = Abound/2*np.hstack(
-        [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
-        ) + noiseCirc( eps=delta, N=m )
     V0 = np.zeros( (2,1) )
 
     # Used for plotting without sim.
@@ -49,23 +45,28 @@ if __name__ == '__main__':
     fig, axs = plt.subplots( 1,Ne+1 )
 
     # Simulation block.
+    X0 = [None for i in range( Ne )]
     xswrm = [None for i in range( Ne )]
     yswrm = [None for i in range( Ne )]
     cand = [None for i in range( Ne )]
     for i in range( Ne ):
+        X0[i] = Abound/2*np.hstack(
+            [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
+            ) + noiseCirc( eps=delta, N=m )
+
         _, _, xswrm[i], _, _ = initEnvironment(
-            fig, [axs[i], axs[-1]], X0, Xeq, Aset, V0, Nt=Nt)
-        yswrm[i] = Swarm2D( X0, fig=fig, axs=axs[i], zorder=z_swrm-100,
+            fig, [axs[i], axs[-1]], X0[i], Xeq, Aset, V0, Nt=Nt)
+        yswrm[i] = Swarm2D( X0[i], fig=fig, axs=axs[i],
             radius=-0.30, color='yellowgreen', tail_length=Nt,
             draw_tail=sim ).setLineStyle( '--' ).draw()
 
     # Simulation block.
     for i, eps in enumerate( epsList ):
-        X = X0;  Y = X0
-        V0 = lyapunovCandidatePerVehicle( m, 0, X0, Xeq )
+        X = X0[i];  Y = X0[i]
+        V0 = lyapunovCandidatePerVehicle( m, 0, X0[i], Xeq )
 
-        xList[:,0,:] = X0.T
-        yList[:,0,:] = X0.T
+        xList[:,0,:] = X.T
+        yList[:,0,:] = Y.T
         VList[:,0,:] = V0.T
         for t in range( Nt-1 ):
             # Anchor-based control.
@@ -83,9 +84,9 @@ if __name__ == '__main__':
             VList[:,t+1,:] = V.T
 
         plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList, VList,
-            plotXf=False, color=vcolor[i], linestyle=vlinestyle[i] )
+            plotXf=False, vcolor=vcolor[i], linestyle=vlinestyle[i], linewidth=1.5 )
         plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList,
-            plotXf=False, zorder=z_swrm-100 )
+            plotXf=False, xcolor='yellowgreen', zorder=z_swrm-100 )
 
     # Plot and axis labels.
     titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Lyapunov Trend']
@@ -102,9 +103,9 @@ if __name__ == '__main__':
             label='$X^{(0)}$'),
         Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
             label='$\\mathcal{A}$' ),
-        Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
+        Line2D([0], [0], color='cornflowerblue', markerfacecolor='none',
             label='$X$'),
-        Line2D([0], [0], color='yellowgreen', linewidth=1, marker='o', markerfacecolor='none',
+        Line2D([0], [0], color='yellowgreen',
             label='$K(h(x) - b)$'),
     ]
     # axs[0].axis( Abound*np.array( [-1, 1, -1.1, 1.2] ) )
