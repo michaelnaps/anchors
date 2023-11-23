@@ -101,9 +101,8 @@ def plotVehiclePaths(fig, axs, swrm, xList, plotXf=True, color=None, zorder=z_sw
         for X in xList:
             axs.plot( X.T[0], X.T[1], color=color, zorder=zorder )
             if plotXf:
-                axs.plot( X.T[0][-1], X.T[1][-1],
-                    color=color, zorder=zorder,
-                    marker='o', markersize=7.5,
+                axs.plot( X.T[0][-1], X.T[1][-1], color=color,
+                    zorder=zorder, marker='o', markersize=7.5,
                     markeredgewidth=1.75, markerfacecolor='none' )
 
     return fig, axs, swrm
