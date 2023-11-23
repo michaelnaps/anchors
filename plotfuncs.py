@@ -97,13 +97,13 @@ def plotVehiclePaths(fig, axs, swrm, xList, plotXf=True, color=None, zorder=z_sw
         color = swrm.color
 
     if not sim:
-        if plotXf:
-            hdim = len( xList.shape )
-            swrm.update( xList[:,-1] if hdim == 2 else xList[:,-1].T )
-        else:
-            swrm.remove()
+        swrm.remove()
         for X in xList:
             axs.plot( X.T[0], X.T[1], color=color, zorder=zorder )
+            axs.plot( X.T[0][-1], X.T[1][-1],
+                color=color, zorder=zorder,
+                marker='o', markersize=7.5,
+                markeredgewidth=1.75, markerfacecolor='none' )
 
     return fig, axs, swrm
 

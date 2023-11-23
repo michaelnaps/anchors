@@ -137,6 +137,6 @@ if __name__ == '__main__':
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        filename = 'multi/herd.png'
+        filename = 'multi/herd.pdf'
         fig.savefig( figurepath + filename, dpi=600 )
         print( 'Figure saved to:\n ' + figurepath + filename )

@@ -92,6 +92,6 @@ if __name__ == '__main__':
 
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        filename = 'multi/rotation.png'
+        filename = 'multi/rotation.pdf'
         fig.savefig( figurepath + filename, dpi=600 )
         print( 'Figure saved to:\n ' + figurepath + filename )
