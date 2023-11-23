@@ -20,7 +20,7 @@ Aset = Abound/2*np.array( [
 Xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
 
 # Control formula components.
-C, K, B = distanceBasedControlMatrices( rotz( np.pi/4 )@Aset, m )
+C, K, B = distanceBasedControlMatrices( Aset, m )
 
 # Main execution block.
 if __name__ == '__main__':
@@ -57,7 +57,8 @@ if __name__ == '__main__':
         Y0[i] = distanceBasedControl( X0[i], Xeq, C, K, B, A=Aset, eps=eps )[1]
 
         _, _, xswrm[i], _, _ = initEnvironment(
-            fig, [axs[i], axs[-1]], X0[i], Xeq, Aset, V0, Nt=Nt)
+            fig, [axs[i], axs[1]], X0[i], Xeq, Aset, V0, Nt=Nt )
+        plotAnchors( fig, axs[0], rotz( np.pi/4 )@Aset, color='orange' )
         # yswrm[i] = Swarm2D( X0[i], fig=fig, axs=axs[i],
         #     radius=-0.30, color='yellowgreen', tail_length=Nt,
         #     draw_tail=sim ).setLineStyle( '--' ).draw()
@@ -72,7 +73,7 @@ if __name__ == '__main__':
         VList[:,0,:] = V0.T
         for t in range( Nt-1 ):
             # Anchor-based control.
-            U, Y = distanceBasedControl( X, Xeq, C, K, B, A=Aset, eps=eps )
+            U, Y = distanceBasedControl( X, Xeq, C, K, B, A=rotz( np.pi/4 )@Aset, eps=eps )
 
             # Apply dynamics.
             X = model( X, U )
@@ -106,9 +107,11 @@ if __name__ == '__main__':
         Line2D([0], [0], color='cornflowerblue', markerfacecolor='none',
             label='$X$'),
         Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
-            label='$\\mathcal{A}$' )
+            label='$\\mathcal{A}$' ),
+        Line2D([0], [0], color='orange', linestyle='none', marker='o', markeredgecolor='k',
+            label='$R\\mathcal{A}$' ),
     ]
-    axs[1].legend( handles=legend_elements_1, fontsize=fontsize )
+    axs[1].legend( handles=legend_elements_1, fontsize=fontsize, ncol=1 )
 
     fig.set_figwidth( plt.rcParams.get('figure.figsize')[0] )
     fig.set_figheight( 3/4*figheight )

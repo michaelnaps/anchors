@@ -29,8 +29,8 @@ def initLyapunovTrend(fig, axs, V, Nt=1000, color='cornflowerblue'):
     return fig, axs, swrm
 
 def initEnvironment(fig, axs, X0, Xeq, Aset, V0, Nt=1000, radius=0.40, color=None, anchs=1, connect=0):
-    anchors = plotAnchors(fig, axs[0], Aset,
-        anchs=anchs, radius=radius, connect=connect)[-1]
+    anchors = plotAnchors( fig, axs[0], Aset,
+        anchs=anchs, radius=radius, connect=connect )[-1]
     fig, axs[0], swrm = initVehiclePaths( fig, axs[0], X0, Xeq, xcolor=color, Nt=Nt )
 
     if axs[1] is not None:
