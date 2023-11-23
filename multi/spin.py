@@ -24,16 +24,16 @@ C, K, B = distanceBasedControlMatrices( Aset, m )
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
-    T = 1.0;  Nt = round( T/dt ) + 1
+    T = 10.0;  Nt = round( T/dt ) + 1
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Set parameters.
-    rList = [np.array( Nx*[[0]] ), np.array( [[2*Abound],[-1/3*Abound]] )]
-    Nr = len( rList )
+    RList = [ rotz( np.pi ) ]
+    Nr = len( RList )
     colorList = ['cornflowerblue', 'yellowgreen']
 
     # Initial vehicle positions.
-    eps = 10.0
+    eps = 0.1
     X0 = Xeq + noiseCirc( eps=eps, N=m )
     V0 = np.zeros( (2,1) )
 
@@ -43,19 +43,19 @@ if __name__ == '__main__':
     VList = np.nan*np.ones( (Nr,1,Nt,2) )
 
     # Initialize simulation variables.
-    fig, axs = plt.subplots()
+    fig, axs = plt.subplots(1,2)
 
     # Simulation block.
     xswrm = [None for i in range( Nr )]
     yswrm = [None for i in range( Nr )]
     cand = [None for i in range( Nr )]
-    for i, r in enumerate( rList ):
-        X = X0 + r
+    for i, R in enumerate( RList ):
+        X = R@X0
         Y = distanceBasedControl( X, Xeq, C, K, B )[1]
         V = np.hstack( ([0], lyapunovCandidate( X, Xeq )[0]) )
 
         _, _, xswrm[i], _, _ = initEnvironment(
-            fig, [axs, None], X, Xeq, Aset, V0,
+            fig, axs, X, Xeq, Aset, V0,
             color=colorList[i], Nt=Nt, anchs=True )
         # yswrm[i] = Swarm2D( Y, fig=fig, axs=axs[i], zorder=z_swrm-100,
         #     radius=-0.30, color='yellowgreen', tail_length=Nt,
@@ -80,44 +80,44 @@ if __name__ == '__main__':
             VList[i,:,t+1] = np.hstack( ([t+1], V[0]) )
 
             # Check for convergence/divergence of Lyapunov candidate.
-            if V > 1e6:
+            if V > 250:
+                xList[i,:,-1] = X.T
                 print( 'Formation policy diverged.' )
                 break
 
-        plotEnvironment( fig, [axs, None], xswrm[i], xList[i], None,
+        plotEnvironment( fig, axs, xswrm[i], xList[i], VList[i],
             xcolor=colorList[i], plotXf=True )
         # plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList[i],
         #     plotXf=True, zorder=z_swrm-100 )
 
-    # Plot final anchor positions.
-    abar = centroid( Aset )
-    for xf in xList[:,:,-1]:
-        X = xf.T;  xbar = centroid( X )
-        Psi = rotation( Aset-abar, X-xbar )
-        psi = xbar - Psi@abar
-        plotAnchors( fig, axs, Psi@Aset + psi, anchs=False, zdelta=400 )
+    # # Plot final anchor positions.
+    # abar = centroid( Aset )
+    # for xf in xList[:,:,-1]:
+    #     X = xf.T;  xbar = centroid( X )
+    #     Psi = rotation( Aset-abar, X-xbar )
+    #     psi = xbar - Psi@abar
+    #     plotAnchors( fig, axs, Psi@Aset + psi, anchs=False, zdelta=400 )
 
 
     # Plot and axis labels.
-    axs.set_xlabel( 'x' )
-    axs.set_ylabel( 'y' )
+    titles = ['$\\theta = %s$' % th for th in ['\\pi/2']] + ['Formation Error']
+    xlabels = Nr*['x'] + ['Iteration']
+    ylabels = ['$y$'] + (Nr-1)*[None] + ['$W(X)$']
+    for a, title, xlabel, ylabel in zip( axs, titles, xlabels, ylabels ):
+        a.set_title( title )
+        a.set_xlabel( xlabel )
+        a.set_ylabel( ylabel )
 
     # Plot transformed grid for reference.
     legend_elements_1 = [
         Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='x',
-            label='$X_1^{(0)}$'),
-        Line2D([0], [0], color='yellowgreen', linestyle='none', marker='x',
-            label='$X_2^{(0)}$'),
+            label='$X^{(0)}$'),
+        Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
+            label='$X$'),
         Line2D([0], [0], color='indianred', linestyle='none', marker='o', markeredgecolor='k',
             label='$\\mathcal{A}, X^{\\textrm{(eq)}}$' ),
-        Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
-            label='$X_1$'),
-        Line2D([0], [0], color='yellowgreen', marker='o', markerfacecolor='none',
-            label='$X_2$'),
-        Line2D([0], [0], color='indianred', linestyle='none', marker='x',
-            label='$\\Psi X^{\\textrm{(eq)}} + \\psi$' )
     ]
-    axs.legend( handles=legend_elements_1, fontsize=fontsize-2, ncol=2, loc=1 )
+    axs[1].legend( handles=legend_elements_1, fontsize=fontsize-2, ncol=1, loc='upper left' )
 
     scale = 1
     fig.set_figwidth( scale*plt.rcParams.get('figure.figsize')[0] )
@@ -129,6 +129,6 @@ if __name__ == '__main__':
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        filename = 'multi/offset.pdf'
+        filename = 'multi/spin.pdf'
         fig.savefig( figurepath + filename, dpi=600 )
         print( 'Figure saved to:\n ' + figurepath + filename )
