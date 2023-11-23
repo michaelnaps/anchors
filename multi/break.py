@@ -80,7 +80,7 @@ if __name__ == '__main__':
             VList[i,:,t+1] = np.hstack( ([t+1], V[0]) )
 
             # Check for convergence/divergence of Lyapunov candidate.
-            if V > 250:
+            if V > 10000:
                 xList[i,:,-1] = X.T
                 print( 'Formation policy diverged.' )
                 break
@@ -129,6 +129,6 @@ if __name__ == '__main__':
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        filename = 'multi/spin.pdf'
+        filename = 'multi/break.pdf'
         fig.savefig( figurepath + filename, dpi=600 )
         print( 'Figure saved to:\n ' + figurepath + filename )
