@@ -29,7 +29,7 @@ if __name__ == '__main__':
     T = np.inf
 
     # Break count list.
-    Ni = 1
+    Ni = 100
     nList = np.zeros( (Nth,) )
 
     # Rotation loop.
