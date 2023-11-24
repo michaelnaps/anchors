@@ -7,7 +7,7 @@ from plotfuncs import *
 
 # Anchor/vehicle dimensions.
 n = 3
-m = 10
+m = 5
 
 # Anchor position definition.
 delta = 2.0
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     cand = [None for i in range( Ne )]
     for i, eps in enumerate( epsList ):
         X0[i] = Abound/2*np.hstack(
-            [rotz(k*2*np.pi/m)@[[1],[0]] for k in range( m )]
+            [rotz(k*2*np.pi/m)@[[0.25],[0]] for k in range( m )]
             ) + noiseCirc( eps=delta, N=m )
         Y0[i] = distanceBasedControl( X0[i], Xeq, C, K, B, A=Aset, eps=eps )[1]
 
@@ -86,7 +86,7 @@ if __name__ == '__main__':
             yList[:,t+1,:] = Y.T
             VList[:,t+1,:] = V.T
 
-            if np.linalg.norm( V ) > 250:
+            if np.linalg.norm( V ) > 150:
                 xList[:,-1,:] = X.T
                 print( 'Policy diverged.' )
                 break
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         #     plotXf=False, xcolor='yellowgreen', zorder=z_swrm-100 )
 
     # Plot and axis labels.
-    titles = ['$\\theta=3\\pi/4$', 'Lyapunov Trend']
+    titles = ['$R:\\theta=3\\pi/4$', 'Lyapunov Trend']
     xlabels = ['$x$', 'Iteration']
     ylabels = ['$y$', '$V(x)$']
     for a, title, xlabel, ylabel in zip( axs, titles, xlabels, ylabels ):
@@ -106,10 +106,10 @@ if __name__ == '__main__':
         a.set_ylabel( ylabel )
 
     # Plot transformed grid for reference.
-    legend_elements_1 = [
+    legend_elements = [
         Line2D([0], [0], color='cornflowerblue', linestyle='none', marker='x',
             label='$X^{(0)}$'),
-        Line2D([0], [0], color='cornflowerblue', markerfacecolor='none',
+        Line2D([0], [0], color='cornflowerblue', marker='o', markerfacecolor='none',
             label='$X$'),
         Line2D([0], [0], color='indianred', marker='x', linestyle='none',
             label='$X^{(\\text{eq})}$'),
@@ -118,7 +118,7 @@ if __name__ == '__main__':
         Line2D([0], [0], color='orange', linestyle='none', marker='o', markeredgecolor='k',
             label='$R\\mathcal{A}$' ),
     ]
-    axs[1].legend( handles=legend_elements_1, fontsize=fontsize, ncol=1, loc='lower right' )
+    axs[1].legend( handles=legend_elements, fontsize=fontsize-2, ncol=1, loc='upper left' )
 
     fig.set_figwidth( plt.rcParams.get('figure.figsize')[0] )
     fig.set_figheight( 3/4*figheight )
