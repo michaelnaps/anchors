@@ -17,7 +17,7 @@ def initVehiclePaths(fig, axs, X, Xeq=None, Nt=1000, xcolor='cornflowerblue', xe
     if Xeq is not None:
         axs.plot( Xeq[0], Xeq[1], color='indianred', zorder=2*z_swrm,
             linestyle='none', marker='x' )
-    axs.plot( X[0], X[1], color=xcolor, zorder=z_swrm/2,
+    axs.plot( X[0], X[1], color=xcolor, zorder=2*z_swrm,
         linestyle='none', marker='x' )
 
     return fig, axs, swrm

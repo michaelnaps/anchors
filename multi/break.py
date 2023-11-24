@@ -55,7 +55,7 @@ if __name__ == '__main__':
         V = np.hstack( ([0], lyapunovCandidate( X, Xeq )[0]) )
 
         _, _, xswrm[i], _, _ = initEnvironment(
-            fig, axs, X, Xeq, Aset, V0,
+            fig, axs, X, None, Aset, V0,
             color=colorList[i], Nt=Nt, anchs=True )
         # yswrm[i] = Swarm2D( Y, fig=fig, axs=axs[i], zorder=z_swrm-100,
         #     radius=-0.30, color='yellowgreen', tail_length=Nt,
@@ -80,7 +80,7 @@ if __name__ == '__main__':
             VList[i,:,t+1] = np.hstack( ([t+1], V[0]) )
 
             # Check for convergence/divergence of Lyapunov candidate.
-            if V > 10000:
+            if V > 250:
                 xList[i,:,-1] = X.T
                 print( 'Formation policy diverged.' )
                 break
@@ -100,7 +100,7 @@ if __name__ == '__main__':
 
 
     # Plot and axis labels.
-    titles = ['$\\theta = %s$' % th for th in ['\\pi/2']] + ['Formation Error']
+    titles = ['$R:\\theta = %s$' % th for th in ['\\pi']] + ['Formation Error']
     xlabels = Nr*['x'] + ['Iteration']
     ylabels = ['$y$'] + (Nr-1)*[None] + ['$W(X)$']
     for a, title, xlabel, ylabel in zip( axs, titles, xlabels, ylabels ):
