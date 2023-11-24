@@ -12,9 +12,8 @@ m = 10
 # Anchor position definition.
 delta = 2.0
 Aset = Abound/2*np.array( [
-    [0, -1, 1],
-    [1, -1, -1] ]
-) + noiseCirc( eps=delta, N=n )
+    [1, -1, 1],
+    [1, -1, -1] ] )
 
 # For consistency with notes and error calc.
 Xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
