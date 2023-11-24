@@ -10,12 +10,13 @@ z_anch = 50
 radius = 0.40
 
 # Plot initializations.
-def initVehiclePaths(fig, axs, X, Xeq, Nt=1000, xcolor='cornflowerblue', xeqcolor='indianred'):
+def initVehiclePaths(fig, axs, X, Xeq=None, Nt=1000, xcolor='cornflowerblue', xeqcolor='indianred'):
     swrm = Swarm2D( X, fig=fig, axs=axs, zorder=z_swrm,
         radius=-radius, color=xcolor, tail_length=Nt,
         draw_tail=sim ).draw()
-    axs.plot( Xeq[0], Xeq[1], color='indianred', zorder=int( z_swrm/2 ),
-        linestyle='none', marker='x' )
+    if Xeq is not None:
+        axs.plot( Xeq[0], Xeq[1], color='indianred', zorder=2*z_swrm,
+            linestyle='none', marker='x' )
     axs.plot( X[0], X[1], color=xcolor, zorder=z_swrm/2,
         linestyle='none', marker='x' )
 
