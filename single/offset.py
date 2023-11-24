@@ -98,5 +98,5 @@ if __name__ == '__main__':
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        fig.savefig( figurepath + 'single/offset_test.pdf', dpi=600 )
+        fig.savefig( figurepath + 'single/offset.pdf', dpi=600 )
         print( 'Figure saved.' )
