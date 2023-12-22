@@ -18,35 +18,50 @@ class Anchors:
         self.n, self.p = Aset.shape
         self.Aset = Aset
 
-    def anchorDifferenceMatrices(self, m=1):
-        # Difference coefficient matrix.
+    def linearDiff(self):
+        # Return linear difference matrix.
         A = -2*np.vstack( ( [
             [ap - aq for aq in self.Aset.T]
                 for ap in self.Aset.T ] ) )
+        return A
 
-        # Squared-difference matrix.
+    def squareDiff(self, m=1):
+        # Return squared-difference matrix.
         b = np.vstack( [
             [ap@ap[:,None] - aq@aq[:,None] for aq in self.Aset.T]
                 for ap in self.Aset.T ] )
         B = np.kron( b, np.ones( (1,m) ) )
+        return B
 
-        # Return matrices.
-        return A, B
 
 class DistanceCoupledFunctions( Anchors ):
-    def __init__(self, Aset, m=1):
+    def __init__(self, Aset, Xeq=None, m=1):
         # Initialize anchor set variable.
         self.anchors = Anchors( self, Aset )
 
-        # Calculate relevant DCF matrices.
-        self.A, self.B = self.anchors.anchorDifferenceMatrices()
-        self.C, self.K = self.distanceCoupledMatrices()
+        # Desired equilibrium positions.
+        self.Xeq = self.A[:,:m] if Xeq is None else Xeq
 
-    def distanceCoupledMatrices(self):
-        Z, _ = Regressor( self.A.T@self.A, np.eye( Nx,Nx ) ).dmd()
-        K = Z@self.A.T
+        # Calculate relevant DCF matrices.
+        self.A = self.anchors.linearDiff()
+        self.B = self.anchors.squareDiff( m=m )
+        self.K = self.resolutionMatrix()
+
+    def resolutionMatrix(self, A=None):
+        # Set linear difference matrix.
+        A = self.A if A is None else A
+        # Solve regression (via SVD) for (A^T A)^-1.
+        K = (Regressor( A.T@A, np.eye( Nx,Nx ) ).dmd()[0])@A
         return K
 
-    # def position(self, Dset=None):
-    #     if Dset is None:
-    #         # Calculate distances internally.
+    def position(self, Dset):
+        # Form squared distance stack.
+        H = self.distanceStack( Dset )
+        # Return distance-coupled position.
+        return self.K@(H - self.B)
+
+    def control(self, Dset, C):
+        # Get distance-coupled position.
+        Y = self.position( Dset )
+        # Return distance-coupled control.
+        return C@(Y - self.Xeq)

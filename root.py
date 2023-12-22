@@ -29,7 +29,7 @@ def model(X, U):
     return X + dt*U
 
 # Calculate anchor coefficient matrices.
-def distanceBasedControlMatrices( Aset, N ):
+def distanceBasedControlMatrices(Aset, N):
     A, B = anchorDifferenceMatrices(Aset, N=N)
     Z, _ = Regressor( A.T@A, np.eye( Nx,Nx ) ).dmd()
     K = Z@A.T
