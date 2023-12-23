@@ -3,7 +3,7 @@ from os.path import expanduser
 sys.path.insert(0, expanduser('~')+'/prog/anchors')
 
 from plotfuncs import *
-
+from DCF import *
 
 # Anchor/vehicle dimensions.
 n = 3
@@ -19,9 +19,6 @@ Aset = Abound/2*np.array( [
 # For consistency with notes and error calc.
 Xeq = np.array( [[0],[0]] )  # noiseCirc( eps=Abound/4, N=1 )
 
-# Control formula components.
-C, K, B = distanceBasedControlMatrices( Aset, m )
-
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
@@ -29,7 +26,7 @@ if __name__ == '__main__':
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Set parameters.
-    epsList = [0.0, 5.0, 10.0];  Ne = len( epsList )
+    epsList = [0.0, 1.0, 2.5];  Ne = len( epsList )
     vcolor = ['mediumseagreen', 'mediumpurple', 'cornflowerblue']
     vlinestyle = Ne*['solid']
 
@@ -62,6 +59,10 @@ if __name__ == '__main__':
 
     # Simulation block.
     for i, eps in enumerate( epsList ):
+        # Control formula components.
+        dcfvar = DistanceCoupledFunctions( Aset, Xeq=Xeq, m=m, eps=eps )
+
+        # Initial vehicle position sets.
         X = X0[i];  Y = X0[i]
         V0 = lyapunovCandidatePerVehicle( m, 0, X0[i], Xeq )
 
@@ -70,7 +71,10 @@ if __name__ == '__main__':
         VList[:,0,:] = V0.T
         for t in range( Nt-1 ):
             # Anchor-based control.
-            U, Y = distanceBasedControl( X, Xeq, C, K, B, A=Aset, eps=eps )
+            # U, Y = distanceBasedControl( X, Xeq, C, K, B, A=Aset, eps=eps )
+            Dset = dcfvar.distanceSet( X )
+            Y = dcfvar.position( Dset )
+            U = dcfvar.control( -C, Dset )
 
             # Apply dynamics.
             X = model( X, U )
