@@ -3,7 +3,7 @@ from os.path import expanduser
 sys.path.insert(0, expanduser('~')+'/prog/anchors')
 
 from plotfuncs import *
-from DCF import *
+from DCF.Anchors import *
 
 # Anchor/vehicle dimensions.
 n = 3
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     fig.set_figheight( figheight )
     fig.tight_layout()
     if show:
-        plt.show( block=0 )
+        plt.pause( 0.0 )
 
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
