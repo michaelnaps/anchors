@@ -74,7 +74,7 @@ if __name__ == '__main__':
             # U, Y = distanceBasedControl( X, Xeq, C, K, B, A=Aset, eps=eps )
             Dset = dcfvar.distanceSet( X )
             Y = dcfvar.position( Dset )
-            U = dcfvar.control( -C, Dset )
+            U = -C@(Y - Xeq)
 
             # Apply dynamics.
             X = model( X, U )
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     fig.set_figheight( figheight )
     fig.tight_layout()
     if show:
-        plt.pause( 0.0 )
+        plt.pause( 1e-6 )
 
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
