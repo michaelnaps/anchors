@@ -39,7 +39,10 @@ if __name__ == '__main__':
     VList = np.nan*np.ones( (m,Nt,2) )
 
     # Initialize simulation variables.
-    fig, axs = plt.subplots( 1,Ne+1 )
+    Ncol = 2
+    Nrow = round( (Ne + 1)/2 )
+    fig, axs = plt.subplots( Nrow,Ncol )
+    axs = np.ravel( axs )
 
     # Simulation block.
     X0 = [None for i in range( Ne )]
@@ -94,8 +97,8 @@ if __name__ == '__main__':
 
     # Plot and axis labels.
     titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Lyapunov Trend']
-    xlabels = [None, '$x$', None, 'Iteration']
-    ylabels = ['$y$', None, None, '$V(x)$']
+    xlabels = ['$x$', '$x$', '$x$', 'Iteration']
+    ylabels = ['$y$', '$y$', '$y$', '$V(x)$']
     for a, title, xlabel, ylabel in zip( axs, titles, xlabels, ylabels ):
         a.set_title( title )
         a.set_xlabel( xlabel )
@@ -113,7 +116,8 @@ if __name__ == '__main__':
             label='$K(h(x) - b)$'),
     ]
     # axs[0].axis( Abound*np.array( [-1, 1, -1.1, 1.2] ) )
-    axs[0].legend( handles=legend_elements_1, fontsize=fontsize-2, ncol=2, loc=1 )
+    axs[1].set_ylim( [-Abound, 1.25*Abound] )
+    axs[1].legend( handles=legend_elements_1, fontsize=fontsize-2, ncol=2, loc=1 )
 
     legend_elements_2 = [
         Line2D([0], [0], color=vcolor[i], linestyle=vlinestyle[i], linewidth=2,
@@ -121,8 +125,8 @@ if __name__ == '__main__':
     ]
     axs[-1].legend( handles=legend_elements_2, fontsize=fontsize-2, ncol=1 )
 
-    fig.set_figwidth( 2.5*plt.rcParams.get('figure.figsize')[0] )
-    fig.set_figheight( figheight )
+    # fig.set_figwidth( plt.rcParams.get('figure.figsize')[0] )
+    fig.set_figheight( 1.5*figheight )
     fig.tight_layout()
     if show:
         plt.pause( 1e-6 )
