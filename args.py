@@ -56,7 +56,7 @@ else:
 
 # Figure filepath.
 figurepath = expanduser('~') \
-    + subroot + '/anchors_paper/figures/'
+    + subroot + '/papers/anchors/figures/'
 
 # Plot font.
 default_cycler = cycler(
