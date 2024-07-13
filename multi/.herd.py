@@ -10,9 +10,6 @@ delta = 2.0
 Aset = Abound/3*np.array( [
     [-2, -1,  0,  1,  2,  0,  0,  0, -2, -1,  1,  2],
     [ 3,  2,  1,  2,  3,  0, -1, -2, -2, -2, -2, -2]] )
-    # ( [
-    # [-2, -1,  0,  0,  0,  1,  2,  1,  2,  3],
-    # [ 0,  0,  0,  1,  2,  3,  4,  0,  0,  0] ] )
 
 # Set dimensions
 n = Aset.shape[1]        # Number of anchors.
@@ -27,7 +24,7 @@ C, K, B = distanceBasedControlMatrices( Aset, m )
 # Main execution block.
 if __name__ == '__main__':
     # Time series variables.
-    T = 1.0;  Nt = round( T/dt ) + 1
+    T = 10.0;  Nt = round( T/dt ) + 1
     tList = np.array( [[i*dt for i in range( Nt )]] )
 
     # Set parameters.
@@ -67,7 +64,7 @@ if __name__ == '__main__':
         VList[i,:,0] = V.T
         for t in range( Nt-1 ):
             # Anchor-based control.
-            U, Y = distanceBasedControl( X, Xeq, C, K, B )
+            U, Y = distanceBasedControl( X, Xeq+1, C, K, B )
 
             # Apply dynamics.
             X = model( X, U )
@@ -80,13 +77,13 @@ if __name__ == '__main__':
             yList[i,:,t+1] = Y.T
             VList[i,:,t+1] = np.hstack( ([t+1], V[0]) )
 
-            # Check for convergence/divergence of Lyapunov candidate.
-            if V > 1e6:
-                print( 'Formation policy diverged.' )
-                break
+            # # Check for convergence/divergence of Lyapunov candidate.
+            # if V > 1e6:
+            #     print( 'Formation policy diverged.' )
+            #     break
 
         plotEnvironment( fig, [axs[i], axs[-1]], xswrm[i], xList[i], VList[i],
-            plotXf=True, vcolor=vcolor[i], linestyle=vlinestyle[i] )
+            plotXf=True, color=vcolor[i], linestyle=vlinestyle[i] )
         # plotEnvironment( fig, [axs[i], axs[-1]], yswrm[i], yList[i],
         #     plotXf=True, zorder=z_swrm-100 )
 
@@ -131,8 +128,8 @@ if __name__ == '__main__':
     axs[-1].legend( handles=legend_elements_2, fontsize=fontsize-2, ncol=1 )
 
     scale = 1
-    fig.set_figwidth( scale*plt.rcParams.get('figure.figsize')[0] )
-    fig.set_figheight( 0.8*scale*figheight )
+    fig.set_figwidth( 2*scale*plt.rcParams.get('figure.figsize')[0] )
+    fig.set_figheight( scale*figheight )
     fig.tight_layout()
     if show:
         plt.show( block=0 )
@@ -140,6 +137,6 @@ if __name__ == '__main__':
     # Calculate error after transformation.
     ans = input( 'Press ENTER to exit program... ' )
     if save or ans == 'save':
-        filename = 'multi/formation.pdf'
+        filename = 'multi/herd.pdf'
         fig.savefig( figurepath + filename, dpi=600 )
         print( 'Figure saved to:\n ' + figurepath + filename )
