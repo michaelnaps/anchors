@@ -98,8 +98,8 @@ if __name__ == '__main__':
 
     # Plot and axis labels.
     titles = ['$R:\\theta=3\\pi/4$', 'Lyapunov Trend']
-    xlabels = ['$x$', 'Iteration']
-    ylabels = ['$y$', '$V(x)$']
+    xlabels = ['x', 'Iteration']
+    ylabels = ['y', '$V(x)$']
     for a, title, xlabel, ylabel in zip( axs, titles, xlabels, ylabels ):
         a.set_title( title )
         a.set_xlabel( xlabel )

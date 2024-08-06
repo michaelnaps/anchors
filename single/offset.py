@@ -83,8 +83,8 @@ if __name__ == '__main__':
 
     # Axes labels.
     axs.set_title( 'Variations in $r$' )
-    axs.set_xlabel( '$x$' )
-    axs.set_ylabel( '$y$' )
+    axs.set_xlabel( 'x' )
+    axs.set_ylabel( 'y' )
     # axs[1].set_xlabel( 'Iteration' )
     # axs[1].set_ylabel( '$V(x)$' )
 

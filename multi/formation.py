@@ -102,7 +102,7 @@ if __name__ == '__main__':
     # Plot and axis labels.
     titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Formation Error']
     xlabels = Ne*['x'] + ['Iteration']
-    ylabels = ['$y$'] + (Ne-1)*[None] + ['$W(X)$']
+    ylabels = ['y'] + (Ne-1)*[None] + ['$W(X)$']
     for a, title, xlabel, ylabel in zip( axs, titles, xlabels, ylabels ):
         a.set_title( title )
         a.set_xlabel( xlabel )

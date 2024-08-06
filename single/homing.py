@@ -41,8 +41,8 @@ if __name__ == '__main__':
     # Initialize simulation variables.
     Ncol = 2
     Nrow = round( (Ne + 1)/2 )
-    fig, axs = plt.subplots( Nrow,Ncol )
-    axs = np.ravel( axs )
+    fig, axs = plt.subplots( 1,Nrow*Ncol )
+    # axs = np.ravel( axs )
 
     # Simulation block.
     X0 = [None for i in range( Ne )]
@@ -61,7 +61,7 @@ if __name__ == '__main__':
             draw_tail=sim ).setLineStyle( '--' ).draw()
 
     # Simulation block.
-    for i, eps in enumerate( epsList ):
+    for i, eps in zip( range( Ne )[::-1], epsList[::-1] ):
         # Control formula components.
         dcfvar = DistanceCoupledFunctions( Aset, Xeq=Xeq, m=m, eps=eps )
 
@@ -97,8 +97,8 @@ if __name__ == '__main__':
 
     # Plot and axis labels.
     titles = ['$\\varepsilon = %.1f$' % eps for eps in epsList] + ['Lyapunov Trend']
-    xlabels = ['$x$', '$x$', '$x$', 'Iteration']
-    ylabels = ['$y$', '$y$', '$y$', '$V(x)$']
+    xlabels = ['x', 'x', 'x', 'Iteration']
+    ylabels = ['y', None, None, '$V(x)$']
     for a, title, xlabel, ylabel in zip( axs, titles, xlabels, ylabels ):
         a.set_title( title )
         a.set_xlabel( xlabel )
@@ -115,9 +115,9 @@ if __name__ == '__main__':
         Line2D([0], [0], color='yellowgreen',
             label='$K(h(x) - b)$'),
     ]
-    # axs[0].axis( Abound*np.array( [-1, 1, -1.1, 1.2] ) )
-    axs[1].set_ylim( [-Abound, 1.25*Abound] )
-    axs[1].legend( handles=legend_elements_1, fontsize=fontsize-2, ncol=2, loc=1 )
+    axs[0].axis( Abound*np.array( [-1, 1, -1.1, 1.2] ) )
+    # axs[1].set_ylim( Abound*np.array( [-1, 1.25] ) )
+    axs[0].legend( handles=legend_elements_1, fontsize=fontsize-2, ncol=2, loc=1 )
 
     legend_elements_2 = [
         Line2D([0], [0], color=vcolor[i], linestyle=vlinestyle[i], linewidth=2,
@@ -125,8 +125,8 @@ if __name__ == '__main__':
     ]
     axs[-1].legend( handles=legend_elements_2, fontsize=fontsize-2, ncol=1 )
 
-    # fig.set_figwidth( plt.rcParams.get('figure.figsize')[0] )
-    fig.set_figheight( 1.5*figheight )
+    fig.set_figwidth( 2*plt.rcParams.get( 'figure.figsize' )[0] )
+    fig.set_figheight( 9/10*figheight )
     fig.tight_layout()
     if show:
         plt.pause( 1e-6 )
